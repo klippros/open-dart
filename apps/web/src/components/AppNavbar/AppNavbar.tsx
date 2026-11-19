@@ -1,6 +1,7 @@
 import { Button, HStack } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useAuth } from '../../hooks/authContext'
+import { isSignInEnabled } from '../../lib/klipprosHost'
 import { SignInDialog } from '../SignInDialog/SignInDialog'
 import { UserAccountMenu } from '../UserAccountMenu/UserAccountMenu'
 import { NAV_ITEMS } from './navItems'
@@ -22,7 +23,7 @@ export const AppNavbar = () => {
         <NavItem key={item.to} to={item.to} label={item.label} beta={item.beta} />
       ))}
       {user !== null && <UserAccountMenu />}
-      {isConfigured && user === null && (
+      {isSignInEnabled && isConfigured && user === null && (
         <Button
           size="sm"
           variant="ghost"

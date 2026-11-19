@@ -3,6 +3,7 @@ import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState } from 'react'
 import { useAuth } from '../../hooks/authContext'
+import { isSignInEnabled } from '../../lib/klipprosHost'
 import { toolbarControlSize } from '../../layout'
 import { createSettingsNavButton } from '../AppHeader/toolbarButtons'
 import { NavItem } from '../AppNavbar/NavItem'
@@ -91,7 +92,7 @@ export const MobileNavDrawer = ({
                 positioning={{ placement: 'bottom-start' }}
                 trigger={createSettingsNavButton()}
               />
-              {isConfigured && user === null && (
+              {isSignInEnabled && isConfigured && user === null && (
                 <Button
                   variant="cta"
                   onClick={() => {

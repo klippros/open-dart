@@ -2,6 +2,7 @@ import { Button, Dialog, Stack } from '@chakra-ui/react'
 import { useState } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { useAuth } from '../../hooks/authContext'
+import { isSignInEnabled } from '../../lib/klipprosHost'
 import type { GameSession } from '@open-darts/game/types/gameSession'
 import { getMatchSummary } from '../../lib/history/sessionSummary'
 import { darkDialogContentProps } from '../darkDialogContentProps'
@@ -25,7 +26,7 @@ export const MatchSummaryDialog = ({
   const { user, isConfigured } = useAuth()
   const [signInDialogOpen, setSignInDialogOpen] = useState(false)
   const summary = getMatchSummary(session)
-  const showSignIn = isConfigured && user === null
+  const showSignIn = isSignInEnabled && isConfigured && user === null
 
   return (
     <Dialog.Root
