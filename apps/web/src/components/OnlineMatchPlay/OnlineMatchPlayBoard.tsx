@@ -24,7 +24,7 @@ import {
   getGameModePickerTargets,
 } from '../../lib/game/getGameModePickerTargets'
 import { resolveVisitEntryMode } from '../../lib/game/resolveVisitEntryMode'
-import { mainContentMaxWidth } from '../../layout'
+import { mainContentMaxWidth, visitHistorySidebarBreakpoint } from '../../layout'
 import {
   dartsToPublicPayload,
   resolvePendingFinishPlayerId,
@@ -97,7 +97,13 @@ export const OnlineMatchPlayBoard = ({
   const { singleDartScoring } = useSettings()
   const setGameChrome = useSetGameChrome()
   const { flash: inputFlash, showFlash } = useInputFlash()
-  const isMobile = useBreakpointValue({ base: true, md: false }, { ssr: false }) ?? true
+  // Match the side-history breakpoint so stacked history covers every width
+  // where the sidebar columns are hidden (no md–lg dead zone).
+  const isMobile =
+    useBreakpointValue(
+      { base: true, [visitHistorySidebarBreakpoint]: false },
+      { ssr: false },
+    ) ?? true
   const [pendingDarts, setPendingDarts] = useState<DartThrow[]>([])
   const [visitEntryModeOverride, setVisitEntryModeOverride] = useState<VisitInputMode | null>(null)
   const [correctingVisitIndex, setCorrectingVisitIndex] = useState<number | null>(null)

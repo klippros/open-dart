@@ -13,6 +13,7 @@ import {
   getBullRunLiveStats,
 } from '@open-dart/analytics/bullRunVisitStats'
 import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
+import { requiredHitsToNumber } from '@open-dart/game/bigNumbers/bigNumbersRules'
 import type { ScoreboardPlayerEntry } from '@open-dart/game/game/GameEngine'
 import {
   countPlayerVisitsInLeg,
@@ -25,6 +26,7 @@ import {
 } from '@open-dart/game/game/challenge'
 import {
   isAroundTheClockConfig,
+  isBigNumbersConfig,
   isNinetyNineDartsConfig,
   isOneTwentyOneConfig,
   isX01Config,
@@ -179,13 +181,18 @@ export const ScoreboardCenter = ({
       })
     }
 
-    if (mode === GameModeId.BigNumbers) {
+    if (mode === GameModeId.BigNumbers && isBigNumbersConfig(mode, config)) {
+      const requiredHits = requiredHitsToNumber(config.requiredHits)
+
       return players.map((player) => {
         const liveStats = getBigNumbersLiveStats(visits, player.playerId)
 
         return {
           ...player,
-          secondaryMetrics: buildBigNumbersScoreMetrics(liveStats),
+          secondaryMetrics: buildBigNumbersScoreMetrics({
+            requiredHits,
+            ...liveStats,
+          }),
         }
       })
     }

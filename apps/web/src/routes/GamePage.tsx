@@ -7,7 +7,7 @@ import { MobileVisitHistory } from '../components/Scoreboard/MobileVisitHistory'
 import { Scoreboard } from '../components/Scoreboard/Scoreboard'
 import { useGamePage } from '../hooks/useGamePage'
 import { showsVisitHistory } from '@open-dart/game/game/gameModeDefinitions'
-import { mainContentMaxWidth } from '../layout'
+import { mainContentMaxWidth, visitHistorySidebarBreakpoint } from '../layout'
 import { VisitInputMode } from '@open-dart/game/types/visit'
 import { GamePageDialogs } from './GamePageDialogs'
 
@@ -30,7 +30,13 @@ export const GamePage = () => {
     setVisitEntryMode,
     inputFlash,
   } = useGamePage()
-  const isMobile = useBreakpointValue({ base: true, md: false }, { ssr: false }) ?? true
+  // Match the side-history breakpoint so stacked history covers every width
+  // where the sidebar columns are hidden (no md–lg dead zone).
+  const isMobile =
+    useBreakpointValue(
+      { base: true, [visitHistorySidebarBreakpoint]: false },
+      { ssr: false },
+    ) ?? true
 
   const inputDisabled = controller.isComplete || loadState.kind === 'conflict'
 

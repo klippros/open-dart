@@ -1,6 +1,6 @@
 import { Box, Grid } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { gameMainMaxWidth } from '../layout'
+import { gameMainMaxWidth, visitHistorySidebarBreakpoint } from '../layout'
 import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
 import { isAroundTheClockConfig } from '@open-dart/game/game/gameConfigGuards'
 import type { GameConfig, GameModeId } from '@open-dart/game/types/gameMode'
@@ -36,9 +36,14 @@ export const GameBoardLayout = ({
     ? getAroundTheClockConfig(config)
     : null
 
+  const sideHistoryDisplay = {
+    base: 'none',
+    [visitHistorySidebarBreakpoint]: 'block',
+  } as const
+
   const renderHistoryColumn = (player: Player, align: 'left' | 'right') => (
     <Box
-      display={{ base: 'none', lg: 'block' }}
+      display={sideHistoryDisplay}
       minH={0}
       h="100%"
       overflowY="auto"
@@ -72,9 +77,11 @@ export const GameBoardLayout = ({
     <Grid
       templateColumns={{
         base: '1fr',
-        lg: showVisitHistory ? 'minmax(160px, 200px) minmax(0, 1fr) minmax(160px, 200px)' : '1fr',
+        [visitHistorySidebarBreakpoint]: showVisitHistory
+          ? 'minmax(160px, 200px) minmax(0, 1fr) minmax(160px, 200px)'
+          : '1fr',
       }}
-      gap={{ base: 6, lg: 6 }}
+      gap={6}
       alignItems="stretch"
       justifyContent="center"
       mx="auto"
@@ -99,7 +106,7 @@ export const GameBoardLayout = ({
 
       {showVisitHistory &&
         (rightPlayer === undefined ? (
-          <Box display={{ base: 'none', lg: 'block' }} aria-hidden="true" />
+          <Box display={sideHistoryDisplay} aria-hidden="true" />
         ) : (
           renderHistoryColumn(rightPlayer, 'right')
         ))}

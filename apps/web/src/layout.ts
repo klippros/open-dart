@@ -3,6 +3,12 @@ export const mainContentMaxWidth = '1200px' as const
 /** Width of the in-game scoreboard and dart picker column. */
 export const gameMainMaxWidth = '720px' as const
 
+/**
+ * Side visit-history columns appear at this breakpoint.
+ * Below it, use the stacked history under the scoreboard instead.
+ */
+export const visitHistorySidebarBreakpoint = 'lg' as const
+
 /** Shared size for toolbar icon buttons and matching controls. */
 export const toolbarControlSize = '44px' as const
 
