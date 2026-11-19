@@ -1,9 +1,17 @@
 import { GameModeId, GameStatus } from '../types/gameMode'
 import type { GameSession } from '../types/gameSession'
 import type { DartThrow } from '../types/dart'
+import { ChallengeLegStatus } from '../types/match'
+import { isCountingVisit } from '../types/visit'
 import type { Visit } from '../types/visit'
-import { countPlayerVisitsInLeg, isChallengeMode, isLegWithinVisitLimit } from './challenge'
-import { decrementLegLoss, decrementLegWin, revertLegLoss, revertLegWin } from './matchLegs'
+import { getCompletedChallengeLegOutcome, isChallengeMode } from './challenge'
+import {
+  decrementLegLoss,
+  decrementLegWin,
+  getVisitsForLeg,
+  revertLegLoss,
+  revertLegWin,
+} from './matchLegs'
 
 export const getPrimaryHumanPlayerId = (players: GameSession['players']): string | undefined =>
   players[0]?.id
@@ -34,17 +42,23 @@ const applyChallengeLegResultUndo = (
   }
 
   const removedLegIndex = removedVisit.legIndex ?? 1
-  const visitsUsed = countPlayerVisitsInLeg(
+  const outcome = getCompletedChallengeLegOutcome(
     visitsBeforeRemoval,
     removedLegIndex,
     removedVisit.playerId,
+    challenge,
   )
-  const legWasWin = removedVisit.checkout && isLegWithinVisitLimit(visitsUsed, challenge.maxVisits)
-  const legWasLoss = !legWasWin && (removedVisit.checkout || removedVisit.scoreAfter > 0)
+  const lastLegVisit = getVisitsForLeg(visitsBeforeRemoval, removedLegIndex)
+    .filter((visit) => visit.playerId === removedVisit.playerId && isCountingVisit(visit))
+    .at(-1)
+  const removedVisitEndedLeg =
+    outcome !== null && lastLegVisit?.visitIndex === removedVisit.visitIndex
 
-  if (!legWasWin && !legWasLoss) {
+  if (!removedVisitEndedLeg) {
     return matchProgress
   }
+
+  const legWasWin = outcome === ChallengeLegStatus.Won
 
   if (removedLegIndex < matchProgress.currentLeg) {
     return legWasWin

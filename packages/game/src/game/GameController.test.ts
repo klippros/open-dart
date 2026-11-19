@@ -356,6 +356,76 @@ describe('GameController challenge mode', () => {
     expect(controller.isComplete).toBe(true)
     expect(controller.session.matchProgress?.legWins[human.id]).toBe(2)
   })
+
+  const scoringVisit = [
+    numberDart(20, DartMultiplier.Single),
+    numberDart(20, DartMultiplier.Single),
+    numberDart(20, DartMultiplier.Single),
+  ]
+
+  const loseStopAtLimitLeg = (controller: ReturnType<typeof createGameController>) => {
+    let next = controller
+
+    for (let visit = 0; visit < 3; visit += 1) {
+      next = recordVisit(next, scoringVisit)
+    }
+
+    return next
+  }
+
+  const losePlayToCheckoutLeg = (controller: ReturnType<typeof createGameController>) =>
+    [180, 180, 100, 41].reduce((current, score) => current.recordVisitScore(score), controller)
+
+  it('completes a first-to-four 501 challenge after four stop-at-limit losses', () => {
+    const human = createSoloHumanPlayer()
+    let controller = createGameController({
+      mode: GameModeId.X01,
+      config: { startScore: 501, doubleIn: false, doubleOut: true },
+      players: [human],
+      matchFormat: {
+        legsToWin: 4,
+        startingPlayerIndex: 0,
+        challenge: createChallengeConfig(3, ChallengeLegEndMode.StopAtLimit, 501),
+      },
+    })
+
+    for (let leg = 0; leg < 3; leg += 1) {
+      controller = loseStopAtLimitLeg(controller)
+      expect(controller.isComplete).toBe(false)
+    }
+
+    controller = loseStopAtLimitLeg(controller)
+
+    expect(controller.isComplete).toBe(true)
+    expect(controller.session.status).toBe(GameStatus.Completed)
+    expect(controller.session.matchProgress?.legLosses).toBe(4)
+    expect(controller.session.matchProgress?.currentLeg).toBe(4)
+    expect(controller.session.matchProgress?.legWins[human.id]).toBe(0)
+  })
+
+  it('completes a first-to-four 501 challenge after four checkouts past the visit limit', () => {
+    const human = createSoloHumanPlayer()
+    let controller = createGameController({
+      mode: GameModeId.X01,
+      config: { startScore: 501, doubleIn: false, doubleOut: true },
+      players: [human],
+      matchFormat: {
+        legsToWin: 4,
+        startingPlayerIndex: 0,
+        challenge: createChallengeConfig(3, ChallengeLegEndMode.PlayToCheckout, 501),
+      },
+    })
+
+    for (let leg = 0; leg < 4; leg += 1) {
+      controller = losePlayToCheckoutLeg(controller)
+    }
+
+    expect(controller.isComplete).toBe(true)
+    expect(controller.session.status).toBe(GameStatus.Completed)
+    expect(controller.session.matchProgress?.legLosses).toBe(4)
+    expect(controller.session.matchProgress?.currentLeg).toBe(4)
+    expect(controller.session.matchProgress?.legWins[human.id]).toBe(0)
+  })
 })
 
 describe('GameController multi-leg checkout undo', () => {

@@ -96,6 +96,54 @@ describe('undoDartStrategy', () => {
     expect(undone.session.matchProgress?.currentLeg).toBe(1)
   })
 
+  it('keeps challenge losses when undoing a visit that did not finish the leg', () => {
+    const human = createSoloHumanPlayer()
+    const challenge = createChallengeConfig(3, ChallengeLegEndMode.StopAtLimit, 501)
+    const scoringVisit = [
+      numberDart(20, DartMultiplier.Single),
+      numberDart(20, DartMultiplier.Single),
+      numberDart(20, DartMultiplier.Single),
+    ]
+    const loseLeg = (current: ReturnType<typeof createGameController>) => {
+      let next = current
+
+      for (let visit = 0; visit < 3; visit += 1) {
+        next = recordVisit(next, scoringVisit)
+      }
+
+      return next
+    }
+    let controller = createGameController({
+      mode: GameModeId.X01,
+      config: { startScore: 501, doubleIn: false, doubleOut: true },
+      players: [human],
+      matchFormat: {
+        legsToWin: 4,
+        startingPlayerIndex: 0,
+        challenge,
+      },
+    })
+
+    controller = loseLeg(controller)
+    controller = recordVisit(controller, scoringVisit)
+
+    expect(controller.session.matchProgress?.legLosses).toBe(1)
+    expect(controller.session.matchProgress?.currentLeg).toBe(2)
+
+    controller = controller.undoDart()
+
+    expect(controller.session.matchProgress?.legLosses).toBe(1)
+    expect(controller.session.matchProgress?.currentLeg).toBe(2)
+
+    for (let leg = 0; leg < 3; leg += 1) {
+      controller = loseLeg(controller)
+    }
+
+    expect(controller.isComplete).toBe(true)
+    expect(controller.session.matchProgress?.legLosses).toBe(4)
+    expect(controller.session.matchProgress?.currentLeg).toBe(4)
+  })
+
   it('undoes an entire Bob 27 visit', () => {
     const human = createSoloHumanPlayer()
     let controller = createGameController({

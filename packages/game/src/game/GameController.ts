@@ -6,7 +6,12 @@ import type { Visit } from '../types/visit'
 import type { X01State } from '../types/x01'
 import { isValidVisitScore } from '../x01/x01Rules'
 import type { GameEngine, ScoreboardSnapshot } from './GameEngine'
-import { countPlayerVisitsInLeg, isChallengeMode, resolveChallengeLegOutcome } from './challenge'
+import {
+  countPlayerVisitsInLeg,
+  isChallengeMode,
+  resolveChallengeLegOutcome,
+  syncChallengeLegResults,
+} from './challenge'
 import { ChallengeLegStatus } from '../types/match'
 import {
   advanceToNextLeg,
@@ -285,11 +290,13 @@ export class GameController<State, Config> {
     matchProgress: NonNullable<GameSession['matchProgress']>
     engineState: State
   }): GameController<State, Config> {
-    if (isMatchComplete(matchProgress, this.session.players.length)) {
+    const syncedProgress = syncChallengeLegResults(matchProgress, this.activePlayerId, visits)
+
+    if (isMatchComplete(syncedProgress, this.session.players.length)) {
       const session: GameSession = {
         ...this.session,
         visits,
-        matchProgress,
+        matchProgress: syncedProgress,
         status: GameStatus.Completed,
         completedAt: new Date().toISOString(),
       }
@@ -300,7 +307,7 @@ export class GameController<State, Config> {
     return this.startNextLeg({
       ...this.session,
       visits,
-      matchProgress,
+      matchProgress: syncedProgress,
     })
   }
 
