@@ -1,4 +1,4 @@
-# Open Darts
+# Open Dart
 
 An open source darts scoring app that is easy to get started with.
 No login required, lives in the browsers local storage by default.
@@ -9,9 +9,9 @@ match Worker are configured, signed-in players can also play online.
 Pick from many fun game modes for practice and play, from classic
 501 to Bob's 27 and Around the Clock.
 
-Open Darts tracks every dart you throw so you can analyze your progress over time.
+Open Dart tracks every dart you throw so you can analyze your progress over time.
 
-**Live (coming soon):** [klippros.com/tools/open-darts](https://klippros.com/tools/open-darts)
+**Live:** [opendart.app](https://opendart.app)
 
 ## Development
 
@@ -44,4 +44,4 @@ secrets). Follow [optional backends](docs/self-hosting.md).
 
 ---
 
-© 2026 Klippros Studios AB · [GitHub](https://github.com/klippros/open-darts)
+© 2026 Klippros Studios AB · [GitHub](https://github.com/klippros/open-dart)

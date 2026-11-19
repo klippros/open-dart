@@ -1,6 +1,6 @@
 # Optional backends
 
-Open Darts works without Supabase or Cloudflare. Local games stay in the
+Open Dart works without Supabase or Cloudflare. Local games stay in the
 browser. Online matches are available only when **both** Supabase and the
 match Worker are configured.
 
@@ -59,7 +59,7 @@ allowlist so a game already open there can refresh its session.
 
 #### Email
 
-Enable the Email provider. Open Darts uses `signInWithOtp`, so users receive a
+Enable the Email provider. Open Dart uses `signInWithOtp`, so users receive a
 magic link and never create a password.
 
 #### Google

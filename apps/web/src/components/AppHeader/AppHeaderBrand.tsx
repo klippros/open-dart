@@ -1,6 +1,6 @@
 import { HStack, Link } from '@chakra-ui/react'
 import { Link as RouterLink } from 'react-router-dom'
-import openDartsLogo from '../../assets/open-darts-logo.svg'
+import openDartLogo from '../../assets/open-dart-logo.svg'
 import klipprosLogo from '../../assets/klippros-logo.svg'
 import { useGameChrome } from '../../hooks/gameChromeContext'
 import { toolbarControlSize } from '../../layout'
@@ -40,10 +40,10 @@ export const AppHeaderBrand = () => {
         />
       </Link>
       <Link asChild display="flex" alignItems="center" flexShrink={0} h={toolbarControlSize}>
-        <RouterLink to="/" aria-label="Open Darts home">
+        <RouterLink to="/" aria-label="Open Dart home">
           <img
-            src={openDartsLogo}
-            alt="Open Darts"
+            src={openDartLogo}
+            alt="Open Dart"
             style={{ height: toolbarControlSize, width: 'auto', display: 'block' }}
           />
         </RouterLink>
