@@ -144,6 +144,21 @@ export const getVisitHistoryEntryDisplay = (
     }
   }
 
+  if (mode === GameModeId.JdcChallenge) {
+    const targetLabel = readVisitTargetLabel(visit)
+    const isShanghai = visit.metadata?.isShanghai === true
+
+    return {
+      headline: String(visit.visitScore),
+      detail:
+        targetLabel === null
+          ? String(visit.scoreAfter)
+          : `${targetLabel}${isShanghai ? ' · SH' : ''} · ${visit.scoreAfter}`,
+      tone:
+        isShanghai || visit.checkout ? 'success' : visit.visitScore === 0 ? 'failed' : 'default',
+    }
+  }
+
   if (isTenUpOneDownMode(mode)) {
     if (visit.checkout) {
       return {

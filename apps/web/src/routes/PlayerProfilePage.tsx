@@ -24,10 +24,12 @@ import {
   buildAroundTheClockRows,
   buildBob27Rows,
   buildFiveOhOneRows,
+  buildJdcChallengeRows,
   buildNinetyNineRows,
   formatProfileWindowLabel,
   profileHasAnyStats,
 } from '../lib/profile/formatProfileStats'
+import { ProfileJdcChallengeBadge } from '../components/ProfileJdcChallengeBadge/ProfileJdcChallengeBadge'
 import {
   fetchPlayerProfileStats,
   isProfileUserId,
@@ -341,6 +343,18 @@ export const PlayerProfilePage = () => {
                   windowLabel={formatProfileWindowLabel(stats.aroundTheClock.window)}
                   rows={buildAroundTheClockRows(stats.aroundTheClock)}
                 />
+              ) : null}
+              {stats.jdcChallenge !== null ? (
+                <Stack gap={3}>
+                  {stats.jdcChallenge.badge !== null ? (
+                    <ProfileJdcChallengeBadge badge={stats.jdcChallenge.badge} />
+                  ) : null}
+                  <ProfileStatSection
+                    title="JDC Challenge"
+                    windowLabel={formatProfileWindowLabel(stats.jdcChallenge.window)}
+                    rows={buildJdcChallengeRows(stats.jdcChallenge)}
+                  />
+                </Stack>
               ) : null}
             </Stack>
           ) : !loadingStats && statsError === null ? (

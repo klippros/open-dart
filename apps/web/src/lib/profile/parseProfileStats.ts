@@ -3,9 +3,12 @@ import type {
   ProfileAroundTheClockStats,
   ProfileBob27Stats,
   ProfileFiveOhOneStats,
+  ProfileJdcChallengeBadge,
+  ProfileJdcChallengeStats,
   ProfileNinetyNineDartsStats,
   ProfileStatWindow,
 } from '@open-dart/analytics'
+import { JdcChallengeGrade } from '@open-dart/game/types/jdcChallenge'
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -101,6 +104,55 @@ const readAroundTheClock = (value: unknown): ProfileAroundTheClockStats | null =
   }
 }
 
+const isJdcGrade = (value: unknown): value is JdcChallengeGrade =>
+  typeof value === 'string' && (Object.values(JdcChallengeGrade) as string[]).includes(value)
+
+const readJdcGrade = (value: unknown): JdcChallengeGrade | null =>
+  isJdcGrade(value) ? value : null
+
+const readJdcBadge = (value: unknown): ProfileJdcChallengeBadge | null => {
+  if (!isRecord(value) || typeof value.isCurrentMonth !== 'boolean') {
+    return null
+  }
+
+  const score = readNumber(value.score)
+  const grade = readJdcGrade(value.grade)
+  const bestEverGrade = readJdcGrade(value.bestEverGrade)
+
+  if (score === null || grade === null || bestEverGrade === null) {
+    return null
+  }
+
+  return {
+    score,
+    grade,
+    isCurrentMonth: value.isCurrentMonth,
+    bestEverGrade,
+  }
+}
+
+const readJdcChallenge = (value: unknown): ProfileJdcChallengeStats | null => {
+  if (!isRecord(value) || typeof value.sessionsPlayed !== 'number') {
+    return null
+  }
+  const window = readWindow(value.window)
+  if (window === null) {
+    return null
+  }
+
+  const badge = value.badge === null || value.badge === undefined ? null : readJdcBadge(value.badge)
+
+  return {
+    window,
+    sessionsPlayed: value.sessionsPlayed,
+    avgFinalScore: readNumber(value.avgFinalScore),
+    bestFinalScore: readNumber(value.bestFinalScore),
+    avgShanghaisPerGame: readNumber(value.avgShanghaisPerGame),
+    bestShanghaisPerGame: readNumber(value.bestShanghaisPerGame),
+    badge,
+  }
+}
+
 export const parsePlayerProfileStats = (value: unknown): PlayerProfileStats | null => {
   if (!isRecord(value) || value.version !== 1 || typeof value.displayName !== 'string') {
     return null
@@ -113,5 +165,9 @@ export const parsePlayerProfileStats = (value: unknown): PlayerProfileStats | nu
     bob27: value.bob27 === null ? null : readBob27(value.bob27),
     ninetyNineDarts: value.ninetyNineDarts === null ? null : readNinetyNine(value.ninetyNineDarts),
     aroundTheClock: value.aroundTheClock === null ? null : readAroundTheClock(value.aroundTheClock),
+    jdcChallenge:
+      value.jdcChallenge === null || value.jdcChallenge === undefined
+        ? null
+        : readJdcChallenge(value.jdcChallenge),
   }
 }

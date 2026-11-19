@@ -13,7 +13,10 @@ const PRACTICE_MODES = [
   GameModeId.Bob27,
   GameModeId.NinetyNineDarts,
   GameModeId.AroundTheClock,
+  GameModeId.JdcChallenge,
 ] as const
+
+const FULL_HISTORY_PRACTICE_MODES = new Set<string>([GameModeId.JdcChallenge])
 
 const ACTIVE_DAYS_MS = 30 * 24 * 60 * 60 * 1000
 
@@ -210,15 +213,21 @@ Deno.serve(async (req: Request) => {
         continue
       }
 
+      const loadFullHistory = FULL_HISTORY_PRACTICE_MODES.has(mode)
       const windowStart = windowStartFromAnchor(latestAt)
-      const sessionsResult = await admin
+      let sessionsQuery = admin
         .from('game_sessions')
         .select('payload, completed_at')
         .eq('user_id', profileUserId)
         .eq('mode', mode)
         .eq('status', 'completed')
-        .gte('completed_at', windowStart)
-        .lte('completed_at', latestAt)
+        .order('completed_at', { ascending: false })
+
+      if (!loadFullHistory) {
+        sessionsQuery = sessionsQuery.gte('completed_at', windowStart).lte('completed_at', latestAt)
+      }
+
+      const sessionsResult = await sessionsQuery
 
       if (sessionsResult.error !== null) {
         return jsonResponse(500, { error: 'server_error' }, origin)

@@ -4,6 +4,7 @@ import { ClaimTheBoardDartPicker } from './ClaimTheBoardDartPicker'
 import { Bob27DartPicker } from './Bob27DartPicker'
 import { DartPicker } from './DartPicker'
 import { HunterDartPicker } from './HunterDartPicker/HunterDartPicker'
+import { JdcChallengeDartPicker } from './JdcChallengeDartPicker/JdcChallengeDartPicker'
 import { NinetyNineDartsDartPicker } from './NinetyNineDartsDartPicker/NinetyNineDartsDartPicker'
 import { ScoringInputCard } from './ScoringInputCard/ScoringInputCard'
 import { TenUpOneDownDartPicker } from './TenUpOneDownDartPicker'
@@ -28,6 +29,7 @@ export interface GameModeDartPickerProps {
   bob27TargetIndex?: number
   bigNumbersTargetIndex?: number
   hunterFieldNumber?: number
+  jdcChallengeVisitIndex?: number
   checkoutTarget?: number
   pendingDarts: DartThrow[]
   visitEntryMode: VisitInputMode
@@ -48,6 +50,7 @@ export const GameModeDartPicker = ({
   bob27TargetIndex,
   bigNumbersTargetIndex,
   hunterFieldNumber,
+  jdcChallengeVisitIndex,
   checkoutTarget,
   pendingDarts,
   visitEntryMode,
@@ -135,6 +138,19 @@ export const GameModeDartPicker = ({
     return (
       <NinetyNineDartsDartPicker
         target={{ kind: NinetyNineDartsTargetKind.Bull }}
+        pendingDarts={pendingDarts}
+        onDarts={onDarts}
+        onUndo={onUndo}
+        inputDisabled={inputDisabled}
+        undoDisabled={undoDisabled}
+      />
+    )
+  }
+
+  if (mode === GameModeId.JdcChallenge && jdcChallengeVisitIndex !== undefined) {
+    return (
+      <JdcChallengeDartPicker
+        visitIndex={jdcChallengeVisitIndex}
         pendingDarts={pendingDarts}
         onDarts={onDarts}
         onUndo={onUndo}

@@ -20,6 +20,7 @@ import {
   isBob27PracticeStats,
   isBullRunPracticeStats,
   isClaimTheBoardPracticeStats,
+  isJdcChallengePracticeStats,
   isNinetyNineDartsPracticeStats,
 } from '@open-dart/analytics/practiceStats'
 import { computeX01Stats, X01StatsFilterId } from '@open-dart/analytics/x01Stats'
@@ -31,6 +32,7 @@ import {
   BullRunPracticeCard,
   CheckoutPracticeCard,
   ClaimTheBoardPracticeCard,
+  JdcChallengePracticeCard,
   NinetyNineDartsPracticeCard,
 } from './PracticeStatCards'
 import { PracticeModeCard } from './PracticeModeCard'
@@ -263,6 +265,7 @@ export const PracticeSection = ({ checkout, other, onStatSelect }: PracticeSecti
   const ninetyNineDarts = other.filter(isNinetyNineDartsPracticeStats)
   const bullRun = other.find(isBullRunPracticeStats)
   const bigNumbers = other.filter(isBigNumbersPracticeStats)
+  const jdcChallenge = other.find(isJdcChallengePracticeStats)
 
   return (
     <Stack gap={4}>
@@ -284,6 +287,9 @@ export const PracticeSection = ({ checkout, other, onStatSelect }: PracticeSecti
         )}
         {bigNumbers.length > 0 && (
           <BigNumbersPracticeCard variants={bigNumbers} onStatSelect={onStatSelect} />
+        )}
+        {jdcChallenge !== undefined && (
+          <JdcChallengePracticeCard stats={jdcChallenge} onStatSelect={onStatSelect} />
         )}
       </Stack>
     </Stack>

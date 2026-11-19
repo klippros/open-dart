@@ -6,6 +6,7 @@ import { bullRunEngine } from '../bullRun/bullRunEngine'
 import { claimTheBoardEngine } from '../claimTheBoard/claimTheBoardEngine'
 import { bob27Engine } from '../bob27/bob27Engine'
 import { hunterEngine } from '../hunter/hunterEngine'
+import { jdcChallengeEngine } from '../jdcChallenge/jdcChallengeEngine'
 import { ninetyNineDartsEngine } from '../ninetyNineDarts/ninetyNineDartsEngine'
 import { oneTwentyOneEngine } from '../oneTwentyOne/oneTwentyOneEngine'
 import { tenUpOneDownEngine } from '../tenUpOneDown/tenUpOneDownEngine'
@@ -44,6 +45,9 @@ export const getEngine = (mode: GameModeId): GameEngine<unknown, GameConfig> => 
     case GameModeId.BigNumbers:
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- engine config matches session mode
       return bigNumbersEngine as GameEngine<unknown, GameConfig>
+    case GameModeId.JdcChallenge:
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- engine config matches session mode
+      return jdcChallengeEngine as GameEngine<unknown, GameConfig>
     default: {
       const exhaustive: never = mode
       throw new Error(`Unknown game mode: ${String(exhaustive)}`)

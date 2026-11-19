@@ -42,13 +42,7 @@ export const GameBoardLayout = ({
   } as const
 
   const renderHistoryColumn = (player: Player, align: 'left' | 'right') => (
-    <Box
-      display={sideHistoryDisplay}
-      minH={0}
-      h="100%"
-      overflowY="auto"
-      className="hide-scrollbar"
-    >
+    <Box display={sideHistoryDisplay} minH={0} h="100%" overflowY="auto" className="hide-scrollbar">
       {aroundTheClockConfig === null ? (
         <VisitHistoryColumn
           player={player}

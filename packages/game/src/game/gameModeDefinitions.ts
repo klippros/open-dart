@@ -11,6 +11,7 @@ import { DEFAULT_BIG_NUMBERS_CONFIG } from '../bigNumbers/bigNumbersConfig.ts'
 import { DEFAULT_BULL_RUN_CONFIG } from '../bullRun/bullRunConfig.ts'
 import { DEFAULT_CLAIM_THE_BOARD_CONFIG } from '../claimTheBoard/claimTheBoardConfig.ts'
 import { DEFAULT_HUNTER_CONFIG } from '../hunter/hunterConfig.ts'
+import { DEFAULT_JDC_CHALLENGE_CONFIG } from '../jdcChallenge/jdcChallengeConfig.ts'
 import { DEFAULT_ONE_TWENTY_ONE_CONFIG } from '../oneTwentyOne/oneTwentyOneConfig.ts'
 import { DEFAULT_NINETY_NINE_DARTS_CONFIG } from '../ninetyNineDarts/ninetyNineDartsConfig.ts'
 import { x01PresetConfigs, X01PresetId } from '../x01/x01Presets.ts'
@@ -94,6 +95,12 @@ export const gameModeDefinitions: Record<GameModeId, GameModeDefinition> = {
     label: 'Big Numbers',
     description: 'Hit 1–20; advance with enough hits or go back',
   },
+  [GameModeId.JdcChallenge]: {
+    mode: GameModeId.JdcChallenge,
+    defaultConfig: DEFAULT_JDC_CHALLENGE_CONFIG,
+    label: 'JDC Challenge',
+    description: 'Shanghai 10–15 · doubles · Shanghai 15–20',
+  },
 }
 
 export const getDefaultConfig = (mode: GameModeId): GameConfig =>
@@ -107,7 +114,8 @@ export const supportsScoreCaller = (mode: GameModeId): boolean =>
   mode !== GameModeId.NinetyNineDarts &&
   mode !== GameModeId.Hunter &&
   mode !== GameModeId.BullRun &&
-  mode !== GameModeId.BigNumbers
+  mode !== GameModeId.BigNumbers &&
+  mode !== GameModeId.JdcChallenge
 
 export const supportsVisitScoreInput = (mode: GameModeId): boolean =>
   mode === GameModeId.X01 || mode === GameModeId.OneTwentyOne || mode === GameModeId.TenUpOneDown

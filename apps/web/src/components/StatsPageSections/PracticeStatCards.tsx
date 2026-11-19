@@ -6,6 +6,7 @@ import type {
   BullRunPracticeStats,
   CheckoutPracticeStats,
   ClaimTheBoardPracticeStats,
+  JdcChallengePracticeStats,
   NinetyNineDartsPracticeStats,
 } from '@open-dart/analytics/computeAnalytics'
 import { getBigNumbersRequiredHitsLabel } from '@open-dart/game/bigNumbers/bigNumbersConfig'
@@ -601,3 +602,70 @@ export const BigNumbersPracticeCard = ({
     </PracticeModeCard>
   )
 }
+
+export const JdcChallengePracticeCard = ({
+  stats,
+  onStatSelect,
+}: {
+  stats: JdcChallengePracticeStats
+  onStatSelect: (selection: StatTimelineSelection) => void
+}) => (
+  <PracticeModeCard title={stats.label} trailing={<StatsCountLabel count={stats.gameCount} />}>
+    <SimpleGrid columns={{ base: 1, sm: 2 }} gap={3}>
+      <StatCard
+        label="Avg score"
+        value={formatAverage(stats.avgFinalScore)}
+        onClick={() => {
+          onStatSelect({
+            scope: { type: 'practice-jdc-challenge' },
+            metric: 'avgFinalScore',
+            metricLabel: 'Score',
+            scopeLabel: stats.label,
+          })
+        }}
+      />
+      {stats.bestFinalScore !== null && (
+        <StatCard
+          label="Best score"
+          value={formatInteger(stats.bestFinalScore)}
+          onClick={() => {
+            onStatSelect({
+              scope: { type: 'practice-jdc-challenge' },
+              metric: 'bestFinalScore',
+              metricLabel: 'Score',
+              scopeLabel: stats.label,
+            })
+          }}
+        />
+      )}
+      {stats.avgShanghaisPerGame !== null && (
+        <StatCard
+          label="Avg Shanghais"
+          value={formatAverage(stats.avgShanghaisPerGame)}
+          onClick={() => {
+            onStatSelect({
+              scope: { type: 'practice-jdc-challenge' },
+              metric: 'avgShanghaisPerGame',
+              metricLabel: 'Shanghais',
+              scopeLabel: stats.label,
+            })
+          }}
+        />
+      )}
+      {stats.bestShanghaisPerGame !== null && (
+        <StatCard
+          label="Best Shanghais"
+          value={formatInteger(stats.bestShanghaisPerGame)}
+          onClick={() => {
+            onStatSelect({
+              scope: { type: 'practice-jdc-challenge' },
+              metric: 'bestShanghaisPerGame',
+              metricLabel: 'Shanghais',
+              scopeLabel: stats.label,
+            })
+          }}
+        />
+      )}
+    </SimpleGrid>
+  </PracticeModeCard>
+)

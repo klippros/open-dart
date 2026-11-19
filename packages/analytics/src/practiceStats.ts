@@ -21,6 +21,7 @@ import {
   mergeBullRunOutcomeCounts,
   ratePerThreeDarts,
 } from './bullRunVisitStats.ts'
+import { computeJdcChallengeSingleSessionStats } from './jdcChallengeVisitStats.ts'
 import {
   computeNinetyNineDartsSingleSessionStats,
   getNinetyNineDartsHitRateFromCounts,
@@ -41,6 +42,7 @@ import { getLatestSessionStartedAt } from './pickLastPlayedVariant.ts'
 import {
   filterAroundTheClockSessions,
   filterBigNumbersSessions,
+  filterJdcChallengeSessions,
   filterNinetyNineDartsSessions,
 } from './sessionScope.ts'
 import {
@@ -143,6 +145,18 @@ export interface BigNumbersPracticeStats {
   lastPlayedAt: string
 }
 
+export interface JdcChallengePracticeStats {
+  mode: GameModeId.JdcChallenge
+  label: string
+  gameCount: number
+  completedCount: number
+  avgFinalScore: number | null
+  bestFinalScore: number | null
+  avgShanghaisPerGame: number | null
+  bestShanghaisPerGame: number | null
+  lastPlayedAt: string
+}
+
 export type OtherPracticeStats =
   | Bob27PracticeStats
   | ClaimTheBoardPracticeStats
@@ -150,6 +164,7 @@ export type OtherPracticeStats =
   | NinetyNineDartsPracticeStats
   | BullRunPracticeStats
   | BigNumbersPracticeStats
+  | JdcChallengePracticeStats
 
 export interface PracticeStats {
   checkout: CheckoutPracticeStats[]
@@ -457,6 +472,40 @@ const computeBigNumbersStatsForRequiredHits = (
   }
 }
 
+const computeJdcChallengeStats = (sessions: GameSession[]): JdcChallengePracticeStats | null => {
+  const modeSessions = filterJdcChallengeSessions(sessions)
+
+  if (modeSessions.length === 0) {
+    return null
+  }
+
+  const completedSessions = modeSessions.filter((session) => session.finishedEarly !== true)
+  const lastPlayedAt = getLatestSessionStartedAt(modeSessions)
+
+  if (lastPlayedAt === null) {
+    return null
+  }
+
+  const completedStats = completedSessions
+    .map((session) => computeJdcChallengeSingleSessionStats(session))
+    .filter((stats): stats is NonNullable<typeof stats> => stats !== null && stats.completed)
+
+  const scores = completedStats.map((stats) => stats.score)
+  const shanghais = completedStats.map((stats) => stats.shanghaisHit)
+
+  return {
+    mode: GameModeId.JdcChallenge,
+    label: gameModeDefinitions[GameModeId.JdcChallenge].label,
+    gameCount: modeSessions.length,
+    completedCount: completedSessions.length,
+    avgFinalScore: averageOrNull(scores),
+    bestFinalScore: scores.length === 0 ? null : Math.max(...scores),
+    avgShanghaisPerGame: averageOrNull(shanghais),
+    bestShanghaisPerGame: shanghais.length === 0 ? null : Math.max(...shanghais),
+    lastPlayedAt,
+  }
+}
+
 export const computePracticeStats = (sessions: GameSession[]): PracticeStats => ({
   checkout: CHECKOUT_PRACTICE_MODES.flatMap((mode) => {
     const stats = computeCheckoutPracticeStats(mode, sessions)
@@ -476,6 +525,7 @@ export const computePracticeStats = (sessions: GameSession[]): PracticeStats => 
     ...BIG_NUMBERS_REQUIRED_HITS.map((requiredHits) =>
       computeBigNumbersStatsForRequiredHits(sessions, requiredHits),
     ),
+    computeJdcChallengeStats(sessions),
   ].flatMap((stats) => (stats === null ? [] : [stats])),
 })
 
@@ -500,3 +550,7 @@ export const isBullRunPracticeStats = (stats: OtherPracticeStats): stats is Bull
 export const isBigNumbersPracticeStats = (
   stats: OtherPracticeStats,
 ): stats is BigNumbersPracticeStats => stats.mode === GameModeId.BigNumbers
+
+export const isJdcChallengePracticeStats = (
+  stats: OtherPracticeStats,
+): stats is JdcChallengePracticeStats => stats.mode === GameModeId.JdcChallenge

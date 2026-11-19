@@ -6,6 +6,7 @@ import type { BigNumbersConfig } from '../types/bigNumbers.ts'
 import type { BullRunConfig } from '../types/bullRun.ts'
 import type { ClaimTheBoardConfig } from '../types/claimTheBoard.ts'
 import type { HunterConfig } from '../types/hunter.ts'
+import type { JdcChallengeConfig } from '../types/jdcChallenge.ts'
 import type { NinetyNineDartsConfig } from '../types/ninetyNineDarts.ts'
 import type { OneTwentyOneConfig } from '../types/oneTwentyOne.ts'
 import type { TenUpOneDownConfig } from '../types/tenUpOneDown.ts'
@@ -49,6 +50,11 @@ export const isBigNumbersConfig = (
   mode: GameModeId,
   _config: GameConfig,
 ): _config is BigNumbersConfig => mode === GameModeId.BigNumbers
+
+export const isJdcChallengeConfig = (
+  mode: GameModeId,
+  _config: GameConfig,
+): _config is JdcChallengeConfig => mode === GameModeId.JdcChallenge
 
 export const toCheckoutSuggestionRules = (
   mode: GameModeId,

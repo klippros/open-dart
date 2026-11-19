@@ -10,6 +10,7 @@ import {
   getHunterAdvanceForDart,
   getHunterAimFieldNumberAfterDarts,
 } from '@open-dart/game/hunter/hunterRules'
+import { resolveJdcChallengeVisit } from '@open-dart/game/jdcChallenge/jdcChallengeRules'
 import { getNinetyNineDartsDartPoints } from '@open-dart/game/ninetyNineDarts/ninetyNineDartsRules'
 import { isOneTwentyOneRoundFailedVisit } from '@open-dart/game/oneTwentyOne/oneTwentyOneVisitMetadata'
 import { DartMultiplier } from '@open-dart/game/types/dart'
@@ -159,6 +160,19 @@ const sumNinetyNinePoints = (darts: DartThrow[], config: GameConfig): number => 
   return darts.reduce((total, dart) => total + getNinetyNineDartsDartPoints(dart, config.target), 0)
 }
 
+const jdcVisitScoreForDarts = (visitIndex: number, darts: DartThrow[]): number =>
+  resolveJdcChallengeVisit(0, 0, 0, 0, visitIndex, 0, 0, darts).visitScore
+
+const sumJdcPointsForAddedDarts = (
+  visitIndex: number,
+  pendingBefore: DartThrow[],
+  added: DartThrow[],
+): number => {
+  const beforeScore = jdcVisitScoreForDarts(visitIndex, pendingBefore)
+  const afterScore = jdcVisitScoreForDarts(visitIndex, [...pendingBefore, ...added])
+  return afterScore - beforeScore
+}
+
 const sumHunterAdvances = (
   darts: DartThrow[],
   committedFieldNumber: number | undefined,
@@ -202,6 +216,12 @@ const labelForAddedDarts = (
 
   if (mode === GameModeId.NinetyNineDarts) {
     return formatSignedDelta(sumNinetyNinePoints(darts, config))
+  }
+
+  if (mode === GameModeId.JdcChallenge) {
+    return formatSignedDelta(
+      sumJdcPointsForAddedDarts(before.visits.length, before.pendingDarts, darts),
+    )
   }
 
   if (mode === GameModeId.BullRun) {
@@ -259,6 +279,13 @@ const labelForRemovedDart = (
 ): string => {
   if (mode === GameModeId.NinetyNineDarts && isNinetyNineDartsConfig(mode, config)) {
     return formatSignedDelta(getNinetyNineDartsDartPoints(dart, config.target))
+  }
+
+  if (mode === GameModeId.JdcChallenge) {
+    const visitIndex = before.visits.length
+    const beforeScore = jdcVisitScoreForDarts(visitIndex, dartsBefore)
+    const afterScore = jdcVisitScoreForDarts(visitIndex, [...dartsBefore, dart])
+    return formatSignedDelta(afterScore - beforeScore)
   }
 
   if (mode === GameModeId.BullRun) {

@@ -7,6 +7,7 @@ import { Bob27SummaryPanel } from './Bob27SummaryPanel'
 import { BullRunSummaryPanel } from './BullRunSummaryPanel'
 import { ClaimTheBoardSummaryPanel } from './ClaimTheBoardSummaryPanel'
 import { HunterSummaryPanel } from './HunterSummaryPanel'
+import { JdcChallengeSummaryPanel } from './JdcChallengeSummaryPanel'
 import { MatchStatsPanel } from './MatchStatsPanel'
 import { NinetyNineDartsSummaryPanel } from './NinetyNineDartsSummaryPanel'
 import { OneTwentyOneSummaryPanel } from './OneTwentyOneSummaryPanel'
@@ -29,7 +30,8 @@ export const MatchSummaryBody = ({ session, initialLegNumber }: MatchSummaryBody
     session.mode !== GameModeId.TenUpOneDown &&
     session.mode !== GameModeId.NinetyNineDarts &&
     session.mode !== GameModeId.Hunter &&
-    session.mode !== GameModeId.BullRun
+    session.mode !== GameModeId.BullRun &&
+    session.mode !== GameModeId.JdcChallenge
 
   return (
     <Stack gap={5}>
@@ -54,6 +56,8 @@ export const MatchSummaryBody = ({ session, initialLegNumber }: MatchSummaryBody
       {session.mode === GameModeId.NinetyNineDarts && (
         <NinetyNineDartsSummaryPanel session={session} />
       )}
+
+      {session.mode === GameModeId.JdcChallenge && <JdcChallengeSummaryPanel session={session} />}
 
       {session.mode === GameModeId.OneTwentyOne && <OneTwentyOneSummaryPanel session={session} />}
 
