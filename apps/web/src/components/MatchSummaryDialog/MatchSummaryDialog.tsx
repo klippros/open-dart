@@ -4,7 +4,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import { useAuth } from '../../hooks/authContext'
 import { isSignInEnabled } from '../../lib/klipprosHost'
 import type { GameSession } from '@open-dart/game/types/gameSession'
-import { getMatchSummary } from '../../lib/history/sessionSummary'
+import { getMatchSummaryHeader } from '../../lib/history/sessionSummary'
 import { darkDialogContentProps } from '../darkDialogContentProps'
 import { SignInDialog } from '../SignInDialog/SignInDialog'
 import { MatchSummaryBody } from '../SessionSummary/MatchSummaryBody'
@@ -25,7 +25,7 @@ export const MatchSummaryDialog = ({
 }: MatchSummaryDialogProps) => {
   const { user, isConfigured } = useAuth()
   const [signInDialogOpen, setSignInDialogOpen] = useState(false)
-  const summary = getMatchSummary(session)
+  const header = getMatchSummaryHeader(session)
   const showSignIn = isSignInEnabled && isConfigured && user === null
 
   return (
@@ -47,8 +47,8 @@ export const MatchSummaryDialog = ({
           maxW={{ base: 'calc(100vw - 2rem)', sm: '28rem', md: '36rem', lg: '42rem' }}
         >
           <Dialog.Header>
-            <Dialog.Title color="white">
-              <MatchSummaryTitle title={summary.title} />
+            <Dialog.Title color="white" w="full">
+              <MatchSummaryTitle header={header} />
             </Dialog.Title>
           </Dialog.Header>
           <Dialog.Body>

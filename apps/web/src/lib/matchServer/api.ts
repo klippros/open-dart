@@ -415,6 +415,7 @@ const mapSummaryRow = (
     playerDisplayNames,
     opponentUserId: opponent.opponentUserId,
     opponentDisplayName: opponent.opponentDisplayName,
+    resultLabel: typeof row.result_label === 'string' ? row.result_label : null,
   }
 }
 
@@ -576,6 +577,7 @@ export const listMyOnlineMatchHistory = async (
       playerDisplayNames: summary.playerDisplayNames,
       opponentUserId: summary.opponentUserId,
       opponentDisplayName: summary.opponentDisplayName,
+      resultLabel: summary.resultLabel,
       scorecardVersion: 1,
       session: null,
     })

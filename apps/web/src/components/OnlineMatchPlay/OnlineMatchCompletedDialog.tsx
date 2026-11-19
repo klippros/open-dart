@@ -1,7 +1,7 @@
 import { Button, Dialog } from '@chakra-ui/react'
 import type { GameSession } from '@open-dart/game/types/gameSession'
 import { Link as RouterLink } from 'react-router-dom'
-import { getMatchSummary } from '../../lib/history/sessionSummary'
+import { getMatchSummaryHeader } from '../../lib/history/sessionSummary'
 import { darkDialogContentProps } from '../darkDialogContentProps'
 import { MatchSummaryBody } from '../SessionSummary/MatchSummaryBody'
 import { MatchSummaryTitle } from '../SessionSummary/MatchSummaryTitle'
@@ -16,7 +16,7 @@ export const OnlineMatchCompletedDialog = ({ open, session }: OnlineMatchComplet
     return null
   }
 
-  const summary = getMatchSummary(session)
+  const header = getMatchSummaryHeader(session)
 
   return (
     <Dialog.Root open placement="center" closeOnInteractOutside={false} closeOnEscape={false}>
@@ -32,8 +32,8 @@ export const OnlineMatchCompletedDialog = ({ open, session }: OnlineMatchComplet
           maxW={{ base: 'calc(100vw - 2rem)', sm: '28rem', md: '36rem' }}
         >
           <Dialog.Header>
-            <Dialog.Title color="white">
-              <MatchSummaryTitle title={summary.title} />
+            <Dialog.Title color="white" w="full">
+              <MatchSummaryTitle header={header} />
             </Dialog.Title>
           </Dialog.Header>
           <Dialog.Body>

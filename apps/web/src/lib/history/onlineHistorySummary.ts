@@ -10,6 +10,7 @@ import type { GameSession } from '@open-dart/game/types/gameSession'
 import type { OnlineMatchSummary } from '../matchServer/types'
 import { MatchEndingKind } from '../matchServer/types'
 import { formatSessionDate } from './sessionSummary'
+import type { MatchSummaryHeader } from './sessionSummary'
 
 export enum HistoryEntrySource {
   Local = 'local',
@@ -132,3 +133,9 @@ export const getOnlineMatchCompletedAt = (match: OnlineMatchSummary): string =>
 
 export const formatOnlineMatchDate = (match: OnlineMatchSummary): string =>
   formatSessionDate(getOnlineMatchCompletedAt(match))
+
+export const getOnlineMatchSummaryHeader = (match: OnlineMatchSummary): MatchSummaryHeader => ({
+  modeLabel: getOnlineMatchModeLabel(match),
+  completedAtLabel: formatOnlineMatchDate(match),
+  resultLabel: match.resultLabel,
+})

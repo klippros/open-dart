@@ -11,11 +11,7 @@ import { SignInDialog } from '../components/SignInDialog/SignInDialog'
 import { useAuth } from '../hooks/authContext'
 import { getSyncStatusLabel } from '../lib/auth/syncStatusLabel'
 import { isSignInEnabled } from '../lib/klipprosHost'
-import {
-  getOnlineMatchCompletedAt,
-  getOnlineMatchResultSummary,
-  HistoryEntrySource,
-} from '../lib/history/onlineHistorySummary'
+import { getOnlineMatchCompletedAt, HistoryEntrySource } from '../lib/history/onlineHistorySummary'
 import {
   HISTORY_PAGE_SIZE,
   loadedHistoryCoversPage,
@@ -37,10 +33,7 @@ export const HistoryPage = () => {
   const [signInDialogOpen, setSignInDialogOpen] = useState(false)
   const [resetDialogOpen, setResetDialogOpen] = useState(false)
   const [selectedSession, setSelectedSession] = useState<GameSession | null>(null)
-  const [selectedOnlineMatch, setSelectedOnlineMatch] = useState<{
-    match: OnlineMatchHistoryRow
-    resultSummary: string
-  } | null>(null)
+  const [selectedOnlineMatch, setSelectedOnlineMatch] = useState<OnlineMatchHistoryRow | null>(null)
   const [sessions, setSessions] = useState(() => sortSessionsByDate(loadStoredSessions()))
   const [onlineMatches, setOnlineMatches] = useState<OnlineMatchSummary[]>([])
   const [onlineHasMore, setOnlineHasMore] = useState(false)
@@ -112,7 +105,7 @@ export const HistoryPage = () => {
   }, [clearSyncedSessions])
 
   const handleSelectOnlineMatch = useCallback(
-    async (match: OnlineMatchSummary, resultSummary: string) => {
+    async (match: OnlineMatchSummary) => {
       if (user === null) {
         return
       }
@@ -137,15 +130,12 @@ export const HistoryPage = () => {
 
         setSelectedSession(null)
         setSelectedOnlineMatch({
-          match: detail ?? { ...match, scorecardVersion: 1, session: null },
-          resultSummary,
+          ...(detail ?? { ...match, scorecardVersion: 1, session: null }),
+          resultLabel: match.resultLabel,
         })
       } catch {
         setSelectedSession(null)
-        setSelectedOnlineMatch({
-          match: { ...match, scorecardVersion: 1, session: null },
-          resultSummary,
-        })
+        setSelectedOnlineMatch({ ...match, scorecardVersion: 1, session: null })
       }
     },
     [profile?.displayName, user],
@@ -167,26 +157,17 @@ export const HistoryPage = () => {
     [sessions],
   )
 
-  const onlineEntries = useMemo((): HistoryListEntry[] => {
-    if (user === null) {
-      return []
-    }
-
-    const viewerUserId = user.id
-
-    return onlineMatches.map((match) => {
-      const opponentName = resolveHumanPlayerName(match.opponentDisplayName)
-
-      return {
+  const onlineEntries = useMemo(
+    (): HistoryListEntry[] =>
+      onlineMatches.map((match) => ({
         source: HistoryEntrySource.Online as const,
         id: match.id,
         sortAt: getOnlineMatchCompletedAt(match),
         match,
-        resultSummary: getOnlineMatchResultSummary(match, viewerUserId, opponentName),
         canOpenDetail: true,
-      }
-    })
-  }, [onlineMatches, user])
+      })),
+    [onlineMatches],
+  )
 
   const page = useMemo(
     () => takeMergedHistoryPage(localEntries, onlineEntries, visibleCount),
@@ -375,8 +356,8 @@ export const HistoryPage = () => {
               void handleLoadMore()
             }}
             onSelectSession={handleSelectSession}
-            onSelectOnlineMatch={(match, resultSummary) => {
-              void handleSelectOnlineMatch(match, resultSummary)
+            onSelectOnlineMatch={(match) => {
+              void handleSelectOnlineMatch(match)
             }}
           />
         </Stack>
@@ -390,9 +371,7 @@ export const HistoryPage = () => {
       />
       <OnlineMatchSummaryDialog
         open={selectedOnlineMatch !== null}
-        match={selectedOnlineMatch?.match ?? null}
-        viewerUserId={user?.id ?? ''}
-        resultSummary={selectedOnlineMatch?.resultSummary ?? ''}
+        match={selectedOnlineMatch}
         onClose={() => {
           setSelectedOnlineMatch(null)
         }}

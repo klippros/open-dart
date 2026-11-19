@@ -7,7 +7,6 @@ import { Bob27SummaryPanel } from './Bob27SummaryPanel'
 import { BullRunSummaryPanel } from './BullRunSummaryPanel'
 import { ClaimTheBoardSummaryPanel } from './ClaimTheBoardSummaryPanel'
 import { HunterSummaryPanel } from './HunterSummaryPanel'
-import { MatchLegScore } from './MatchLegScore'
 import { MatchStatsPanel } from './MatchStatsPanel'
 import { NinetyNineDartsSummaryPanel } from './NinetyNineDartsSummaryPanel'
 import { OneTwentyOneSummaryPanel } from './OneTwentyOneSummaryPanel'
@@ -82,14 +81,11 @@ export const MatchSummaryBody = ({ session, initialLegNumber }: MatchSummaryBody
       )}
 
       {session.mode === GameModeId.X01 && (
-        <>
-          <MatchLegScore session={session} />
-          <MatchStatsPanel
-            key={`${session.id}:${initialLegNumber ?? 'match'}`}
-            session={session}
-            initialLegNumber={initialLegNumber}
-          />
-        </>
+        <MatchStatsPanel
+          key={`${session.id}:${initialLegNumber ?? 'match'}`}
+          session={session}
+          initialLegNumber={initialLegNumber}
+        />
       )}
     </Stack>
   )

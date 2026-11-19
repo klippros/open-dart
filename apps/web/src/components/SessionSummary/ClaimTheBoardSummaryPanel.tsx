@@ -19,7 +19,6 @@ import {
 import type { ClaimTheBoardPlayerVisitStats } from '@open-dart/analytics/claimTheBoardVisitStats'
 import { resolveInitialMatchStatsScope } from '@open-dart/analytics/x01LegSlices'
 import { StatsTable } from '../StatsTable/StatsTable'
-import { MatchLegScore } from './MatchLegScore'
 import { MatchStatsScopeSelector } from './MatchStatsScopeSelector'
 import type { MatchStatsScope } from './MatchStatsScopeSelector'
 
@@ -144,7 +143,6 @@ export const ClaimTheBoardSummaryPanel = ({
 
   return (
     <>
-      <MatchLegScore session={session} />
       <MatchStatsScopeSelector
         legNumbers={legNumbers}
         selectedScope={selectedScope}

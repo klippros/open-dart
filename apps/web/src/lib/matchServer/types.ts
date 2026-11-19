@@ -207,6 +207,7 @@ export interface OnlineMatchSummary {
   playerDisplayNames: string[]
   opponentUserId: string | null
   opponentDisplayName: string | null
+  resultLabel: string | null
 }
 
 export interface OnlineMatchHistoryRow extends OnlineMatchSummary {
