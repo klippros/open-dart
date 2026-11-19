@@ -150,7 +150,7 @@ pnpm exec wrangler deploy
 ```
 
 Put the deployed Worker origin in the web app build as `VITE_MATCH_SERVER_URL`
-(for example `https://open-darts-match-server.<account>.workers.dev`).
+(for example `https://open-dart-match-server.<account>.workers.dev`).
 
 Rebuild and redeploy the web app so the browser picks up the new URL.
 

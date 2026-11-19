@@ -1,6 +1,6 @@
 import { signHs256Jwt, verifyHs256Jwt } from './jwt'
 
-export const TICKET_ISSUER = 'open-darts-match-server'
+export const TICKET_ISSUER = 'open-dart-match-server'
 export const TICKET_AUDIENCE = 'match-ws'
 export const TICKET_TTL_SECONDS = 120
 
