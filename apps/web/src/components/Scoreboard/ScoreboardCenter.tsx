@@ -25,13 +25,11 @@ import {
 } from '@open-dart/game/game/challenge'
 import {
   isAroundTheClockConfig,
-  isBigNumbersConfig,
   isNinetyNineDartsConfig,
   isOneTwentyOneConfig,
   isX01Config,
   toCheckoutSuggestionRules,
 } from '@open-dart/game/game/gameConfigGuards'
-import { getBigNumbersRequiredHitsLabel } from '@open-dart/game/bigNumbers/bigNumbersConfig'
 import { getLegStartingPlayerIndex } from '@open-dart/game/game/matchLegs'
 import { GameModeId } from '@open-dart/game/types/gameMode'
 import type { MatchProgress } from '@open-dart/game/types/match'
@@ -181,18 +179,13 @@ export const ScoreboardCenter = ({
       })
     }
 
-    if (mode === GameModeId.BigNumbers && isBigNumbersConfig(mode, config)) {
-      const requiredHitsLabel = getBigNumbersRequiredHitsLabel(config.requiredHits)
-
+    if (mode === GameModeId.BigNumbers) {
       return players.map((player) => {
         const liveStats = getBigNumbersLiveStats(visits, player.playerId)
 
         return {
           ...player,
-          secondaryMetrics: buildBigNumbersScoreMetrics({
-            requiredHitsLabel,
-            ...liveStats,
-          }),
+          secondaryMetrics: buildBigNumbersScoreMetrics(liveStats),
         }
       })
     }

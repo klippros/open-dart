@@ -106,14 +106,14 @@ describe('bigNumbersEngine', () => {
     expect(bigNumbersEngine.isGameComplete(finish.state)).toBe(true)
   })
 
-  it('exposes the current number and required hits on the scoreboard', () => {
+  it('exposes progress as current number over 20 on the scoreboard', () => {
     const state = bigNumbersEngine.createInitialState([player], config)
     const scoreboard = bigNumbersEngine.getScoreboard(state, [player], player.id)
 
     expect(scoreboard.mode).toBe(GameModeId.BigNumbers)
     expect(scoreboard.players[0]).toMatchObject({
       primaryScore: 1,
-      secondaryLabel: 'Need 2 hits',
+      primaryDisplay: '1/20',
       isActive: true,
     })
   })

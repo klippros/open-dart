@@ -1,8 +1,9 @@
 import type { GameEngine, VisitResult } from '../game/GameEngine'
 import { GameModeId } from '../types/gameMode'
 import type { BigNumbersConfig, BigNumbersState } from '../types/bigNumbers'
-import { getBigNumbersConfig, getBigNumbersRequiredHitsLabel } from './bigNumbersConfig'
+import { getBigNumbersConfig } from './bigNumbersConfig'
 import {
+  BIG_NUMBERS_TARGET_COUNT,
   getBigNumbersTargetLabel,
   getBigNumbersTargetNumber,
   resolveBigNumbersVisit,
@@ -27,26 +28,24 @@ export const bigNumbersEngine: GameEngine<BigNumbersState, BigNumbersConfig> = {
     players: Object.fromEntries(players.map((player) => [player.id, { targetIndex: 0 }])),
   }),
 
-  getScoreboard: (state, players, activePlayerId) => {
-    const { requiredHits } = getBigNumbersConfig(state.config)
+  getScoreboard: (state, players, activePlayerId) => ({
+    mode: GameModeId.BigNumbers,
+    players: players.map((player) => {
+      const playerState = getPlayerState(state, player.id)
+      const progress =
+        playerState.targetIndex >= BIG_NUMBERS_TARGET_COUNT
+          ? BIG_NUMBERS_TARGET_COUNT
+          : getBigNumbersTargetNumber(playerState.targetIndex)
 
-    return {
-      mode: GameModeId.BigNumbers,
-      players: players.map((player) => {
-        const playerState = getPlayerState(state, player.id)
-        const targetNumber =
-          playerState.targetIndex >= 20 ? 21 : getBigNumbersTargetNumber(playerState.targetIndex)
-
-        return {
-          playerId: player.id,
-          name: player.name,
-          primaryScore: targetNumber,
-          secondaryLabel: `Need ${getBigNumbersRequiredHitsLabel(requiredHits)}`,
-          isActive: player.id === activePlayerId,
-        }
-      }),
-    }
-  },
+      return {
+        playerId: player.id,
+        name: player.name,
+        primaryScore: progress,
+        primaryDisplay: `${progress}/${BIG_NUMBERS_TARGET_COUNT}`,
+        isActive: player.id === activePlayerId,
+      }
+    }),
+  }),
 
   applyDart: (state, playerId, pendingDarts) => {
     const playerState = getPlayerState(state, playerId)
