@@ -1,10 +1,10 @@
-import { restoreGameController } from '@open-darts/game/game/createSession'
-import type { AppGameController } from '@open-darts/game/game/createSession'
-import { parseGameSession } from '@open-darts/game/game/serializeGame'
-import type { DartThrow } from '@open-darts/game/types/dart'
-import { PlayerKind } from '@open-darts/game/types/player'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { resolveHumanPlayerName } from '@open-darts/game/game/playerFactory'
+import { restoreGameController } from '@open-dart/game/game/createSession'
+import type { AppGameController } from '@open-dart/game/game/createSession'
+import { parseGameSession } from '@open-dart/game/game/serializeGame'
+import type { DartThrow } from '@open-dart/game/types/dart'
+import { PlayerKind } from '@open-dart/game/types/player'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { resolveHumanPlayerName } from '@open-dart/game/game/playerFactory'
 import { readOnlineMatchHistorySession } from '../history/onlineHistorySummary'
 import { toPublicDartThrow } from './toPublicDartThrow'
 import type { PublicDartThrow, PublicMatchState } from './types'
@@ -114,7 +114,7 @@ export const resolveCompletedOnlineSession = (
   )
 }
 
-export { resolvePendingFinishPlayerId } from '@open-darts/game/game/resolvePendingFinishPlayerId'
+export { resolvePendingFinishPlayerId } from '@open-dart/game/game/resolvePendingFinishPlayerId'
 
 export const dartsToPublicPayload = (darts: DartThrow[]): PublicDartThrow[] =>
   darts.map(toPublicDartThrow)

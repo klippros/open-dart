@@ -9,10 +9,10 @@ import {
   X01LegSection,
 } from '../components/StatsPageSections/StatsPageSections'
 import { TotalDartsHero } from '../components/StatsPageSections/TotalDartsHero'
-import { computeAnalytics } from '@open-darts/analytics/computeAnalytics'
+import { computeAnalytics } from '@open-dart/analytics/computeAnalytics'
 import { mergeSessionsForStats } from '../lib/analytics/mergeSessionsForStats'
-import type { DateRangePreset } from '@open-darts/analytics/sessionFilters'
-import { filterSessions } from '@open-darts/analytics/sessionFilters'
+import type { DateRangePreset } from '@open-dart/analytics/sessionFilters'
+import { filterSessions } from '@open-dart/analytics/sessionFilters'
 import { buildStatTimeline } from '../lib/analytics/statTimelines'
 import type {
   StatTimeline,
@@ -22,7 +22,7 @@ import type {
 import {
   getLegNumberFromTimelinePointId,
   getSessionIdFromTimelinePointId,
-} from '@open-darts/analytics/x01LegSlices'
+} from '@open-dart/analytics/x01LegSlices'
 import { getDateRangeCompletedAfter } from '../lib/history/historyPager'
 import { listMyOnlineMatchSessions } from '../lib/matchServer/api'
 import { isOnlineMatchesEnabled } from '../lib/matchServer/config'
@@ -30,7 +30,7 @@ import { decorateOnlineSessionForViewer } from '../lib/matchServer/onlinePlay'
 import { loadStoredSessions } from '../lib/storage/gameStore'
 import { useAuth } from '../hooks/authContext'
 import { AuthStatus, SyncStatus } from '../types/auth'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 
 const DATE_RANGE_OPTIONS: { value: DateRangePreset; label: string }[] = [
   { value: '30d', label: 'Last 30 days' },

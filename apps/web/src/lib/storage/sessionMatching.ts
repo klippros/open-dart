@@ -1,27 +1,27 @@
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { GameConfig } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import type { CreateSessionParams } from '@open-darts/game/game/createSession'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { GameConfig } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import type { CreateSessionParams } from '@open-dart/game/game/createSession'
 import {
   isBullRunConfig,
   isNinetyNineDartsConfig,
   isX01Config,
-} from '@open-darts/game/game/gameConfigGuards'
-import { getDefaultConfig } from '@open-darts/game/game/gameModeDefinitions'
-import { buildBullRunGamePath } from '@open-darts/game/bullRun/bullRunConfig'
-import { buildNinetyNineDartsGamePath } from '@open-darts/game/ninetyNineDarts/ninetyNineDartsConfig'
+} from '@open-dart/game/game/gameConfigGuards'
+import { getDefaultConfig } from '@open-dart/game/game/gameModeDefinitions'
+import { buildBullRunGamePath } from '@open-dart/game/bullRun/bullRunConfig'
+import { buildNinetyNineDartsGamePath } from '@open-dart/game/ninetyNineDarts/ninetyNineDartsConfig'
 import { buildPracticeGamePath, isPracticeGameMode } from '../game/gameRoute'
 import {
   appendOpponentSetupParams,
   getOpponentSetupFromSession,
   opponentSetupsMatch,
   playersMatchLaunchSetup,
-} from '@open-darts/game/game/opponentSetup'
+} from '@open-dart/game/game/opponentSetup'
 import {
   buildX01GameSearchParams,
   findX01PresetId,
   x01ConfigsMatch,
-} from '@open-darts/game/x01/x01Presets'
+} from '@open-dart/game/x01/x01Presets'
 
 export const configsMatch = (mode: GameModeId, left: GameConfig, right: GameConfig): boolean => {
   if (isX01Config(mode, left) && isX01Config(mode, right)) {

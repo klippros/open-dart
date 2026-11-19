@@ -14,16 +14,13 @@ import {
   formatTargetThreeDartAverage,
   getMaxVisits,
   getMinVisits,
-} from '@open-darts/game/game/challenge'
-import { appendOpponentSetupParams, parseOpponentSetup } from '@open-darts/game/game/opponentSetup'
-import type { OpponentMode, OpponentSetup } from '@open-darts/game/game/opponentSetup'
-import { STARTING_PLAYER_INDEX_RANDOM } from '@open-darts/game/game/matchLegs'
-import {
-  formatX01StartScore,
-  parseX01ConfigFromSearchParams,
-} from '@open-darts/game/x01/x01Presets'
-import { ChallengeLegEndMode } from '@open-darts/game/types/match'
-import { GameModeId } from '@open-darts/game/types/gameMode'
+} from '@open-dart/game/game/challenge'
+import { appendOpponentSetupParams, parseOpponentSetup } from '@open-dart/game/game/opponentSetup'
+import type { OpponentMode, OpponentSetup } from '@open-dart/game/game/opponentSetup'
+import { STARTING_PLAYER_INDEX_RANDOM } from '@open-dart/game/game/matchLegs'
+import { formatX01StartScore, parseX01ConfigFromSearchParams } from '@open-dart/game/x01/x01Presets'
+import { ChallengeLegEndMode } from '@open-dart/game/types/match'
+import { GameModeId } from '@open-dart/game/types/gameMode'
 import { useCreateOnlineMatch } from '../hooks/useCreateOnlineMatch'
 import { isOnlineMatchesEnabled } from '../lib/matchServer/config'
 import {

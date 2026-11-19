@@ -1,6 +1,6 @@
 import { Box, Flex } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { VisitInputMode } from '@open-darts/game/types/visit'
+import { VisitInputMode } from '@open-dart/game/types/visit'
 import { ScoringFolderTab } from './ScoringFolderTab'
 
 export interface ScoringInputCardProps {

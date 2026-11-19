@@ -1,8 +1,8 @@
 import { runDurableObjectAlarm, runInDurableObject } from 'cloudflare:test'
 import { env } from 'cloudflare:workers'
-import { DartMultiplier, DartSegmentType } from '@open-darts/game/types/dart'
-import { createDartThrow } from '@open-darts/game/dartScoring'
-import { GameModeId } from '@open-darts/game/types/gameMode'
+import { DartMultiplier, DartSegmentType } from '@open-dart/game/types/dart'
+import { createDartThrow } from '@open-dart/game/dartScoring'
+import { GameModeId } from '@open-dart/game/types/gameMode'
 import { describe, expect, it } from 'vitest'
 import type { MatchObject } from '../src/match/MatchObject'
 import {

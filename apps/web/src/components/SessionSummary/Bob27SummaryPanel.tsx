@@ -1,7 +1,7 @@
 import { SimpleGrid } from '@chakra-ui/react'
 import { formatAverage, formatInteger, formatPercent } from '../../lib/analytics/formatAnalytics'
-import { computeBob27SingleSessionStats } from '@open-darts/analytics/bob27VisitStats'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import { computeBob27SingleSessionStats } from '@open-dart/analytics/bob27VisitStats'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import { StatCard } from '../StatsPageSections/StatCard'
 
 export interface Bob27SummaryPanelProps {

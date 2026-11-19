@@ -1,7 +1,7 @@
 import { Navigate, useSearchParams } from 'react-router-dom'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { isOnlineMatchMode } from '@open-darts/game/game/onlineMatchSetup'
-import { buildX01PresetPath, X01PresetId } from '@open-darts/game/x01/x01Presets'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { isOnlineMatchMode } from '@open-dart/game/game/onlineMatchSetup'
+import { buildX01PresetPath, X01PresetId } from '@open-dart/game/x01/x01Presets'
 import { isOnlineMatchesEnabled } from '../lib/matchServer/config'
 import { buildOnlineSetupPath } from '../lib/matchServer/onlineSetup'
 

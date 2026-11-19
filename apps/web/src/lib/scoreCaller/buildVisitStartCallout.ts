@@ -1,6 +1,6 @@
-import type { AppGameController } from '@open-darts/game/game/createSession'
-import { toCheckoutSuggestionRules } from '@open-darts/game/game/gameConfigGuards'
-import { isCheckoutPossible } from '@open-darts/game/checkout/checkoutSuggestions'
+import type { AppGameController } from '@open-dart/game/game/createSession'
+import { toCheckoutSuggestionRules } from '@open-dart/game/game/gameConfigGuards'
+import { isCheckoutPossible } from '@open-dart/game/checkout/checkoutSuggestions'
 import { capitalizeCallout, numberToWords } from './numberToWords'
 
 export const buildVisitStartCallout = (controller: AppGameController): string | null => {

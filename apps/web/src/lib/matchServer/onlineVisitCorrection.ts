@@ -1,17 +1,17 @@
-import type { Visit } from '@open-darts/game/types/visit'
-import { VisitInputMode, isCountingVisit } from '@open-darts/game/types/visit'
-import { GameStatus } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import type { DartThrow } from '@open-darts/game/types/dart'
-import { restoreGameController } from '@open-darts/game/game/createSession'
-import type { AppGameController } from '@open-darts/game/game/createSession'
-import type { ScoreboardSnapshot } from '@open-darts/game/game/GameEngine'
+import type { Visit } from '@open-dart/game/types/visit'
+import { VisitInputMode, isCountingVisit } from '@open-dart/game/types/visit'
+import { GameStatus } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import type { DartThrow } from '@open-dart/game/types/dart'
+import { restoreGameController } from '@open-dart/game/game/createSession'
+import type { AppGameController } from '@open-dart/game/game/createSession'
+import type { ScoreboardSnapshot } from '@open-dart/game/game/GameEngine'
 import { MatchCommandName } from './types'
 import type { MatchCommand, PublicDartThrow } from './types'
 import { VoiceIntentKind } from '../voice/parseVoiceCommand'
 import type { VoiceIntent } from '../voice/parseVoiceCommand'
 
-export { supportsOnlineVisitCorrection } from '@open-darts/game/game/onlineMatchSetup'
+export { supportsOnlineVisitCorrection } from '@open-dart/game/game/onlineMatchSetup'
 
 export const getLastOwnCountingVisit = (visits: Visit[], playerId: string): Visit | undefined =>
   [...visits].reverse().find((visit) => isCountingVisit(visit) && visit.playerId === playerId)

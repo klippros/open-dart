@@ -1,5 +1,5 @@
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { VisitInputMode } from '@open-darts/game/types/visit'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { VisitInputMode } from '@open-dart/game/types/visit'
 
 /** Modes where browser speech recognition is reliable enough for scoring. */
 const ALWAYS_VOICE_INPUT_MODES = new Set<GameModeId>([

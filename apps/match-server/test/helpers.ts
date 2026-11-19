@@ -1,7 +1,7 @@
 import { runInDurableObject } from 'cloudflare:test'
 import { env } from 'cloudflare:workers'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { defaultX01Config } from '@open-darts/game/x01/x01Presets'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { defaultX01Config } from '@open-dart/game/x01/x01Presets'
 import { signHs256Jwt } from '../src/auth/jwt'
 import {
   ASYNC_DISCONNECT_MS,

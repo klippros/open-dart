@@ -1,4 +1,4 @@
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 
 /** Local sessions win on id collision so online never overwrites a local save. */
 export const mergeSessionsForStats = (

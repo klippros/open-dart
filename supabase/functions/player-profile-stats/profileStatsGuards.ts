@@ -1,5 +1,5 @@
-import { parseGameSession } from '@open-darts/game/game/serializeGame.ts'
-import type { GameSession } from '@open-darts/game/types/gameSession.ts'
+import { parseGameSession } from '@open-dart/game/game/serializeGame.ts'
+import type { GameSession } from '@open-dart/game/types/gameSession.ts'
 
 export const MAX_SESSION_BYTES = 524_288
 export const MAX_TOTAL_BYTES = 8_000_000

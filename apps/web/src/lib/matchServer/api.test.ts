@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
 import {
   buildInviteAbsoluteUrl,
   buildInvitePath,

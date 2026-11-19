@@ -6,13 +6,13 @@ import { SetupPageHeader } from '../components/SetupPageLayout/SetupPageHeader'
 import { SetupPageLayout } from '../components/SetupPageLayout/SetupPageLayout'
 import { SetupOptionCard } from '../components/SetupPageLayout/SetupOptionCard'
 import { SetupSection } from '../components/SetupPageLayout/SetupSection'
-import { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock'
-import type { AroundTheClockConfig } from '@open-darts/game/types/aroundTheClock'
+import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
+import type { AroundTheClockConfig } from '@open-dart/game/types/aroundTheClock'
 import {
   buildAroundTheClockGamePath,
   getAroundTheClockAimModeDescription,
   getAroundTheClockAimModeLabel,
-} from '@open-darts/game/aroundTheClock/aroundTheClockConfig'
+} from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
 
 const AIM_MODES = [
   AroundTheClockAimMode.Singles,

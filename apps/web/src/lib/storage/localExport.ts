@@ -1,5 +1,5 @@
-import type { ActiveGameSnapshot } from '@open-darts/game/types/activeGameSnapshot'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import type { ActiveGameSnapshot } from '@open-dart/game/types/activeGameSnapshot'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import type { AppSettings } from '../../types/settings'
 import {
   isActiveGameSnapshot,

@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { DartMultiplier } from '@open-darts/game/types/dart'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { PlayerKind } from '@open-darts/game/types/player'
-import type { Visit } from '@open-darts/game/types/visit'
-import { numberDart } from '@open-darts/game/testHelpers'
+import { DartMultiplier } from '@open-dart/game/types/dart'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { PlayerKind } from '@open-dart/game/types/player'
+import type { Visit } from '@open-dart/game/types/visit'
+import { numberDart } from '@open-dart/game/testHelpers'
 import {
   computeBob27SingleSessionStats,
   getBob27SessionDoublesHit,
   getBob27VisitHitCount,
   getBob27VisitHitRate,
-} from '@open-darts/analytics/bob27VisitStats'
+} from '@open-dart/analytics/bob27VisitStats'
 
 const visit = (overrides: Partial<Visit>): Visit => ({
   visitIndex: 0,

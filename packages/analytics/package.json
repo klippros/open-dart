@@ -1,5 +1,5 @@
 {
-  "name": "@open-darts/analytics",
+  "name": "@open-dart/analytics",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,7 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@open-darts/game": "workspace:*"
+    "@open-dart/game": "workspace:*"
   },
   "devDependencies": {
     "typescript": "~6.0.2",

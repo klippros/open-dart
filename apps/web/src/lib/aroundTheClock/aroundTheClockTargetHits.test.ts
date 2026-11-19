@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { DartMultiplier } from '@open-darts/game/types/dart'
-import { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock'
-import type { Visit } from '@open-darts/game/types/visit'
-import { aggregatePerTargetStats } from '@open-darts/analytics/aroundTheClockStats'
-import { bullDart, missDart, numberDart, outerBullDart } from '@open-darts/game/testHelpers'
+import { DartMultiplier } from '@open-dart/game/types/dart'
+import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
+import type { Visit } from '@open-dart/game/types/visit'
+import { aggregatePerTargetStats } from '@open-dart/analytics/aroundTheClockStats'
+import { bullDart, missDart, numberDart, outerBullDart } from '@open-dart/game/testHelpers'
 import {
   extractAroundTheClockTargetAttempts,
   getAroundTheClockCompletedTargets,
-} from '@open-darts/analytics/aroundTheClockTargetHits'
+} from '@open-dart/analytics/aroundTheClockTargetHits'
 
 const sampleVisit = (overrides: Partial<Visit> = {}): Visit => ({
   visitIndex: 0,

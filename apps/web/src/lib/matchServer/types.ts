@@ -1,5 +1,5 @@
-import type { GameConfig, GameModeId } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import type { GameConfig, GameModeId } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 
 export enum MatchStatus {
   Waiting = 'waiting',

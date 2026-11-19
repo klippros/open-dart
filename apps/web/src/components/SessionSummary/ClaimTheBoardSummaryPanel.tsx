@@ -1,23 +1,23 @@
 import { useMemo, useState } from 'react'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { getCountingVisits } from '@open-darts/game/types/visit'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { getCountingVisits } from '@open-dart/game/types/visit'
 import {
   getLegStartingPlayerIndex,
   getMatchWinnerId,
   getPlayedLegNumbers,
   getVisitsForLeg,
-} from '@open-darts/game/game/matchLegs'
-import { isClaimTheBoardConfig } from '@open-darts/game/game/gameConfigGuards'
-import { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock'
+} from '@open-dart/game/game/matchLegs'
+import { isClaimTheBoardConfig } from '@open-dart/game/game/gameConfigGuards'
+import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
 import { formatAverage, formatInteger } from '../../lib/analytics/formatAnalytics'
 import type { LegVisitTableRow } from '../../lib/analytics/legVisitRows'
 import {
   computeClaimTheBoardPlayerVisitStats,
   getClaimTheBoardScoreLeaderId,
-} from '@open-darts/analytics/claimTheBoardVisitStats'
-import type { ClaimTheBoardPlayerVisitStats } from '@open-darts/analytics/claimTheBoardVisitStats'
-import { resolveInitialMatchStatsScope } from '@open-darts/analytics/x01LegSlices'
+} from '@open-dart/analytics/claimTheBoardVisitStats'
+import type { ClaimTheBoardPlayerVisitStats } from '@open-dart/analytics/claimTheBoardVisitStats'
+import { resolveInitialMatchStatsScope } from '@open-dart/analytics/x01LegSlices'
 import { StatsTable } from '../StatsTable/StatsTable'
 import { MatchLegScore } from './MatchLegScore'
 import { MatchStatsScopeSelector } from './MatchStatsScopeSelector'

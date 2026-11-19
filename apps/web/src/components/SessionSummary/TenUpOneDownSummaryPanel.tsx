@@ -1,7 +1,7 @@
 import { SimpleGrid } from '@chakra-ui/react'
 import { formatCheckoutPercent, formatInteger } from '../../lib/analytics/formatAnalytics'
 import { computeTenUpOneDownSingleSessionStats } from '../../lib/tenUpOneDown/tenUpOneDownVisitStats'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import { StatCard } from '../StatsPageSections/StatCard'
 
 export interface TenUpOneDownSummaryPanelProps {

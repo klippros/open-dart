@@ -6,7 +6,7 @@ import type {
   CheckoutPracticeStats,
   ClaimTheBoardPracticeStats,
   NinetyNineDartsPracticeStats,
-} from '@open-darts/analytics/computeAnalytics'
+} from '@open-dart/analytics/computeAnalytics'
 import type { StatTimelineSelection } from '../../lib/analytics/statTimelines'
 import {
   formatAverage,
@@ -15,13 +15,13 @@ import {
   formatInteger,
   formatPercent,
 } from '../../lib/analytics/formatAnalytics'
-import { getAroundTheClockAimModeLabel } from '@open-darts/game/aroundTheClock/aroundTheClockConfig'
-import { gameModeDefinitions } from '@open-darts/game/game/gameModeDefinitions'
-import { GameModeId } from '@open-darts/game/types/gameMode'
+import { getAroundTheClockAimModeLabel } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
+import { gameModeDefinitions } from '@open-dart/game/game/gameModeDefinitions'
+import { GameModeId } from '@open-dart/game/types/gameMode'
 import {
   getNinetyNineDartsStatGroupLabel,
   NinetyNineDartsStatGroup,
-} from '@open-darts/analytics/ninetyNineVisitStats'
+} from '@open-dart/analytics/ninetyNineVisitStats'
 import { AroundTheClockHeatmap } from './AroundTheClockHeatmap/AroundTheClockHeatmap'
 import { PracticeModeCard } from './PracticeModeCard'
 import { StatCard } from './StatCard'

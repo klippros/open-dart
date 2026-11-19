@@ -1,20 +1,20 @@
-import type { DartThrow } from '@open-darts/game/types/dart'
-import { DartSegmentType } from '@open-darts/game/types/dart'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { HunterOutcome } from '@open-darts/game/types/hunter'
-import { isCountingVisit } from '@open-darts/game/types/visit'
-import type { Visit } from '@open-darts/game/types/visit'
+import type { DartThrow } from '@open-dart/game/types/dart'
+import { DartSegmentType } from '@open-dart/game/types/dart'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { HunterOutcome } from '@open-dart/game/types/hunter'
+import { isCountingVisit } from '@open-dart/game/types/visit'
+import type { Visit } from '@open-dart/game/types/visit'
 import {
   advanceHunterFieldIndex,
   getHunterFieldIndexForNumber,
   getHunterFieldNumber,
-} from '@open-darts/game/hunter/hunterClock'
+} from '@open-dart/game/hunter/hunterClock'
 import {
   getHunterAdvanceForDart,
   getHunterOutcome,
   isHunterTargetHit,
-} from '@open-darts/game/hunter/hunterRules'
+} from '@open-dart/game/hunter/hunterRules'
 
 export interface HunterPlayerLiveStats {
   hitRate: number | null

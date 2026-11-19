@@ -1,4 +1,4 @@
-import type { GameConfig } from '@open-darts/game/types/gameMode'
+import type { GameConfig } from '@open-dart/game/types/gameMode'
 import { supabaseClient } from '../supabase/client'
 import { OnlineMatchInviteOutcome, OnlineMatchInviteStatus } from './types'
 import type {

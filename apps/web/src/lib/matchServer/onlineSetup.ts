@@ -1,6 +1,6 @@
-import { STARTING_PLAYER_INDEX_RANDOM } from '@open-darts/game/game/matchLegs'
-import type { X01Config } from '@open-darts/game/types/x01'
-import { x01ConfigsMatch, x01PresetConfigs, X01PresetId } from '@open-darts/game/x01/x01Presets'
+import { STARTING_PLAYER_INDEX_RANDOM } from '@open-dart/game/game/matchLegs'
+import type { X01Config } from '@open-dart/game/types/x01'
+import { x01ConfigsMatch, x01PresetConfigs, X01PresetId } from '@open-dart/game/x01/x01Presets'
 import { MatchPlayerSlot } from './types'
 
 export const ONLINE_PLAY_QUERY_VALUE = 'online'
@@ -15,7 +15,7 @@ export const isOnlinePlaySelected = (params: URLSearchParams): boolean =>
   params.get(ONLINE_PLAY_QUERY_KEY) === ONLINE_PLAY_QUERY_VALUE
 
 export const buildOnlineSetupPath = (basePath: string): string => {
-  const url = new URL(basePath, 'https://open-darts.local')
+  const url = new URL(basePath, 'https://open-dart.local')
   url.searchParams.set(ONLINE_PLAY_QUERY_KEY, ONLINE_PLAY_QUERY_VALUE)
   return `${url.pathname}${url.search}`
 }

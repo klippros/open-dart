@@ -1,21 +1,21 @@
-import type { DartThrow } from '@open-darts/game/types/dart.ts'
-import { GameModeId } from '@open-darts/game/types/gameMode.ts'
-import type { GameSession } from '@open-darts/game/types/gameSession.ts'
+import type { DartThrow } from '@open-dart/game/types/dart.ts'
+import { GameModeId } from '@open-dart/game/types/gameMode.ts'
+import type { GameSession } from '@open-dart/game/types/gameSession.ts'
 import {
   NinetyNineDartsOutcome,
   NinetyNineDartsTargetKind,
-} from '@open-darts/game/types/ninetyNineDarts.ts'
-import type { NinetyNineDartsTarget } from '@open-darts/game/types/ninetyNineDarts.ts'
-import type { Visit } from '@open-darts/game/types/visit.ts'
-import { isNinetyNineDartsConfig } from '@open-darts/game/game/gameConfigGuards.ts'
-import { getNinetyNineDartsConfig } from '@open-darts/game/ninetyNineDarts/ninetyNineDartsConfig.ts'
+} from '@open-dart/game/types/ninetyNineDarts.ts'
+import type { NinetyNineDartsTarget } from '@open-dart/game/types/ninetyNineDarts.ts'
+import type { Visit } from '@open-dart/game/types/visit.ts'
+import { isNinetyNineDartsConfig } from '@open-dart/game/game/gameConfigGuards.ts'
+import { getNinetyNineDartsConfig } from '@open-dart/game/ninetyNineDarts/ninetyNineDartsConfig.ts'
 import {
   getNinetyNineDartsDartPoints,
   getNinetyNineDartsMaxScore,
   getNinetyNineDartsOutcome,
   getNinetyNineDartsTargetLabel,
   NINETY_NINE_DARTS_DART_COUNT,
-} from '@open-darts/game/ninetyNineDarts/ninetyNineDartsRules.ts'
+} from '@open-dart/game/ninetyNineDarts/ninetyNineDartsRules.ts'
 import {
   collectPlayerDarts,
   emptyHitCounts,

@@ -1,9 +1,9 @@
 import { Grid } from '@chakra-ui/react'
-import { formatDart } from '@open-darts/game/formatDart'
-import { getVisitDartSlots } from '@open-darts/game/checkout/checkoutSuggestions'
-import type { VisitDartSlotView } from '@open-darts/game/checkout/checkoutSuggestions'
-import type { DartThrow } from '@open-darts/game/types/dart'
-import type { CheckoutRules } from '@open-darts/game/types/checkout'
+import { formatDart } from '@open-dart/game/formatDart'
+import { getVisitDartSlots } from '@open-dart/game/checkout/checkoutSuggestions'
+import type { VisitDartSlotView } from '@open-dart/game/checkout/checkoutSuggestions'
+import type { DartThrow } from '@open-dart/game/types/dart'
+import type { CheckoutRules } from '@open-dart/game/types/checkout'
 import { VisitDartSlotCard } from './VisitDartSlotCard'
 
 export interface VisitDartSlotsProps {

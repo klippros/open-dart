@@ -1,5 +1,5 @@
 import { Button, Dialog } from '@chakra-ui/react'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import { Link as RouterLink } from 'react-router-dom'
 import { getMatchSummary } from '../../lib/history/sessionSummary'
 import { darkDialogContentProps } from '../darkDialogContentProps'

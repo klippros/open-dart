@@ -14,7 +14,7 @@ import { AuthStatus } from '../types/auth'
 import { isOnlineMatchesEnabled } from '../lib/matchServer/config'
 import { MatchCommandName, MatchStatus } from '../lib/matchServer/types'
 import { supabaseClient } from '../lib/supabase/client'
-import { resolveHumanPlayerName } from '@open-darts/game/game/playerFactory'
+import { resolveHumanPlayerName } from '@open-dart/game/game/playerFactory'
 
 export const OnlineMatchPage = () => {
   const { id: matchId } = useParams<{ id: string }>()

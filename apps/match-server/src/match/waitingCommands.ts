@@ -1,4 +1,4 @@
-import type { GameConfig } from '@open-darts/game/types/gameMode'
+import type { GameConfig } from '@open-dart/game/types/gameMode'
 import { isUuid } from '../ids'
 import { commandFailure } from './commands'
 import { deleteDeadline } from './alarms'

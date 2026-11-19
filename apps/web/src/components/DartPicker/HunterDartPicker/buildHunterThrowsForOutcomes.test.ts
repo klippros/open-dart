@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { DartMultiplier, DartSegmentType } from '@open-darts/game/types/dart'
-import { HunterOutcome } from '@open-darts/game/types/hunter'
+import { DartMultiplier, DartSegmentType } from '@open-dart/game/types/dart'
+import { HunterOutcome } from '@open-dart/game/types/hunter'
 import { buildHunterThrowsForOutcomes } from './buildHunterThrowsForOutcomes'
 
 describe('buildHunterThrowsForOutcomes', () => {

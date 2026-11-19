@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
-import { PlayerKind } from '@open-darts/game/types/player'
-import type { Visit } from '@open-darts/game/types/visit'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
+import { PlayerKind } from '@open-dart/game/types/player'
+import type { Visit } from '@open-dart/game/types/visit'
 import {
   getLegAndMatchAverages,
   getPrimaryPlayerVisits,
   getVisitAverages,
-} from '@open-darts/analytics/visitStats'
+} from '@open-dart/analytics/visitStats'
 
 const player = { id: 'p1', name: 'Player 1', kind: PlayerKind.Human }
 

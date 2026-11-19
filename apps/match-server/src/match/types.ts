@@ -1,4 +1,4 @@
-import type { GameConfig, GameModeId } from '@open-darts/game/types/gameMode'
+import type { GameConfig, GameModeId } from '@open-dart/game/types/gameMode'
 import type { JsonObject } from '../json'
 
 export enum MatchStatus {

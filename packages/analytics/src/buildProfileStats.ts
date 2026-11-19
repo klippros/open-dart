@@ -1,8 +1,8 @@
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode.ts'
-import type { GameSession } from '@open-darts/game/types/gameSession.ts'
-import { PlayerKind } from '@open-darts/game/types/player.ts'
-import { isAroundTheClockConfig } from '@open-darts/game/game/gameConfigGuards.ts'
-import { getAroundTheClockConfig } from '@open-darts/game/aroundTheClock/aroundTheClockConfig.ts'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode.ts'
+import type { GameSession } from '@open-dart/game/types/gameSession.ts'
+import { PlayerKind } from '@open-dart/game/types/player.ts'
+import { isAroundTheClockConfig } from '@open-dart/game/game/gameConfigGuards.ts'
+import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig.ts'
 import { aggregateAroundTheClockSessionStats } from './aroundTheClockStats.ts'
 import {
   isBob27PracticeStats,

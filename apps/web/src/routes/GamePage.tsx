@@ -6,9 +6,9 @@ import { InputFlash } from '../components/InputFlash/InputFlash'
 import { MobileVisitHistory } from '../components/Scoreboard/MobileVisitHistory'
 import { Scoreboard } from '../components/Scoreboard/Scoreboard'
 import { useGamePage } from '../hooks/useGamePage'
-import { showsVisitHistory } from '@open-darts/game/game/gameModeDefinitions'
+import { showsVisitHistory } from '@open-dart/game/game/gameModeDefinitions'
 import { mainContentMaxWidth } from '../layout'
-import { VisitInputMode } from '@open-darts/game/types/visit'
+import { VisitInputMode } from '@open-dart/game/types/visit'
 import { GamePageDialogs } from './GamePageDialogs'
 
 export const GamePage = () => {

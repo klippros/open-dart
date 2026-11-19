@@ -4,7 +4,7 @@ import {
   getDartKeyboardPreview,
   processDartKeyboardKey,
 } from './dartKeyboardInput'
-import { DartMultiplier, DartSegmentType } from '@open-darts/game/types/dart'
+import { DartMultiplier, DartSegmentType } from '@open-dart/game/types/dart'
 
 const confirm = (state: ReturnType<typeof processDartKeyboardKey>['state']) =>
   processDartKeyboardKey(state, ' ')

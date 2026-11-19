@@ -5,7 +5,7 @@ import type {
   ProfileFiveOhOneStats,
   ProfileNinetyNineDartsStats,
   ProfileStatWindow,
-} from '@open-darts/analytics'
+} from '@open-dart/analytics'
 
 export interface ProfileStatRow {
   label: string

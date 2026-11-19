@@ -5,12 +5,12 @@ import { SetupPageActions } from '../components/SetupPageLayout/SetupPageActions
 import { SetupPageHeader } from '../components/SetupPageLayout/SetupPageHeader'
 import { SetupPageLayout } from '../components/SetupPageLayout/SetupPageLayout'
 import { SetupSection } from '../components/SetupPageLayout/SetupSection'
-import { NinetyNineDartsTargetKind } from '@open-darts/game/types/ninetyNineDarts'
+import { NinetyNineDartsTargetKind } from '@open-dart/game/types/ninetyNineDarts'
 import type {
   NinetyNineDartsConfig,
   NinetyNineDartsTarget,
-} from '@open-darts/game/types/ninetyNineDarts'
-import { buildNinetyNineDartsGamePath } from '@open-darts/game/ninetyNineDarts/ninetyNineDartsConfig'
+} from '@open-dart/game/types/ninetyNineDarts'
+import { buildNinetyNineDartsGamePath } from '@open-dart/game/ninetyNineDarts/ninetyNineDartsConfig'
 
 const NUMBER_TARGETS = Array.from({ length: 20 }, (_, index) => index + 1)
 

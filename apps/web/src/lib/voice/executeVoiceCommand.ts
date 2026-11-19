@@ -1,25 +1,25 @@
-import { getAroundTheClockConfig } from '@open-darts/game/aroundTheClock/aroundTheClockConfig'
-import { resolveAroundTheClockVisit } from '@open-darts/game/aroundTheClock/aroundTheClockRules'
+import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
+import { resolveAroundTheClockVisit } from '@open-dart/game/aroundTheClock/aroundTheClockRules'
 import {
   buildDartsForMissAll,
   buildDartsForOrdinalHit,
   getAroundTheClockDartsLeft,
-} from '@open-darts/game/aroundTheClock/buildAroundTheClockDarts'
-import type { AroundTheClockDartOrdinal } from '@open-darts/game/aroundTheClock/buildAroundTheClockDarts'
-import { buildBob27DartsForHitCount } from '@open-darts/game/bob27/buildBob27Darts'
-import { buildClaimTheBoardDartsForHitCount } from '@open-darts/game/claimTheBoard/buildClaimTheBoardDarts'
-import { buildNinetyNineDartsThrow } from '@open-darts/game/ninetyNineDarts/buildNinetyNineDarts'
-import { isNinetyNineDartsTripleAllowed } from '@open-darts/game/ninetyNineDarts/ninetyNineDartsRules'
-import type { AppGameController } from '@open-darts/game/game/createSession'
+} from '@open-dart/game/aroundTheClock/buildAroundTheClockDarts'
+import type { AroundTheClockDartOrdinal } from '@open-dart/game/aroundTheClock/buildAroundTheClockDarts'
+import { buildBob27DartsForHitCount } from '@open-dart/game/bob27/buildBob27Darts'
+import { buildClaimTheBoardDartsForHitCount } from '@open-dart/game/claimTheBoard/buildClaimTheBoardDarts'
+import { buildNinetyNineDartsThrow } from '@open-dart/game/ninetyNineDarts/buildNinetyNineDarts'
+import { isNinetyNineDartsTripleAllowed } from '@open-dart/game/ninetyNineDarts/ninetyNineDartsRules'
+import type { AppGameController } from '@open-dart/game/game/createSession'
 import {
   isAroundTheClockConfig,
   isClaimTheBoardConfig,
   isNinetyNineDartsConfig,
-} from '@open-darts/game/game/gameConfigGuards'
+} from '@open-dart/game/game/gameConfigGuards'
 import { getGameModePickerTargets } from '../game/getGameModePickerTargets'
-import type { DartThrow } from '@open-darts/game/types/dart'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { NinetyNineDartsOutcome } from '@open-darts/game/types/ninetyNineDarts'
+import type { DartThrow } from '@open-dart/game/types/dart'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { NinetyNineDartsOutcome } from '@open-dart/game/types/ninetyNineDarts'
 import type { AroundTheClockOutcome } from './grammars/aroundTheClockGrammar'
 import { VoiceIntentKind } from './parseVoiceCommand'
 import type { VoiceGameplayIntent, VoiceIntent } from './parseVoiceCommand'

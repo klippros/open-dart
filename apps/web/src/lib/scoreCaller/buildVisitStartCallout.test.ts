@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { DartMultiplier } from '@open-darts/game/types/dart'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { PlayerKind } from '@open-darts/game/types/player'
-import { createGameController } from '@open-darts/game/game/createSession'
-import { createPlayer } from '@open-darts/game/game/playerFactory'
-import { numberDart } from '@open-darts/game/testHelpers'
+import { DartMultiplier } from '@open-dart/game/types/dart'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { PlayerKind } from '@open-dart/game/types/player'
+import { createGameController } from '@open-dart/game/game/createSession'
+import { createPlayer } from '@open-dart/game/game/playerFactory'
+import { numberDart } from '@open-dart/game/testHelpers'
 import { buildVisitStartCallout } from './buildVisitStartCallout'
 
 describe('buildVisitStartCallout', () => {

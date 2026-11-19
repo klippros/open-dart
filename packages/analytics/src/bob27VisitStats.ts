@@ -1,9 +1,9 @@
-import type { GameSession } from '@open-darts/game/types/gameSession.ts'
-import type { Visit } from '@open-darts/game/types/visit.ts'
-import { getVisitDartCount } from '@open-darts/game/types/visit.ts'
-import { GameModeId } from '@open-darts/game/types/gameMode.ts'
+import type { GameSession } from '@open-dart/game/types/gameSession.ts'
+import type { Visit } from '@open-dart/game/types/visit.ts'
+import { getVisitDartCount } from '@open-dart/game/types/visit.ts'
+import { GameModeId } from '@open-dart/game/types/gameMode.ts'
 import { getPrimaryPlayerVisits, getSessionFinalScore } from './visitStats.ts'
-import { countBob27TargetHits } from '@open-darts/game/bob27/bob27Rules.ts'
+import { countBob27TargetHits } from '@open-dart/game/bob27/bob27Rules.ts'
 
 const readMetadataHitCount = (metadata: Visit['metadata']): number | null => {
   const hitCount = metadata?.hitCount

@@ -4,15 +4,15 @@ import { VisitDartSlotCard } from '../../Scoreboard/VisitDartSlotCard'
 import { PressScaleButton } from '../../PressScaleButton/PressScaleButton'
 import { scoringActionTypeProps } from '../../../scoringType'
 import { useUiSounds } from '../../../hooks/useUiSounds'
-import { buildNinetyNineDartsThrow } from '@open-darts/game/ninetyNineDarts/buildNinetyNineDarts'
+import { buildNinetyNineDartsThrow } from '@open-dart/game/ninetyNineDarts/buildNinetyNineDarts'
 import {
   getNinetyNineDartsOutcome,
   getNinetyNineDartsPickerOutcomes,
   NINETY_NINE_DARTS_MAX_DARTS_PER_VISIT,
-} from '@open-darts/game/ninetyNineDarts/ninetyNineDartsRules'
-import { NinetyNineDartsOutcome } from '@open-darts/game/types/ninetyNineDarts'
-import type { NinetyNineDartsTarget } from '@open-darts/game/types/ninetyNineDarts'
-import type { DartThrow } from '@open-darts/game/types/dart'
+} from '@open-dart/game/ninetyNineDarts/ninetyNineDartsRules'
+import { NinetyNineDartsOutcome } from '@open-dart/game/types/ninetyNineDarts'
+import type { NinetyNineDartsTarget } from '@open-dart/game/types/ninetyNineDarts'
+import type { DartThrow } from '@open-dart/game/types/dart'
 import { useVisitOutcomeSwipe } from '../visitOutcomeSwipe/useVisitOutcomeSwipe'
 
 export interface NinetyNineDartsDartPickerProps {

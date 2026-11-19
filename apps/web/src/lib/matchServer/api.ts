@@ -1,5 +1,5 @@
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { parseGameSession } from '@open-darts/game/game/serializeGame'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { parseGameSession } from '@open-dart/game/game/serializeGame'
 import { supabaseClient } from '../supabase/client'
 import { HISTORY_PAGE_SIZE } from '../history/historyPager'
 import { isMatchServerConfigured, matchServerUrl } from './config'
@@ -15,13 +15,13 @@ import type {
   OnlineMatchSummary,
   PublicMatchState,
 } from './types'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import { MatchEndingKind, MatchStatus, PlayMode, V1_ONLINE_X01_CONFIG } from './types'
 import {
   defaultOnlineGameConfigForMode,
   readOnlineGameConfig,
-} from '@open-darts/game/game/onlineMatchSetup'
-import type { OnlineMatchConfig, OnlineMatchMode } from '@open-darts/game/game/onlineMatchSetup'
+} from '@open-dart/game/game/onlineMatchSetup'
+import type { OnlineMatchConfig, OnlineMatchMode } from '@open-dart/game/game/onlineMatchSetup'
 
 export class MatchServerApiError extends Error {
   readonly status: number

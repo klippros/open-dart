@@ -1,16 +1,16 @@
 import { Box, Flex, Stack, Text, useBreakpointValue } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { AppGameController } from '@open-darts/game/game/createSession'
-import { resolveHumanPlayerName } from '@open-darts/game/game/playerFactory'
-import type { DartThrow } from '@open-darts/game/types/dart'
-import { isClaimTheBoardConfig } from '@open-darts/game/game/gameConfigGuards'
+import type { AppGameController } from '@open-dart/game/game/createSession'
+import { resolveHumanPlayerName } from '@open-dart/game/game/playerFactory'
+import type { DartThrow } from '@open-dart/game/types/dart'
+import { isClaimTheBoardConfig } from '@open-dart/game/game/gameConfigGuards'
 import {
   showsVisitHistory,
   supportsVisitScoreInput,
-} from '@open-darts/game/game/gameModeDefinitions'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { Visit } from '@open-darts/game/types/visit'
-import { VisitInputMode } from '@open-darts/game/types/visit'
+} from '@open-dart/game/game/gameModeDefinitions'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { Visit } from '@open-dart/game/types/visit'
+import { VisitInputMode } from '@open-dart/game/types/visit'
 import { ContentContainer } from '../ContentContainer'
 import { GameModeDartPicker } from '../DartPicker/GameModeDartPicker'
 import { GameBoardLayout } from '../GameBoardLayout'
@@ -61,7 +61,7 @@ import {
   supportsOnlineVisitCorrection,
   visitsWithCorrectionRemoved,
 } from '../../lib/matchServer/onlineVisitCorrection'
-import { supportsOnlineAsyncPlay } from '@open-darts/game/game/onlineMatchSetup'
+import { supportsOnlineAsyncPlay } from '@open-dart/game/game/onlineMatchSetup'
 import { canStartAsyncFromInactivity } from '../../lib/matchServer/startAsyncEligibility'
 import { DeadlineKind, MatchCommandName, MatchStatus, PlayMode } from '../../lib/matchServer/types'
 import type { MatchCommand, PublicMatchState } from '../../lib/matchServer/types'

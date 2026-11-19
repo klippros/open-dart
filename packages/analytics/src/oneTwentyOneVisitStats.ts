@@ -1,11 +1,11 @@
-import type { GameSession } from '@open-darts/game/types/gameSession.ts'
-import type { Visit } from '@open-darts/game/types/visit.ts'
-import { GameModeId } from '@open-darts/game/types/gameMode.ts'
+import type { GameSession } from '@open-dart/game/types/gameSession.ts'
+import type { Visit } from '@open-dart/game/types/visit.ts'
+import { GameModeId } from '@open-dart/game/types/gameMode.ts'
 import { countCheckoutVisits, getPrimaryPlayerVisits, getThreeDartAverage } from './visitStats.ts'
 import {
   getOneTwentyOneAttemptedTargetFromVisit,
   isOneTwentyOneRoundFailedVisit,
-} from '@open-darts/game/oneTwentyOne/oneTwentyOneVisitMetadata.ts'
+} from '@open-dart/game/oneTwentyOne/oneTwentyOneVisitMetadata.ts'
 
 /** Successful checkout visits for the primary player in a session. */
 export const getSessionCheckoutCount = (session: GameSession): number =>

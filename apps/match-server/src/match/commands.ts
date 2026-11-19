@@ -1,4 +1,4 @@
-import { DartSegmentType } from '@open-darts/game/types/dart'
+import { DartSegmentType } from '@open-dart/game/types/dart'
 import { isRecord } from '../json'
 import { parsePublicDartThrows } from './dartPayload'
 import { MatchCommandName } from './types'

@@ -3,7 +3,7 @@ import { VisitDartSlotCard } from '../Scoreboard/VisitDartSlotCard'
 import { PressScaleButton } from '../PressScaleButton/PressScaleButton'
 import { scoringActionTypeProps } from '../../scoringType'
 import { useUiSounds } from '../../hooks/useUiSounds'
-import { getAroundTheClockConfig } from '@open-darts/game/aroundTheClock/aroundTheClockConfig'
+import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
 import {
   buildDartsForMissAll,
   buildDartsForOrdinalHit,
@@ -11,11 +11,11 @@ import {
   getAroundTheClockCurrentTargetIndex,
   getAroundTheClockDartsLeft,
   getAroundTheClockThrownSlotLabel,
-} from '@open-darts/game/aroundTheClock/buildAroundTheClockDarts'
-import type { AroundTheClockDartOrdinal } from '@open-darts/game/aroundTheClock/buildAroundTheClockDarts'
-import { getAroundTheClockTargetAimLabel } from '@open-darts/game/aroundTheClock/aroundTheClockRules'
-import type { AroundTheClockConfig } from '@open-darts/game/types/aroundTheClock'
-import type { DartThrow } from '@open-darts/game/types/dart'
+} from '@open-dart/game/aroundTheClock/buildAroundTheClockDarts'
+import type { AroundTheClockDartOrdinal } from '@open-dart/game/aroundTheClock/buildAroundTheClockDarts'
+import { getAroundTheClockTargetAimLabel } from '@open-dart/game/aroundTheClock/aroundTheClockRules'
+import type { AroundTheClockConfig } from '@open-dart/game/types/aroundTheClock'
+import type { DartThrow } from '@open-dart/game/types/dart'
 
 export interface AroundTheClockDartPickerProps {
   committedTargetIndex: number

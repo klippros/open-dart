@@ -1,6 +1,6 @@
-import type { DartThrow } from '@open-darts/game/types/dart.ts'
-import { isCountingVisit } from '@open-darts/game/types/visit.ts'
-import type { Visit } from '@open-darts/game/types/visit.ts'
+import type { DartThrow } from '@open-dart/game/types/dart.ts'
+import { isCountingVisit } from '@open-dart/game/types/visit.ts'
+import type { Visit } from '@open-dart/game/types/visit.ts'
 
 export interface BaseHitOutcomeCounts {
   singles: number

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
-import { HunterOutcome } from '@open-darts/game/types/hunter'
-import { PlayerKind } from '@open-darts/game/types/player'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import type { Visit } from '@open-darts/game/types/visit'
-import { buildHunterThrow } from '@open-darts/game/hunter/buildHunterDarts'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
+import { HunterOutcome } from '@open-dart/game/types/hunter'
+import { PlayerKind } from '@open-dart/game/types/player'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import type { Visit } from '@open-dart/game/types/visit'
+import { buildHunterThrow } from '@open-dart/game/hunter/buildHunterDarts'
 import { computeHunterPlayerStats, computeHunterSingleSessionStats } from './hunterVisitStats'
 
 const visit = (overrides: Partial<Visit> & Pick<Visit, 'visitIndex' | 'playerId'>): Visit => ({

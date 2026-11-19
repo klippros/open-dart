@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { pickLastPlayedVariant } from '@open-darts/analytics/pickLastPlayedVariant'
+import { pickLastPlayedVariant } from '@open-dart/analytics/pickLastPlayedVariant'
 
 export const useLastPlayedVariantSelection = <T>(
   variants: readonly T[],

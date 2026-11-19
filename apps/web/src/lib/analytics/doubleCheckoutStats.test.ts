@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { DartMultiplier } from '@open-darts/game/types/dart'
-import type { Visit } from '@open-darts/game/types/visit'
-import { VisitInputMode } from '@open-darts/game/types/visit'
-import { numberDart } from '@open-darts/game/testHelpers'
+import { DartMultiplier } from '@open-dart/game/types/dart'
+import type { Visit } from '@open-dart/game/types/visit'
+import { VisitInputMode } from '@open-dart/game/types/visit'
+import { numberDart } from '@open-dart/game/testHelpers'
 import {
   countDoubleCheckoutStats,
   countDoubleCheckoutStatsForVisit,
   countDoubleCheckoutStatsOmittingUnresolvedLegs,
   visitScoreCouldHideDoubleAttempt,
-} from '@open-darts/analytics/doubleCheckoutStats'
+} from '@open-dart/analytics/doubleCheckoutStats'
 
 const doubleOutRules = {
   doubleIn: false,

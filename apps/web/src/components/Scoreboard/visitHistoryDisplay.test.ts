@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { Visit } from '@open-darts/game/types/visit'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { Visit } from '@open-dart/game/types/visit'
 import { getVisitHistoryEntryDisplay } from './visitHistoryDisplay'
 
 const baseVisit: Visit = {

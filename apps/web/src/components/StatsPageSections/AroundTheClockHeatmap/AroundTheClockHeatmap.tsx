@@ -14,9 +14,9 @@ import {
   polarToCartesian,
   toBoardWorldPoint,
 } from '../../DartPicker/dartboardLayout'
-import type { AroundTheClockPerTargetStats } from '@open-darts/analytics/aroundTheClockStats'
+import type { AroundTheClockPerTargetStats } from '@open-dart/analytics/aroundTheClockStats'
 import { formatCount, formatInteger } from '../../../lib/analytics/formatAnalytics'
-import { isAroundTheClockBullTarget } from '@open-darts/game/aroundTheClock/aroundTheClockRules'
+import { isAroundTheClockBullTarget } from '@open-dart/game/aroundTheClock/aroundTheClockRules'
 import {
   getHeatmapFillColor,
   getOverallAvgDartsPerHit,

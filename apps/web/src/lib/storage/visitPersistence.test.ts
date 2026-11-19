@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
-import { PlayerKind } from '@open-darts/game/types/player'
-import { createGameController, restoreGameController } from '@open-darts/game/game/createSession'
-import { numberDart } from '@open-darts/game/testHelpers'
-import { DartMultiplier } from '@open-darts/game/types/dart'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
+import { PlayerKind } from '@open-dart/game/types/player'
+import { createGameController, restoreGameController } from '@open-dart/game/game/createSession'
+import { numberDart } from '@open-dart/game/testHelpers'
+import { DartMultiplier } from '@open-dart/game/types/dart'
 import {
   createControllerSnapshot,
   finalizeCompletedSession,

@@ -1,23 +1,23 @@
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import type { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock'
-import type { Visit } from '@open-darts/game/types/visit'
-import { getAroundTheClockConfig } from '@open-darts/game/aroundTheClock/aroundTheClockConfig'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import type { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
+import type { Visit } from '@open-dart/game/types/visit'
+import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
 import {
   getBob27AvgHitsPerVisit,
   getBob27SessionDoublesHit,
   getBob27VisitHitRate,
-} from '@open-darts/analytics/bob27VisitStats'
-import { computeBullRunSingleSessionStats } from '@open-darts/analytics/bullRunVisitStats'
-import { computeNinetyNineDartsSingleSessionStats } from '@open-darts/analytics/ninetyNineVisitStats'
-import type { NinetyNineDartsStatGroup } from '@open-darts/analytics/ninetyNineVisitStats'
+} from '@open-dart/analytics/bob27VisitStats'
+import { computeBullRunSingleSessionStats } from '@open-dart/analytics/bullRunVisitStats'
+import { computeNinetyNineDartsSingleSessionStats } from '@open-dart/analytics/ninetyNineVisitStats'
+import type { NinetyNineDartsStatGroup } from '@open-dart/analytics/ninetyNineVisitStats'
 import {
   getSessionCheckoutCount,
   getHighestOneTwentyOneCheckoutTarget,
   getOneTwentyOneCheckoutRate,
-} from '@open-darts/analytics/oneTwentyOneVisitStats'
+} from '@open-dart/analytics/oneTwentyOneVisitStats'
 import { getSessionCompletedAt, getSessionModeLabel } from '../history/sessionSummary'
-import { isAroundTheClockConfig, isX01Config } from '@open-darts/game/game/gameConfigGuards'
+import { isAroundTheClockConfig, isX01Config } from '@open-dart/game/game/gameConfigGuards'
 import { getDoubleCheckoutRate } from './formatAnalytics'
 import { computePlayerStatsForVisits } from './matchPlayerStats'
 import {
@@ -29,7 +29,7 @@ import {
   filterFiveOhOneSessions,
   filterNinetyNineDartsSessions,
   filterOneSeventySessions,
-} from '@open-darts/analytics/sessionScope'
+} from '@open-dart/analytics/sessionScope'
 import {
   countDartsInSession,
   getHighestCheckout,
@@ -38,14 +38,14 @@ import {
   getSessionCheckoutRate,
   getSessionFinalScore,
   getThreeDartAverage,
-} from '@open-darts/analytics/visitStats'
+} from '@open-dart/analytics/visitStats'
 import {
   countDartsInVisits,
   expandX01SessionLegs,
   getX01LegSlicePointId,
   legFinishedWithCheckout,
-} from '@open-darts/analytics/x01LegSlices'
-import type { X01LegSlice } from '@open-darts/analytics/x01LegSlices'
+} from '@open-dart/analytics/x01LegSlices'
+import type { X01LegSlice } from '@open-dart/analytics/x01LegSlices'
 
 export type StatMetricId =
   | 'threeDartAverage'

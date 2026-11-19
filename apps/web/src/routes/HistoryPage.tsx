@@ -28,8 +28,8 @@ import { decorateOnlineSessionForViewer } from '../lib/matchServer/onlinePlay'
 import type { OnlineMatchHistoryRow, OnlineMatchSummary } from '../lib/matchServer/types'
 import { clearStoredSessions, loadStoredSessions } from '../lib/storage/gameStore'
 import { AuthStatus, SyncStatus } from '../types/auth'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { resolveHumanPlayerName } from '@open-darts/game/game/playerFactory'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { resolveHumanPlayerName } from '@open-dart/game/game/playerFactory'
 
 export const HistoryPage = () => {
   const { user, profile, authStatus, syncStatus, isConfigured, signOut, clearSyncedSessions } =

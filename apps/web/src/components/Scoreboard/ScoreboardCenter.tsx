@@ -1,18 +1,18 @@
 import { useMemo } from 'react'
 import { Stack } from '@chakra-ui/react'
-import { sumDartPoints } from '@open-darts/game/dartScoring'
-import { getAroundTheClockLiveStats } from '@open-darts/analytics/aroundTheClockStats'
-import type { DoubleCheckoutStats } from '@open-darts/analytics/doubleCheckoutStats'
+import { sumDartPoints } from '@open-dart/game/dartScoring'
+import { getAroundTheClockLiveStats } from '@open-dart/analytics/aroundTheClockStats'
+import type { DoubleCheckoutStats } from '@open-dart/analytics/doubleCheckoutStats'
 import {
   getNinetyNineDartsLiveScoreMetrics,
   getNinetyNineDartsLiveStats,
-} from '@open-darts/analytics/ninetyNineVisitStats'
+} from '@open-dart/analytics/ninetyNineVisitStats'
 import {
   getBullRunLiveScoreMetrics,
   getBullRunLiveStats,
-} from '@open-darts/analytics/bullRunVisitStats'
-import { getAroundTheClockConfig } from '@open-darts/game/aroundTheClock/aroundTheClockConfig'
-import type { ScoreboardPlayerEntry } from '@open-darts/game/game/GameEngine'
+} from '@open-dart/analytics/bullRunVisitStats'
+import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
+import type { ScoreboardPlayerEntry } from '@open-dart/game/game/GameEngine'
 import {
   countPlayerVisitsInLeg,
   formatChallengeVisitProgressLabel,
@@ -21,20 +21,20 @@ import {
   getTargetThreeDartAverage,
   isChallengeMode,
   isChallengeVisitProgressOverLimit,
-} from '@open-darts/game/game/challenge'
+} from '@open-dart/game/game/challenge'
 import {
   isAroundTheClockConfig,
   isNinetyNineDartsConfig,
   isOneTwentyOneConfig,
   isX01Config,
   toCheckoutSuggestionRules,
-} from '@open-darts/game/game/gameConfigGuards'
-import { getLegStartingPlayerIndex } from '@open-darts/game/game/matchLegs'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { MatchProgress } from '@open-darts/game/types/match'
-import type { DartThrow } from '@open-darts/game/types/dart'
-import type { GameConfig, GameModeId as GameModeIdType } from '@open-darts/game/types/gameMode'
-import type { Visit } from '@open-darts/game/types/visit'
+} from '@open-dart/game/game/gameConfigGuards'
+import { getLegStartingPlayerIndex } from '@open-dart/game/game/matchLegs'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { MatchProgress } from '@open-dart/game/types/match'
+import type { DartThrow } from '@open-dart/game/types/dart'
+import type { GameConfig, GameModeId as GameModeIdType } from '@open-dart/game/types/gameMode'
+import type { Visit } from '@open-dart/game/types/visit'
 import { NinetyNineDartsScorePanel } from './NinetyNineDartsScorePanel'
 import type { ScoreboardDisplayPlayer } from './PlayerScorePanel'
 import { PlayerScorePanels } from './PlayerScorePanel'

@@ -1,5 +1,5 @@
-import type { AppGameController } from '@open-darts/game/game/createSession'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import type { AppGameController } from '@open-dart/game/game/createSession'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import { announceCalloutOnce, turnRequireCalloutKey } from './announceCallout'
 import { buildVisitStartCallout } from './buildVisitStartCallout'
 

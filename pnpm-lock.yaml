@@ -23,7 +23,7 @@ importers:
 
   apps/match-server:
     dependencies:
-      '@open-darts/game':
+      '@open-dart/game':
         specifier: workspace:*
         version: link:../../packages/game
     devDependencies:
@@ -63,10 +63,10 @@ importers:
       '@fortawesome/react-fontawesome':
         specifier: ^3.3.1
         version: 3.4.0(@fortawesome/fontawesome-svg-core@7.3.0)(react@19.2.7)
-      '@open-darts/analytics':
+      '@open-dart/analytics':
         specifier: workspace:*
         version: link:../../packages/analytics
-      '@open-darts/game':
+      '@open-dart/game':
         specifier: workspace:*
         version: link:../../packages/game
       '@supabase/supabase-js':
@@ -115,7 +115,7 @@ importers:
 
   packages/analytics:
     dependencies:
-      '@open-darts/game':
+      '@open-dart/game':
         specifier: workspace:*
         version: link:../game
     devDependencies:

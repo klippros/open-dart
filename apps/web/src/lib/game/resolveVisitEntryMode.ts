@@ -1,5 +1,5 @@
 import { SingleDartScoringMode } from '../../types/settings'
-import { VisitInputMode } from '@open-darts/game/types/visit'
+import { VisitInputMode } from '@open-dart/game/types/visit'
 
 /** Remaining score at or below this uses per-dart entry under Sub 171. */
 export const CHECKOUT_RANGE_MAX = 170

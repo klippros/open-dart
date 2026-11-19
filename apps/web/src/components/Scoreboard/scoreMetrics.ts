@@ -1,6 +1,6 @@
-import { isOnChallengeAveragePace } from '@open-darts/game/game/challenge'
-import type { AroundTheClockLiveStats } from '@open-darts/analytics/aroundTheClockStats'
-import type { DoubleCheckoutStats } from '@open-darts/analytics/doubleCheckoutStats'
+import { isOnChallengeAveragePace } from '@open-dart/game/game/challenge'
+import type { AroundTheClockLiveStats } from '@open-dart/analytics/aroundTheClockStats'
+import type { DoubleCheckoutStats } from '@open-dart/analytics/doubleCheckoutStats'
 import { formatDoubleCheckout } from '../../lib/analytics/formatAnalytics'
 
 export interface ScoreMetric {

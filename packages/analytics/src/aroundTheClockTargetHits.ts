@@ -1,10 +1,10 @@
-import { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock.ts'
-import type { Visit } from '@open-darts/game/types/visit.ts'
+import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock.ts'
+import type { Visit } from '@open-dart/game/types/visit.ts'
 import {
   AROUND_THE_CLOCK_TARGET_COUNT,
   getAroundTheClockTargetLabel,
   isAroundTheClockTargetHit,
-} from '@open-darts/game/aroundTheClock/aroundTheClockRules.ts'
+} from '@open-dart/game/aroundTheClock/aroundTheClockRules.ts'
 
 export interface AroundTheClockTargetAttempt {
   targetIndex: number

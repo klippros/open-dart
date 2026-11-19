@@ -1,6 +1,6 @@
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { Visit } from '@open-darts/game/types/visit'
-import { isOneTwentyOneRoundFailedVisit } from '@open-darts/game/oneTwentyOne/oneTwentyOneVisitMetadata'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { Visit } from '@open-dart/game/types/visit'
+import { isOneTwentyOneRoundFailedVisit } from '@open-dart/game/oneTwentyOne/oneTwentyOneVisitMetadata'
 
 export type VisitHistoryTone = 'default' | 'success' | 'failed'
 

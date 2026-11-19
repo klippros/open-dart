@@ -1,4 +1,4 @@
-import { supportsOnlineVisitCorrection } from '@open-darts/game/game/onlineMatchSetup'
+import { supportsOnlineVisitCorrection } from '@open-dart/game/game/onlineMatchSetup'
 import {
   applyAsyncRecordDarts,
   applyAsyncRecordVisitScore,

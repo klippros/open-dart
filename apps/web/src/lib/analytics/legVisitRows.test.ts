@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { DartMultiplier } from '@open-darts/game/types/dart'
-import { numberDart } from '@open-darts/game/testHelpers'
+import { DartMultiplier } from '@open-dart/game/types/dart'
+import { numberDart } from '@open-dart/game/testHelpers'
 import { buildLegVisitRows, formatLegVisitScore } from './legVisitRows'
-import { getLegWinnerIdFromVisits } from '@open-darts/game/game/matchLegs'
-import type { Visit } from '@open-darts/game/types/visit'
+import { getLegWinnerIdFromVisits } from '@open-dart/game/game/matchLegs'
+import type { Visit } from '@open-dart/game/types/visit'
 
 const visit = (overrides: Partial<Visit> = {}): Visit => ({
   visitIndex: 0,

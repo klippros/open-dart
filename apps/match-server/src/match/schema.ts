@@ -1,4 +1,4 @@
-import { GameModeId } from '@open-darts/game/types/gameMode'
+import { GameModeId } from '@open-dart/game/types/gameMode'
 import type { JsonObject } from '../json'
 import { isJsonObject } from '../json'
 import { parsePlayState } from './sessionPlay'

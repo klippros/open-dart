@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { ProfileFiveOhOneStats } from '@open-darts/analytics'
+import type { ProfileFiveOhOneStats } from '@open-dart/analytics'
 import { buildFiveOhOneRows } from './formatProfileStats'
 
 const sampleFiveOhOne = (

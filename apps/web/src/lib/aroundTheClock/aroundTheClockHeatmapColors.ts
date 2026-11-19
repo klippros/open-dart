@@ -1,4 +1,4 @@
-import type { AroundTheClockPerTargetStats } from '@open-darts/analytics/aroundTheClockStats'
+import type { AroundTheClockPerTargetStats } from '@open-dart/analytics/aroundTheClockStats'
 import { DARTBOARD_COLORS } from '../../components/DartPicker/dartboardLayout'
 
 // Muted performance tints aligned with the dart picker palette.

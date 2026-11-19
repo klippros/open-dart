@@ -1,5 +1,5 @@
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { buildX01PresetPath, X01PresetId } from '@open-darts/game/x01/x01Presets'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { buildX01PresetPath, X01PresetId } from '@open-dart/game/x01/x01Presets'
 import { buildPracticeGamePath } from '../../lib/game/gameRoute'
 
 export interface HomePageModeLink {

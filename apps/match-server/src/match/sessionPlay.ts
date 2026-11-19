@@ -2,17 +2,17 @@ import {
   createGameController,
   getInitialTurnIndex,
   restoreGameController,
-} from '@open-darts/game/game/createSession'
-import type { AppGameController } from '@open-darts/game/game/createSession'
-import { correctVisit, CorrectVisitError } from '@open-darts/game/game/correctVisit'
-import type { VisitCorrection } from '@open-darts/game/game/correctVisit'
-import { withHunterStartingPlayerIndex } from '@open-darts/game/game/onlineMatchSetup'
-import { parseGameSession, serializeGameSession } from '@open-darts/game/game/serializeGame'
-import { GameStatus } from '@open-darts/game/types/gameMode'
-import type { GameConfig, GameModeId } from '@open-darts/game/types/gameMode'
-import type { DartThrow } from '@open-darts/game/types/dart'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { PlayerKind } from '@open-darts/game/types/player'
+} from '@open-dart/game/game/createSession'
+import type { AppGameController } from '@open-dart/game/game/createSession'
+import { correctVisit, CorrectVisitError } from '@open-dart/game/game/correctVisit'
+import type { VisitCorrection } from '@open-dart/game/game/correctVisit'
+import { withHunterStartingPlayerIndex } from '@open-dart/game/game/onlineMatchSetup'
+import { parseGameSession, serializeGameSession } from '@open-dart/game/game/serializeGame'
+import { GameStatus } from '@open-dart/game/types/gameMode'
+import type { GameConfig, GameModeId } from '@open-dart/game/types/gameMode'
+import type { DartThrow } from '@open-dart/game/types/dart'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { PlayerKind } from '@open-dart/game/types/player'
 import { isRecord } from '../json'
 import { isAsyncPlayState } from './asyncPlay'
 import type { AsyncPlayState } from './asyncPlay'
@@ -315,7 +315,7 @@ export const resolveMatchWinnerUserId = (session: GameSession): string | null =>
   return checkout?.playerId ?? null
 }
 
-export { resolvePendingFinishPlayerId } from '@open-darts/game/game/resolvePendingFinishPlayerId'
+export { resolvePendingFinishPlayerId } from '@open-dart/game/game/resolvePendingFinishPlayerId'
 
 export const finalizeSession = (play: StoredPlayState): StoredPlayState => ({
   session: {

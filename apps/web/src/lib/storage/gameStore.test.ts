@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import type { ActiveGameSnapshot } from '@open-darts/game/types/activeGameSnapshot'
-import { PlayerKind } from '@open-darts/game/types/player'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import type { ActiveGameSnapshot } from '@open-dart/game/types/activeGameSnapshot'
+import { PlayerKind } from '@open-dart/game/types/player'
 import {
   clearActiveSnapshot,
   clearStoredSessions,

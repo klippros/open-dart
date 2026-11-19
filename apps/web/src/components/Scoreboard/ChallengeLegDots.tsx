@@ -5,8 +5,8 @@ import {
   formatChallengeNumericLegScoreAriaLabel,
   formatChallengeNumericMatchScore,
   getChallengeLegsToWinFromMaxLegs,
-} from '@open-darts/game/game/challenge'
-import { ChallengeLegStatus } from '@open-darts/game/types/match'
+} from '@open-dart/game/game/challenge'
+import { ChallengeLegStatus } from '@open-dart/game/types/match'
 
 export interface ChallengeLegDotsProps {
   legStatuses: ChallengeLegStatus[]

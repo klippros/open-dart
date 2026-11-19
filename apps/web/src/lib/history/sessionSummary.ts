@@ -1,37 +1,37 @@
-import { getVisitAverages, getPrimaryPlayerVisits } from '@open-darts/analytics/visitStats'
-import { computeAroundTheClockSingleSessionStats } from '@open-darts/analytics/aroundTheClockStats'
-import { computeBullRunSingleSessionStats } from '@open-darts/analytics/bullRunVisitStats'
-import { computeNinetyNineDartsSingleSessionStats } from '@open-darts/analytics/ninetyNineVisitStats'
+import { getVisitAverages, getPrimaryPlayerVisits } from '@open-dart/analytics/visitStats'
+import { computeAroundTheClockSingleSessionStats } from '@open-dart/analytics/aroundTheClockStats'
+import { computeBullRunSingleSessionStats } from '@open-dart/analytics/bullRunVisitStats'
+import { computeNinetyNineDartsSingleSessionStats } from '@open-dart/analytics/ninetyNineVisitStats'
 import {
   computeClaimTheBoardSingleSessionStats,
   getClaimTheBoardScoreLeaderId,
-} from '@open-darts/analytics/claimTheBoardVisitStats'
+} from '@open-dart/analytics/claimTheBoardVisitStats'
 import { computeHunterSingleSessionStats } from '../hunter/hunterVisitStats'
-import { gameModeDefinitions } from '@open-darts/game/game/gameModeDefinitions'
+import { gameModeDefinitions } from '@open-dart/game/game/gameModeDefinitions'
 import {
   isX01Config,
   isAroundTheClockConfig,
   isBullRunConfig,
   isClaimTheBoardConfig,
   isNinetyNineDartsConfig,
-} from '@open-darts/game/game/gameConfigGuards'
-import { getBullRunConfigLabel } from '@open-darts/game/bullRun/bullRunConfig'
+} from '@open-dart/game/game/gameConfigGuards'
+import { getBullRunConfigLabel } from '@open-dart/game/bullRun/bullRunConfig'
 import {
   getAroundTheClockAimModeLabel,
   getAroundTheClockConfig,
-} from '@open-darts/game/aroundTheClock/aroundTheClockConfig'
-import { getNinetyNineDartsConfigLabel } from '@open-darts/game/ninetyNineDarts/ninetyNineDartsConfig'
-import { formatChallengeMatchScore, isChallengeMode } from '@open-darts/game/game/challenge'
-import { getOneTwentyOneRoundTargetFromVisit } from '@open-darts/game/oneTwentyOne/oneTwentyOneVisitMetadata'
-import { getHighestOneTwentyOneCheckoutTarget } from '@open-darts/analytics/oneTwentyOneVisitStats'
+} from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
+import { getNinetyNineDartsConfigLabel } from '@open-dart/game/ninetyNineDarts/ninetyNineDartsConfig'
+import { formatChallengeMatchScore, isChallengeMode } from '@open-dart/game/game/challenge'
+import { getOneTwentyOneRoundTargetFromVisit } from '@open-dart/game/oneTwentyOne/oneTwentyOneVisitMetadata'
+import { getHighestOneTwentyOneCheckoutTarget } from '@open-dart/analytics/oneTwentyOneVisitStats'
 import { isTenUpOneDownWinSession } from '../tenUpOneDown/tenUpOneDownVisitStats'
-import { getMatchWinnerId } from '@open-darts/game/game/matchLegs'
-import { formatLegWinLine } from '@open-darts/game/game/matchLegDisplay'
-import { formatX01StartScore } from '@open-darts/game/x01/x01Presets'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { PlayerKind } from '@open-darts/game/types/player'
-import { isCountingVisit } from '@open-darts/game/types/visit'
+import { getMatchWinnerId } from '@open-dart/game/game/matchLegs'
+import { formatLegWinLine } from '@open-dart/game/game/matchLegDisplay'
+import { formatX01StartScore } from '@open-dart/game/x01/x01Presets'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { PlayerKind } from '@open-dart/game/types/player'
+import { isCountingVisit } from '@open-dart/game/types/visit'
 
 export interface MatchSummary {
   title: string

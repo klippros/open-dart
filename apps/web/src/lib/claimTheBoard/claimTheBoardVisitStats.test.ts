@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
-import { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock'
-import { PlayerKind } from '@open-darts/game/types/player'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import type { Visit } from '@open-darts/game/types/visit'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
+import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
+import { PlayerKind } from '@open-dart/game/types/player'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import type { Visit } from '@open-dart/game/types/visit'
 import {
   computeClaimTheBoardPlayerVisitStats,
   computeClaimTheBoardSingleSessionStats,
   getClaimTheBoardScoreLeaderId,
   getClaimTheBoardVisitHitCount,
-} from '@open-darts/analytics/claimTheBoardVisitStats'
+} from '@open-dart/analytics/claimTheBoardVisitStats'
 
 const visit = (overrides: Partial<Visit> & Pick<Visit, 'visitIndex' | 'playerId'>): Visit => ({
   darts: [],

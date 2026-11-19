@@ -1,4 +1,4 @@
-import { DartMultiplier, DartSegmentType } from '@open-darts/game/types/dart'
+import { DartMultiplier, DartSegmentType } from '@open-dart/game/types/dart'
 import { describe, expect, it } from 'vitest'
 import { parsePublicDartThrow, parsePublicDartThrows } from '../src/match/dartPayload'
 

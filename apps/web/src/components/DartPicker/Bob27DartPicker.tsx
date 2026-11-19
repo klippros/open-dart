@@ -1,7 +1,7 @@
 import { HitCountDartPicker } from './HitCountDartPicker'
-import { buildBob27DartsForHitCount } from '@open-darts/game/bob27/buildBob27Darts'
-import { getBob27Target } from '@open-darts/game/bob27/bob27Rules'
-import type { DartThrow } from '@open-darts/game/types/dart'
+import { buildBob27DartsForHitCount } from '@open-dart/game/bob27/buildBob27Darts'
+import { getBob27Target } from '@open-dart/game/bob27/bob27Rules'
+import type { DartThrow } from '@open-dart/game/types/dart'
 
 export interface Bob27DartPickerProps {
   targetIndex: number

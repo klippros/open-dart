@@ -1,9 +1,9 @@
-import type { CheckoutRules } from '@open-darts/game/types/checkout'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import type { Visit } from '@open-darts/game/types/visit'
-import { getCountingVisits } from '@open-darts/game/types/visit'
-import { isX01Config } from '@open-darts/game/game/gameConfigGuards'
-import { getVisitsForLeg } from '@open-darts/game/game/matchLegs'
+import type { CheckoutRules } from '@open-dart/game/types/checkout'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import type { Visit } from '@open-dart/game/types/visit'
+import { getCountingVisits } from '@open-dart/game/types/visit'
+import { isX01Config } from '@open-dart/game/game/gameConfigGuards'
+import { getVisitsForLeg } from '@open-dart/game/game/matchLegs'
 import {
   countCheckouts100Plus,
   countThrown100Plus,
@@ -15,12 +15,12 @@ import {
   getScoringVisits,
   getThreeDartAverage,
   getVisitsBeforeDouble,
-} from '@open-darts/analytics/visitStats'
+} from '@open-dart/analytics/visitStats'
 import {
   countDoubleCheckoutStatsOmittingUnresolvedLegs,
   emptyDoubleCheckoutStats,
-} from '@open-darts/analytics/doubleCheckoutStats'
-import type { DoubleCheckoutStats } from '@open-darts/analytics/doubleCheckoutStats'
+} from '@open-dart/analytics/doubleCheckoutStats'
+import type { DoubleCheckoutStats } from '@open-dart/analytics/doubleCheckoutStats'
 
 export interface PlayerMatchStats {
   threeDartAverage: number | null

@@ -1,5 +1,5 @@
 {
-  "name": "@open-darts/match-server",
+  "name": "@open-dart/match-server",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@open-darts/game": "workspace:*"
+    "@open-dart/game": "workspace:*"
   },
   "devDependencies": {
     "@cloudflare/vitest-plugin": "^1.1.5",

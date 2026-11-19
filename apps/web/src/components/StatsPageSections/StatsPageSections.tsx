@@ -1,12 +1,12 @@
 import { Stack, Switch, Text } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import type {
   CheckoutPracticeStats,
   OtherPracticeStats,
   X01LegStats,
   X01Stats,
-} from '@open-darts/analytics/computeAnalytics'
+} from '@open-dart/analytics/computeAnalytics'
 import type { StatMetricId, StatTimelineSelection } from '../../lib/analytics/statTimelines'
 import {
   MatchStatRowId,
@@ -20,8 +20,8 @@ import {
   isBullRunPracticeStats,
   isClaimTheBoardPracticeStats,
   isNinetyNineDartsPracticeStats,
-} from '@open-darts/analytics/practiceStats'
-import { computeX01Stats, X01StatsFilterId } from '@open-darts/analytics/x01Stats'
+} from '@open-dart/analytics/practiceStats'
+import { computeX01Stats, X01StatsFilterId } from '@open-dart/analytics/x01Stats'
 import { StatsTable } from '../StatsTable/StatsTable'
 import {
   AroundTheClockPracticeCard,

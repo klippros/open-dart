@@ -1,5 +1,5 @@
-import { DartSegmentType } from '@open-darts/game/types/dart'
-import type { DartThrow } from '@open-darts/game/types/dart'
+import { DartSegmentType } from '@open-dart/game/types/dart'
+import type { DartThrow } from '@open-dart/game/types/dart'
 import type { PublicDartThrow } from './types'
 
 export const toPublicDartThrow = (dart: DartThrow): PublicDartThrow => ({

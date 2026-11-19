@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
-import { PlayerKind } from '@open-darts/game/types/player'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
+import { PlayerKind } from '@open-dart/game/types/player'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import { mergeSessionsForStats } from './mergeSessionsForStats'
 
 const session = (id: string, name: string): GameSession => ({

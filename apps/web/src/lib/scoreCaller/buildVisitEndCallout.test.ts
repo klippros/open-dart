@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { DartMultiplier } from '@open-darts/game/types/dart'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { PlayerKind } from '@open-darts/game/types/player'
-import type { Visit } from '@open-darts/game/types/visit'
-import { createGameController } from '@open-darts/game/game/createSession'
-import { createPlayer } from '@open-darts/game/game/playerFactory'
-import { numberDart } from '@open-darts/game/testHelpers'
+import { DartMultiplier } from '@open-dart/game/types/dart'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { PlayerKind } from '@open-dart/game/types/player'
+import type { Visit } from '@open-dart/game/types/visit'
+import { createGameController } from '@open-dart/game/game/createSession'
+import { createPlayer } from '@open-dart/game/game/playerFactory'
+import { numberDart } from '@open-dart/game/testHelpers'
 import { buildVisitEndCallout, createVisitEndCalloutContext } from './buildVisitEndCallout'
 
 describe('buildVisitEndCallout', () => {

@@ -1,19 +1,19 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
 import {
   NinetyNineDartsOutcome,
   NinetyNineDartsTargetKind,
-} from '@open-darts/game/types/ninetyNineDarts'
-import { PlayerKind } from '@open-darts/game/types/player'
-import { buildNinetyNineDartsThrow } from '@open-darts/game/ninetyNineDarts/buildNinetyNineDarts'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+} from '@open-dart/game/types/ninetyNineDarts'
+import { PlayerKind } from '@open-dart/game/types/player'
+import { buildNinetyNineDartsThrow } from '@open-dart/game/ninetyNineDarts/buildNinetyNineDarts'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import {
   computeNinetyNineDartsSingleSessionStats,
   getNinetyNineDartsLiveScoreMetrics,
   getNinetyNineDartsLiveStats,
   getNinetyNineDartsStatGroup,
   NinetyNineDartsStatGroup,
-} from '@open-darts/analytics/ninetyNineVisitStats'
+} from '@open-dart/analytics/ninetyNineVisitStats'
 
 const playerId = 'p1'
 const target = { kind: NinetyNineDartsTargetKind.Number, value: 20 } as const

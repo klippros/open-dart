@@ -5,7 +5,7 @@ import type {
   ProfileFiveOhOneStats,
   ProfileNinetyNineDartsStats,
   ProfileStatWindow,
-} from '@open-darts/analytics'
+} from '@open-dart/analytics'
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)

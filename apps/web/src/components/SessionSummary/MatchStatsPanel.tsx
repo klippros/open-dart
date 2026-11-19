@@ -1,14 +1,14 @@
 import { useMemo, useState } from 'react'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { getCountingVisits } from '@open-darts/game/types/visit'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { getCountingVisits } from '@open-dart/game/types/visit'
 import {
   getLegWinnerIdFromVisits,
   getLegStartingPlayerIndex,
   getMatchWinnerId,
   getPlayedLegNumbers,
   getVisitsForLeg,
-} from '@open-darts/game/game/matchLegs'
+} from '@open-dart/game/game/matchLegs'
 import { buildLegVisitRows } from '../../lib/analytics/legVisitRows'
 import { getVisibleMatchStatRows } from '../../lib/analytics/matchStatRows'
 import {
@@ -16,7 +16,7 @@ import {
   computeMatchPlayerStats,
 } from '../../lib/analytics/matchPlayerStats'
 import { StatsTable } from '../StatsTable/StatsTable'
-import { resolveInitialMatchStatsScope } from '@open-darts/analytics/x01LegSlices'
+import { resolveInitialMatchStatsScope } from '@open-dart/analytics/x01LegSlices'
 import { MatchStatsScopeSelector } from './MatchStatsScopeSelector'
 import type { MatchStatsScope } from './MatchStatsScopeSelector'
 
