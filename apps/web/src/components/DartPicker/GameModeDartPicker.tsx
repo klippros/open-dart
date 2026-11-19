@@ -1,4 +1,5 @@
 import { AroundTheClockDartPicker } from './AroundTheClockDartPicker'
+import { BigNumbersDartPicker } from './BigNumbersDartPicker'
 import { ClaimTheBoardDartPicker } from './ClaimTheBoardDartPicker'
 import { Bob27DartPicker } from './Bob27DartPicker'
 import { DartPicker } from './DartPicker'
@@ -25,6 +26,7 @@ export interface GameModeDartPickerProps {
   aroundTheClockTargetIndex?: number
   claimTheBoardTargetIndex?: number
   bob27TargetIndex?: number
+  bigNumbersTargetIndex?: number
   hunterFieldNumber?: number
   checkoutTarget?: number
   pendingDarts: DartThrow[]
@@ -44,6 +46,7 @@ export const GameModeDartPicker = ({
   aroundTheClockTargetIndex,
   claimTheBoardTargetIndex,
   bob27TargetIndex,
+  bigNumbersTargetIndex,
   hunterFieldNumber,
   checkoutTarget,
   pendingDarts,
@@ -95,6 +98,18 @@ export const GameModeDartPicker = ({
     return (
       <Bob27DartPicker
         targetIndex={bob27TargetIndex}
+        onDarts={onDarts}
+        onUndo={onUndo}
+        inputDisabled={inputDisabled}
+        undoDisabled={undoDisabled}
+      />
+    )
+  }
+
+  if (mode === GameModeId.BigNumbers && bigNumbersTargetIndex !== undefined) {
+    return (
+      <BigNumbersDartPicker
+        targetIndex={bigNumbersTargetIndex}
         onDarts={onDarts}
         onUndo={onUndo}
         inputDisabled={inputDisabled}

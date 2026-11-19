@@ -16,6 +16,7 @@ import {
 } from '../../lib/analytics/matchStatRows'
 import {
   isAroundTheClockPracticeStats,
+  isBigNumbersPracticeStats,
   isBob27PracticeStats,
   isBullRunPracticeStats,
   isClaimTheBoardPracticeStats,
@@ -25,6 +26,7 @@ import { computeX01Stats, X01StatsFilterId } from '@open-dart/analytics/x01Stats
 import { StatsTable } from '../StatsTable/StatsTable'
 import {
   AroundTheClockPracticeCard,
+  BigNumbersPracticeCard,
   Bob27PracticeCard,
   BullRunPracticeCard,
   CheckoutPracticeCard,
@@ -260,6 +262,7 @@ export const PracticeSection = ({ checkout, other, onStatSelect }: PracticeSecti
   const aroundTheClock = other.filter(isAroundTheClockPracticeStats)
   const ninetyNineDarts = other.filter(isNinetyNineDartsPracticeStats)
   const bullRun = other.find(isBullRunPracticeStats)
+  const bigNumbers = other.filter(isBigNumbersPracticeStats)
 
   return (
     <Stack gap={4}>
@@ -278,6 +281,9 @@ export const PracticeSection = ({ checkout, other, onStatSelect }: PracticeSecti
         )}
         {bullRun !== undefined && (
           <BullRunPracticeCard stats={bullRun} onStatSelect={onStatSelect} />
+        )}
+        {bigNumbers.length > 0 && (
+          <BigNumbersPracticeCard variants={bigNumbers} onStatSelect={onStatSelect} />
         )}
       </Stack>
     </Stack>

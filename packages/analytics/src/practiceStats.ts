@@ -1,13 +1,19 @@
 import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock.ts'
+import { BigNumbersRequiredHits } from '@open-dart/game/types/bigNumbers.ts'
 import { GameModeId } from '@open-dart/game/types/gameMode.ts'
 import type { GameSession } from '@open-dart/game/types/gameSession.ts'
 import { gameModeDefinitions } from '@open-dart/game/game/gameModeDefinitions.ts'
 import { getAroundTheClockAimModeLabel } from '@open-dart/game/aroundTheClock/aroundTheClockConfig.ts'
+import { getBigNumbersRequiredHitsLabel } from '@open-dart/game/bigNumbers/bigNumbersConfig.ts'
 import {
   getBob27AvgHitsPerVisit,
   getBob27SessionDoublesHit,
   getBob27VisitHitRate,
 } from './bob27VisitStats.ts'
+import {
+  getBigNumbersAvgHitsPerVisit,
+  getBigNumbersSessionVisitCount,
+} from './bigNumbersVisitStats.ts'
 import { getClaimTheBoardPrimaryPlayerStats } from './claimTheBoardVisitStats.ts'
 import {
   computeBullRunSingleSessionStats,
@@ -32,7 +38,11 @@ import {
 import { aggregateAroundTheClockSessionStats } from './aroundTheClockStats.ts'
 import type { AroundTheClockPerTargetStats } from './aroundTheClockStats.ts'
 import { getLatestSessionStartedAt } from './pickLastPlayedVariant.ts'
-import { filterAroundTheClockSessions, filterNinetyNineDartsSessions } from './sessionScope.ts'
+import {
+  filterAroundTheClockSessions,
+  filterBigNumbersSessions,
+  filterNinetyNineDartsSessions,
+} from './sessionScope.ts'
 import {
   countCheckoutVisits,
   getHighestCheckout,
@@ -121,12 +131,25 @@ export interface BullRunPracticeStats {
   lastPlayedAt: string
 }
 
+export interface BigNumbersPracticeStats {
+  mode: GameModeId.BigNumbers
+  requiredHits: BigNumbersRequiredHits
+  label: string
+  gameCount: number
+  completedCount: number
+  avgHitsPerVisit: number | null
+  avgVisitsToComplete: number | null
+  bestVisitsToComplete: number | null
+  lastPlayedAt: string
+}
+
 export type OtherPracticeStats =
   | Bob27PracticeStats
   | ClaimTheBoardPracticeStats
   | AroundTheClockPracticeStats
   | NinetyNineDartsPracticeStats
   | BullRunPracticeStats
+  | BigNumbersPracticeStats
 
 export interface PracticeStats {
   checkout: CheckoutPracticeStats[]
@@ -146,6 +169,12 @@ const NINETY_NINE_DARTS_STAT_GROUPS = [
   NinetyNineDartsStatGroup.Twenty,
   NinetyNineDartsStatGroup.Bull,
   NinetyNineDartsStatGroup.Other,
+] as const
+
+const BIG_NUMBERS_REQUIRED_HITS = [
+  BigNumbersRequiredHits.One,
+  BigNumbersRequiredHits.Two,
+  BigNumbersRequiredHits.Three,
 ] as const
 
 const getSessionLabel = (sessions: GameSession[], mode: GameModeId): string => {
@@ -392,6 +421,42 @@ const computeBullRunStats = (sessions: GameSession[]): BullRunPracticeStats | nu
   }
 }
 
+const computeBigNumbersStatsForRequiredHits = (
+  sessions: GameSession[],
+  requiredHits: BigNumbersRequiredHits,
+): BigNumbersPracticeStats | null => {
+  const modeSessions = filterBigNumbersSessions(sessions, requiredHits)
+
+  if (modeSessions.length === 0) {
+    return null
+  }
+
+  const completedSessions = modeSessions.filter((session) => session.finishedEarly !== true)
+  const lastPlayedAt = getLatestSessionStartedAt(modeSessions)
+
+  if (lastPlayedAt === null) {
+    return null
+  }
+
+  const allVisits = modeSessions.flatMap((session) => getPrimaryPlayerVisits(session))
+  const completedVisitCounts = completedSessions.map((session) =>
+    getBigNumbersSessionVisitCount(session),
+  )
+
+  return {
+    mode: GameModeId.BigNumbers,
+    requiredHits,
+    label: `${gameModeDefinitions[GameModeId.BigNumbers].label} · ${getBigNumbersRequiredHitsLabel(requiredHits)}`,
+    gameCount: modeSessions.length,
+    completedCount: completedSessions.length,
+    avgHitsPerVisit: getBigNumbersAvgHitsPerVisit(allVisits),
+    avgVisitsToComplete: averageOrNull(completedVisitCounts),
+    bestVisitsToComplete:
+      completedVisitCounts.length === 0 ? null : Math.min(...completedVisitCounts),
+    lastPlayedAt,
+  }
+}
+
 export const computePracticeStats = (sessions: GameSession[]): PracticeStats => ({
   checkout: CHECKOUT_PRACTICE_MODES.flatMap((mode) => {
     const stats = computeCheckoutPracticeStats(mode, sessions)
@@ -408,6 +473,9 @@ export const computePracticeStats = (sessions: GameSession[]): PracticeStats => 
       computeNinetyNineDartsStatsForGroup(sessions, group),
     ),
     computeBullRunStats(sessions),
+    ...BIG_NUMBERS_REQUIRED_HITS.map((requiredHits) =>
+      computeBigNumbersStatsForRequiredHits(sessions, requiredHits),
+    ),
   ].flatMap((stats) => (stats === null ? [] : [stats])),
 })
 
@@ -428,3 +496,7 @@ export const isNinetyNineDartsPracticeStats = (
 
 export const isBullRunPracticeStats = (stats: OtherPracticeStats): stats is BullRunPracticeStats =>
   stats.mode === GameModeId.BullRun
+
+export const isBigNumbersPracticeStats = (
+  stats: OtherPracticeStats,
+): stats is BigNumbersPracticeStats => stats.mode === GameModeId.BigNumbers

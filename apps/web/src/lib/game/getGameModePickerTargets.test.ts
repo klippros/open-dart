@@ -19,6 +19,16 @@ describe('getGameModePickerTargets', () => {
     ).toEqual({ bob27TargetIndex: 2 })
   })
 
+  it('reads Big Numbers target index for the active player', () => {
+    expect(
+      getGameModePickerTargets(
+        GameModeId.BigNumbers,
+        { players: { p1: { targetIndex: 5 } } },
+        'p1',
+      ),
+    ).toEqual({ bigNumbersTargetIndex: 5 })
+  })
+
   it('reads shared Around the Clock Score target index', () => {
     expect(
       getGameModePickerTargets(

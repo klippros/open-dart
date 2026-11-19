@@ -4,6 +4,7 @@ import { getVisitsForLeg } from '@open-dart/game/game/matchLegs'
 import type { GameModeId } from '@open-dart/game/types/gameMode'
 import type { Player } from '@open-dart/game/types/player'
 import type { Visit } from '@open-dart/game/types/visit'
+import { visitHistorySidebarBreakpoint } from '../../layout'
 import {
   getVisitHistoryEntryDisplay,
   getVisitHistoryHeadlineColor,
@@ -43,7 +44,9 @@ export const VisitHistoryColumn = ({
     <Stack
       gap={3}
       align={isStack ? 'stretch' : isRight ? 'flex-end' : 'flex-start'}
-      display={isStack ? 'flex' : { base: 'none', lg: 'flex' }}
+      display={
+        isStack ? 'flex' : { base: 'none', [visitHistorySidebarBreakpoint]: 'flex' }
+      }
       w={isStack ? 'full' : undefined}
     >
       {showPlayerName && (

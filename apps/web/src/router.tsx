@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import { App } from './App'
 import { AboutPage } from './routes/AboutPage'
 import { AroundTheClockSetupPage } from './routes/AroundTheClockSetupPage'
+import { BigNumbersSetupPage } from './routes/BigNumbersSetupPage'
 import { ClaimTheBoardSetupPage } from './routes/ClaimTheBoardSetupPage'
 import { BullRunSetupPage } from './routes/BullRunSetupPage'
 import { HunterSetupPage } from './routes/HunterSetupPage'
@@ -32,6 +33,7 @@ export const router = createBrowserRouter(
         { path: 'game/hunter/setup', element: <HunterSetupPage /> },
         { path: 'game/bull-run/setup', element: <BullRunSetupPage /> },
         { path: 'game/99-darts/setup', element: <NinetyNineDartsSetupPage /> },
+        { path: 'game/big-numbers/setup', element: <BigNumbersSetupPage /> },
         { path: 'match/new', element: <OnlineMatchNewPage /> },
         { path: 'match/join/:token', element: <OnlineMatchJoinPage /> },
         { path: 'match/:id', element: <OnlineMatchPage /> },

@@ -7,6 +7,7 @@ const ALWAYS_VOICE_INPUT_MODES = new Set<GameModeId>([
   GameModeId.AroundTheClock,
   GameModeId.ClaimTheBoard,
   GameModeId.NinetyNineDarts,
+  GameModeId.BigNumbers,
 ])
 
 const VISIT_SCORE_VOICE_MODES = new Set<GameModeId>([

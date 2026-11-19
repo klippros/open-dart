@@ -11,10 +11,12 @@ import { gameModeDefinitions } from '@open-dart/game/game/gameModeDefinitions'
 import {
   isX01Config,
   isAroundTheClockConfig,
+  isBigNumbersConfig,
   isBullRunConfig,
   isClaimTheBoardConfig,
   isNinetyNineDartsConfig,
 } from '@open-dart/game/game/gameConfigGuards'
+import { getBigNumbersConfigLabel } from '@open-dart/game/bigNumbers/bigNumbersConfig'
 import { getBullRunConfigLabel } from '@open-dart/game/bullRun/bullRunConfig'
 import {
   getAroundTheClockAimModeLabel,
@@ -112,6 +114,10 @@ export const getSessionModeLabel = (session: GameSession): string => {
 
   if (isBullRunConfig(session.mode, session.config)) {
     return `${gameModeDefinitions[session.mode].label} · ${getBullRunConfigLabel(session.config)}`
+  }
+
+  if (isBigNumbersConfig(session.mode, session.config)) {
+    return `${gameModeDefinitions[session.mode].label} · ${getBigNumbersConfigLabel(session.config)}`
   }
 
   return gameModeDefinitions[session.mode].label
@@ -401,6 +407,29 @@ export const getMatchSummary = (session: GameSession): MatchSummary => {
 
     if (details.length === 0) {
       details.push(`${visitCount} visit${visitCount === 1 ? '' : 's'}`)
+    }
+
+    return {
+      title: finishedEarly ? `${modeLabel} session ended` : `${modeLabel} complete`,
+      details,
+    }
+  }
+
+  if (session.mode === GameModeId.BigNumbers) {
+    const modeLabel = getSessionModeLabel(session)
+    const details = [`${visitCount} visit${visitCount === 1 ? '' : 's'}`]
+    const totalHits = playerVisits.reduce((sum, visit) => {
+      const hitCount = visit.metadata?.hitCount
+
+      return sum + (typeof hitCount === 'number' ? hitCount : 0)
+    }, 0)
+
+    if (visitCount > 0) {
+      details.push(`${(totalHits / visitCount).toFixed(1)} hits / visit`)
+    }
+
+    if (finishedEarly && lastVisit !== undefined) {
+      details.push(`Stopped on ${lastVisit.scoreAfter}`)
     }
 
     return {

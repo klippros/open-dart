@@ -1,4 +1,5 @@
 import type { AroundTheClockConfig } from './aroundTheClock.ts'
+import type { BigNumbersConfig } from './bigNumbers.ts'
 import type { BullRunConfig } from './bullRun.ts'
 import type { ClaimTheBoardConfig } from './claimTheBoard.ts'
 import type { Bob27Config } from './bob27.ts'
@@ -18,6 +19,7 @@ export enum GameModeId {
   NinetyNineDarts = '99-darts',
   Hunter = 'hunter',
   BullRun = 'bull-run',
+  BigNumbers = 'big-numbers',
 }
 
 export enum GameStatus {
@@ -36,3 +38,4 @@ export type GameConfig =
   | NinetyNineDartsConfig
   | HunterConfig
   | BullRunConfig
+  | BigNumbersConfig

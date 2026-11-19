@@ -1,10 +1,13 @@
 import type { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock.ts'
+import type { BigNumbersRequiredHits } from '@open-dart/game/types/bigNumbers.ts'
 import { GameModeId } from '@open-dart/game/types/gameMode.ts'
 import type { GameSession } from '@open-dart/game/types/gameSession.ts'
 import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig.ts'
+import { getBigNumbersConfig } from '@open-dart/game/bigNumbers/bigNumbersConfig.ts'
 import { getNinetyNineDartsConfig } from '@open-dart/game/ninetyNineDarts/ninetyNineDartsConfig.ts'
 import {
   isAroundTheClockConfig,
+  isBigNumbersConfig,
   isNinetyNineDartsConfig,
   isX01Config,
 } from '@open-dart/game/game/gameConfigGuards.ts'
@@ -48,6 +51,22 @@ export const filterBob27Sessions = (sessions: GameSession[]): GameSession[] =>
 
 export const filterBullRunSessions = (sessions: GameSession[]): GameSession[] =>
   sessions.filter((session) => session.mode === GameModeId.BullRun)
+
+export const filterBigNumbersSessions = (
+  sessions: GameSession[],
+  requiredHits?: BigNumbersRequiredHits,
+): GameSession[] =>
+  sessions.filter((session) => {
+    if (!isBigNumbersConfig(session.mode, session.config)) {
+      return false
+    }
+
+    if (requiredHits === undefined) {
+      return true
+    }
+
+    return getBigNumbersConfig(session.config).requiredHits === requiredHits
+  })
 
 export const filterAroundTheClockSessions = (
   sessions: GameSession[],

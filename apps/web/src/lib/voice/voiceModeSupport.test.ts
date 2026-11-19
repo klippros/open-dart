@@ -4,10 +4,11 @@ import { VisitInputMode } from '@open-dart/game/types/visit'
 import { isVoiceInputSupportedForMode } from './voiceModeSupport'
 
 describe('isVoiceInputSupportedForMode', () => {
-  it('allows Bob’s 27, Around the Clock, and 99 Darts', () => {
+  it('allows Bob’s 27, Around the Clock, 99 Darts, and Big Numbers', () => {
     expect(isVoiceInputSupportedForMode(GameModeId.Bob27)).toBe(true)
     expect(isVoiceInputSupportedForMode(GameModeId.AroundTheClock)).toBe(true)
     expect(isVoiceInputSupportedForMode(GameModeId.NinetyNineDarts)).toBe(true)
+    expect(isVoiceInputSupportedForMode(GameModeId.BigNumbers)).toBe(true)
   })
 
   it('disables X01-family modes on per-dart input', () => {
