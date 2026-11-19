@@ -1,24 +1,24 @@
 import { describe, expect, it } from 'vitest'
-import { buildBob27DartsForHitCount } from '@open-darts/game/bob27/buildBob27Darts'
-import { buildClaimTheBoardDartsForHitCount } from '@open-darts/game/claimTheBoard/buildClaimTheBoardDarts'
-import { createGameController } from '@open-darts/game/game/createSession'
-import { createPlayer } from '@open-darts/game/game/playerFactory'
+import { buildBob27DartsForHitCount } from '@open-dart/game/bob27/buildBob27Darts'
+import { buildClaimTheBoardDartsForHitCount } from '@open-dart/game/claimTheBoard/buildClaimTheBoardDarts'
+import { createGameController } from '@open-dart/game/game/createSession'
+import { createPlayer } from '@open-dart/game/game/playerFactory'
 import {
   createHitDartForTarget,
   buildDartsForMissAll,
-} from '@open-darts/game/aroundTheClock/buildAroundTheClockDarts'
+} from '@open-dart/game/aroundTheClock/buildAroundTheClockDarts'
 import { buildHunterThrowsForOutcomes } from '../../components/DartPicker/HunterDartPicker/buildHunterThrowsForOutcomes'
-import { buildNinetyNineDartsThrow } from '@open-darts/game/ninetyNineDarts/buildNinetyNineDarts'
-import { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock'
-import { DartMultiplier } from '@open-darts/game/types/dart'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { HunterOutcome } from '@open-darts/game/types/hunter'
+import { buildNinetyNineDartsThrow } from '@open-dart/game/ninetyNineDarts/buildNinetyNineDarts'
+import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
+import { DartMultiplier } from '@open-dart/game/types/dart'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { HunterOutcome } from '@open-dart/game/types/hunter'
 import {
   NinetyNineDartsOutcome,
   NinetyNineDartsTargetKind,
-} from '@open-darts/game/types/ninetyNineDarts'
-import { PlayerKind } from '@open-darts/game/types/player'
-import { numberDart, missDart, bullDart } from '@open-darts/game/testHelpers'
+} from '@open-dart/game/types/ninetyNineDarts'
+import { PlayerKind } from '@open-dart/game/types/player'
+import { numberDart, missDart, bullDart } from '@open-dart/game/testHelpers'
 import { buildInputFlashFromTransition, inputFlashLabels } from './buildInputFlashLabel'
 import { toInputFlashSnapshot } from './toInputFlashSnapshot'
 

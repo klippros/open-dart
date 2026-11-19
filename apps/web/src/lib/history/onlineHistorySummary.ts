@@ -1,12 +1,12 @@
-import { formatX01StartScore } from '@open-darts/game/x01/x01Presets'
+import { formatX01StartScore } from '@open-dart/game/x01/x01Presets'
 import {
   getAroundTheClockAimModeLabel,
   parseAroundTheClockAimModeValue,
-} from '@open-darts/game/aroundTheClock/aroundTheClockConfig'
-import { parseGameSession } from '@open-darts/game/game/serializeGame'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { gameModeDefinitions } from '@open-darts/game/game/gameModeDefinitions'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+} from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
+import { parseGameSession } from '@open-dart/game/game/serializeGame'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { gameModeDefinitions } from '@open-dart/game/game/gameModeDefinitions'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import type { OnlineMatchSummary } from '../matchServer/types'
 import { MatchEndingKind } from '../matchServer/types'
 import { formatSessionDate } from './sessionSummary'

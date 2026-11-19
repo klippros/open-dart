@@ -1,4 +1,4 @@
-import type { Visit } from '@open-darts/game/types/visit'
+import type { Visit } from '@open-dart/game/types/visit'
 
 export interface LegVisitTableRow {
   id: string

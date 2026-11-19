@@ -1,19 +1,19 @@
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { CreateSessionParams } from '@open-darts/game/game/createSession'
-import { parseAroundTheClockConfigFromSearchParams } from '@open-darts/game/aroundTheClock/aroundTheClockConfig'
-import { parseBullRunConfigFromSearchParams } from '@open-darts/game/bullRun/bullRunConfig'
-import { parseClaimTheBoardConfigFromSearchParams } from '@open-darts/game/claimTheBoard/claimTheBoardConfig'
-import { parseHunterConfigFromSearchParams } from '@open-darts/game/hunter/hunterConfig'
-import { parseNinetyNineDartsConfigFromSearchParams } from '@open-darts/game/ninetyNineDarts/ninetyNineDartsConfig'
-import { isOnlineMatchMode } from '@open-darts/game/game/onlineMatchSetup'
-import type { OnlineMatchMode } from '@open-darts/game/game/onlineMatchSetup'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { CreateSessionParams } from '@open-dart/game/game/createSession'
+import { parseAroundTheClockConfigFromSearchParams } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
+import { parseBullRunConfigFromSearchParams } from '@open-dart/game/bullRun/bullRunConfig'
+import { parseClaimTheBoardConfigFromSearchParams } from '@open-dart/game/claimTheBoard/claimTheBoardConfig'
+import { parseHunterConfigFromSearchParams } from '@open-dart/game/hunter/hunterConfig'
+import { parseNinetyNineDartsConfigFromSearchParams } from '@open-dart/game/ninetyNineDarts/ninetyNineDartsConfig'
+import { isOnlineMatchMode } from '@open-dart/game/game/onlineMatchSetup'
+import type { OnlineMatchMode } from '@open-dart/game/game/onlineMatchSetup'
 import {
   buildPlayersFromOpponentSetup,
   getChallengeConfigFromSetup,
   parseOpponentSetup,
-} from '@open-darts/game/game/opponentSetup'
-import { createSoloHumanPlayer } from '@open-darts/game/game/playerFactory'
-import { parseX01ConfigFromSearchParams } from '@open-darts/game/x01/x01Presets'
+} from '@open-dart/game/game/opponentSetup'
+import { createSoloHumanPlayer } from '@open-dart/game/game/playerFactory'
+import { parseX01ConfigFromSearchParams } from '@open-dart/game/x01/x01Presets'
 
 export type PracticeGameMode =
   | GameModeId.Bob27

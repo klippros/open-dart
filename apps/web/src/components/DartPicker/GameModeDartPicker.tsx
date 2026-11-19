@@ -11,13 +11,13 @@ import {
   isAroundTheClockConfig,
   isClaimTheBoardConfig,
   isNinetyNineDartsConfig,
-} from '@open-darts/game/game/gameConfigGuards'
-import { supportsVisitScoreInput } from '@open-darts/game/game/gameModeDefinitions'
-import type { DartThrow } from '@open-darts/game/types/dart'
-import type { GameConfig } from '@open-darts/game/types/gameMode'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { NinetyNineDartsTargetKind } from '@open-darts/game/types/ninetyNineDarts'
-import { VisitInputMode } from '@open-darts/game/types/visit'
+} from '@open-dart/game/game/gameConfigGuards'
+import { supportsVisitScoreInput } from '@open-dart/game/game/gameModeDefinitions'
+import type { DartThrow } from '@open-dart/game/types/dart'
+import type { GameConfig } from '@open-dart/game/types/gameMode'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { NinetyNineDartsTargetKind } from '@open-dart/game/types/ninetyNineDarts'
+import { VisitInputMode } from '@open-dart/game/types/visit'
 
 export interface GameModeDartPickerProps {
   mode: GameModeId

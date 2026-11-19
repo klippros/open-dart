@@ -1,4 +1,4 @@
-export const GAME_PACKAGE_NAME = '@open-darts/game'
+export const GAME_PACKAGE_NAME = '@open-dart/game'
 
 export { GameController } from './game/GameController'
 export { getEngine } from './game/gameRegistry'

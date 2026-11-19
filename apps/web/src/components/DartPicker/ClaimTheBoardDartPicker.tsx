@@ -1,8 +1,8 @@
 import { HitCountDartPicker } from './HitCountDartPicker'
-import { buildClaimTheBoardDartsForHitCount } from '@open-darts/game/claimTheBoard/buildClaimTheBoardDarts'
-import { getClaimTheBoardTarget } from '@open-darts/game/claimTheBoard/claimTheBoardRules'
-import type { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock'
-import type { DartThrow } from '@open-darts/game/types/dart'
+import { buildClaimTheBoardDartsForHitCount } from '@open-dart/game/claimTheBoard/buildClaimTheBoardDarts'
+import { getClaimTheBoardTarget } from '@open-dart/game/claimTheBoard/claimTheBoardRules'
+import type { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
+import type { DartThrow } from '@open-dart/game/types/dart'
 
 export interface ClaimTheBoardDartPickerProps {
   targetIndex: number

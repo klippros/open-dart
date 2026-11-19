@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { createGameController } from '@open-darts/game/game/createSession'
-import { buildBullRunThrow } from '@open-darts/game/bullRun/buildBullRunDarts'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { BullRunOutcome } from '@open-darts/game/types/bullRun'
-import { PlayerKind } from '@open-darts/game/types/player'
+import { createGameController } from '@open-dart/game/game/createSession'
+import { buildBullRunThrow } from '@open-dart/game/bullRun/buildBullRunDarts'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { BullRunOutcome } from '@open-dart/game/types/bullRun'
+import { PlayerKind } from '@open-dart/game/types/player'
 import {
   computeBullRunSingleSessionStats,
   getBullRunLiveScoreMetrics,
   getBullRunLiveStats,
   ratePerThreeDarts,
-} from '@open-darts/analytics/bullRunVisitStats'
+} from '@open-dart/analytics/bullRunVisitStats'
 
 const player = { id: 'p1', name: 'Player', kind: PlayerKind.Human }
 

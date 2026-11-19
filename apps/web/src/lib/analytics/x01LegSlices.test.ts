@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { PlayerKind } from '@open-darts/game/types/player'
-import { DartMultiplier } from '@open-darts/game/types/dart'
-import { numberDart } from '@open-darts/game/testHelpers'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { PlayerKind } from '@open-dart/game/types/player'
+import { DartMultiplier } from '@open-dart/game/types/dart'
+import { numberDart } from '@open-dart/game/testHelpers'
 import {
   countDartsInVisits,
   expandX01SessionLegs,
@@ -12,7 +12,7 @@ import {
   getX01LegSlicePointId,
   legFinishedWithCheckout,
   resolveInitialMatchStatsScope,
-} from '@open-darts/analytics/x01LegSlices'
+} from '@open-dart/analytics/x01LegSlices'
 
 const sampleVisit = (
   overrides: Partial<GameSession['visits'][number]> = {},

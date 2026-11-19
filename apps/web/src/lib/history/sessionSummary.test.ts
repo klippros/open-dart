@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { PlayerKind } from '@open-darts/game/types/player'
+import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { PlayerKind } from '@open-dart/game/types/player'
 import {
   formatSessionDate,
   getMatchSummary,

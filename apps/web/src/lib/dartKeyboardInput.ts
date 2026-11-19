@@ -1,6 +1,6 @@
-import { createDartThrow } from '@open-darts/game/dartScoring'
-import { DartMultiplier, DartSegmentType } from '@open-darts/game/types/dart'
-import type { DartThrow } from '@open-darts/game/types/dart'
+import { createDartThrow } from '@open-dart/game/dartScoring'
+import { DartMultiplier, DartSegmentType } from '@open-dart/game/types/dart'
+import type { DartThrow } from '@open-dart/game/types/dart'
 
 export type ArmedMultiplier = DartMultiplier.Single | DartMultiplier.Double | DartMultiplier.Triple
 

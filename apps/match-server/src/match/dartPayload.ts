@@ -1,6 +1,6 @@
-import { calculateDartPoints, createDartThrow } from '@open-darts/game/dartScoring'
-import { DartMultiplier, DartSegmentType } from '@open-darts/game/types/dart'
-import type { DartSegment, DartThrow } from '@open-darts/game/types/dart'
+import { calculateDartPoints, createDartThrow } from '@open-dart/game/dartScoring'
+import { DartMultiplier, DartSegmentType } from '@open-dart/game/types/dart'
+import type { DartSegment, DartThrow } from '@open-dart/game/types/dart'
 import { isRecord } from '../json'
 import type { PublicDartThrow } from './types'
 

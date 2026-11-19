@@ -11,7 +11,7 @@ const exposeOnLan =
 // https://vite.dev/config/
 export default defineConfig({
   envDir: '../..',
-  base: '/tools/open-darts/',
+  base: '/',
   plugins: [react(), ...(exposeOnLan ? [basicSsl()] : [])],
   test: {
     environment: 'node',

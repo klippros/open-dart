@@ -1,4 +1,4 @@
-import type { GameConfig } from '@open-darts/game/types/gameMode'
+import type { GameConfig } from '@open-dart/game/types/gameMode'
 
 export enum OnlineMatchInviteStatus {
   Pending = 'pending',

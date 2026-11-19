@@ -1,5 +1,5 @@
 import { DurableObject } from 'cloudflare:workers'
-import { LEGS_TO_WIN_MAX, LEGS_TO_WIN_MIN } from '@open-darts/game/types/match'
+import { LEGS_TO_WIN_MAX, LEGS_TO_WIN_MIN } from '@open-dart/game/types/match'
 import { isUuid } from '../ids'
 import { isJsonObject, isRecord } from '../json'
 import { deleteDeadline, dueDeadlineKinds, scheduleEarliestAlarm, upsertDeadline } from './alarms'

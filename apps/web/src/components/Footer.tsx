@@ -24,7 +24,7 @@ export const Footer = () => (
           Impressum
         </Link>
         <Link
-          href="https://github.com/klippros/open-darts"
+          href="https://github.com/klippros/open-dart"
           rel="noopener noreferrer"
           target="_blank"
           color="whiteAlpha.700"

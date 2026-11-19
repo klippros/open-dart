@@ -1,8 +1,8 @@
 import { Box, Flex } from '@chakra-ui/react'
-import type { ScoreboardPlayerEntry } from '@open-darts/game/game/GameEngine'
-import type { DartThrow } from '@open-darts/game/types/dart'
-import type { Visit } from '@open-darts/game/types/visit'
-import { getHunterStandingFieldNumber } from '@open-darts/game/hunter/hunterClock'
+import type { ScoreboardPlayerEntry } from '@open-dart/game/game/GameEngine'
+import type { DartThrow } from '@open-dart/game/types/dart'
+import type { Visit } from '@open-dart/game/types/visit'
+import { getHunterStandingFieldNumber } from '@open-dart/game/hunter/hunterClock'
 import {
   DARTBOARD_CENTER,
   DARTBOARD_FONT_FAMILY,

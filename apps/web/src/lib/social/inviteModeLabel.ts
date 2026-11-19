@@ -1,14 +1,14 @@
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { GameConfig } from '@open-darts/game/types/gameMode'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { GameConfig } from '@open-dart/game/types/gameMode'
 import {
   isBullRunConfig,
   isClaimTheBoardConfig,
   isX01Config,
-} from '@open-darts/game/game/gameConfigGuards'
-import { formatX01StartScore } from '@open-darts/game/x01/x01Presets'
-import { getAroundTheClockAimModeLabel } from '@open-darts/game/aroundTheClock/aroundTheClockConfig'
-import { getBullRunConfigLabel } from '@open-darts/game/bullRun/bullRunConfig'
-import { gameModeDefinitions } from '@open-darts/game/game/gameModeDefinitions'
+} from '@open-dart/game/game/gameConfigGuards'
+import { formatX01StartScore } from '@open-dart/game/x01/x01Presets'
+import { getAroundTheClockAimModeLabel } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
+import { getBullRunConfigLabel } from '@open-dart/game/bullRun/bullRunConfig'
+import { gameModeDefinitions } from '@open-dart/game/game/gameModeDefinitions'
 
 export const getInviteModeLabel = (mode: string, config: GameConfig): string => {
   if (mode === (GameModeId.X01 as string) && isX01Config(GameModeId.X01, config)) {

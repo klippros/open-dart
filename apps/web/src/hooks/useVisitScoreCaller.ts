@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import type { AppGameController } from '@open-darts/game/game/createSession'
-import { supportsScoreCaller } from '@open-darts/game/game/gameModeDefinitions'
-import type { GameModeId } from '@open-darts/game/types/gameMode'
+import type { AppGameController } from '@open-dart/game/game/createSession'
+import { supportsScoreCaller } from '@open-dart/game/game/gameModeDefinitions'
+import type { GameModeId } from '@open-dart/game/types/gameMode'
 import {
   announceCalloutOnce,
   clearAnnouncedCallouts,
@@ -20,7 +20,7 @@ import {
 } from '../lib/scoreCaller/buildVisitEndCallout'
 import { buildVisitStartCallout } from '../lib/scoreCaller/buildVisitStartCallout'
 import { cancelCallouts } from '../lib/scoreCaller/speakCallout'
-import type { Visit } from '@open-darts/game/types/visit'
+import type { Visit } from '@open-dart/game/types/visit'
 import { useSettings } from './settingsContext'
 
 export interface ScoreCallerCallbacks {

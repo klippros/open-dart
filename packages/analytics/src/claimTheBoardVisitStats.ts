@@ -1,9 +1,9 @@
-import type { GameSession } from '@open-darts/game/types/gameSession.ts'
-import type { Visit } from '@open-darts/game/types/visit.ts'
-import { GameModeId } from '@open-darts/game/types/gameMode.ts'
-import { countClaimTheBoardTargetHits } from '@open-darts/game/claimTheBoard/claimTheBoardRules.ts'
-import { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock.ts'
-import { isClaimTheBoardConfig } from '@open-darts/game/game/gameConfigGuards.ts'
+import type { GameSession } from '@open-dart/game/types/gameSession.ts'
+import type { Visit } from '@open-dart/game/types/visit.ts'
+import { GameModeId } from '@open-dart/game/types/gameMode.ts'
+import { countClaimTheBoardTargetHits } from '@open-dart/game/claimTheBoard/claimTheBoardRules.ts'
+import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock.ts'
+import { isClaimTheBoardConfig } from '@open-dart/game/game/gameConfigGuards.ts'
 import { getPlayerVisits, getPrimaryPlayerVisits } from './visitStats.ts'
 
 const readMetadataHitCount = (metadata: Visit['metadata']): number | null => {

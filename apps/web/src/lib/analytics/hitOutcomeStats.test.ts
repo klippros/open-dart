@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { DartMultiplier } from '@open-darts/game/types/dart'
-import { VisitInputMode } from '@open-darts/game/types/visit'
-import { missDart, outerBullDart } from '@open-darts/game/testHelpers'
+import { DartMultiplier } from '@open-dart/game/types/dart'
+import { VisitInputMode } from '@open-dart/game/types/visit'
+import { missDart, outerBullDart } from '@open-dart/game/testHelpers'
 import {
   collectPlayerDarts,
   emptyBaseHitCounts,
@@ -12,7 +12,7 @@ import {
   mergeBaseHitOutcomeCounts,
   mergeHitOutcomeCounts,
   ratePerThreeDarts,
-} from '@open-darts/analytics/hitOutcomeStats'
+} from '@open-dart/analytics/hitOutcomeStats'
 
 describe('hitOutcomeStats', () => {
   it('merges base and full hit counts', () => {

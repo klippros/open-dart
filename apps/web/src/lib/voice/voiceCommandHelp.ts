@@ -1,5 +1,5 @@
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { VisitInputMode } from '@open-darts/game/types/visit'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { VisitInputMode } from '@open-dart/game/types/visit'
 import { isVisitScoreVoiceMode, isVoiceInputSupportedForMode } from './voiceModeSupport'
 
 export const VOICE_COMMANDS_SECTION_TITLE = 'Voice commands'

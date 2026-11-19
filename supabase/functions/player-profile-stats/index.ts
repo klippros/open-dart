@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
-import type { GameSession } from '@open-darts/game/types/gameSession.ts'
-import { GameModeId } from '@open-darts/game/types/gameMode.ts'
-import { buildProfileStats } from '@open-darts/analytics'
+import type { GameSession } from '@open-dart/game/types/gameSession.ts'
+import { GameModeId } from '@open-dart/game/types/gameMode.ts'
+import { buildProfileStats } from '@open-dart/analytics'
 import {
   addStoredValueToBudget,
   isRecord,

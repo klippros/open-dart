@@ -9,10 +9,10 @@ import { SetupGuestOnlineOpponentSection } from '../components/SetupPageLayout/S
 import { SetupOnlineSignInDialog } from '../components/SetupPageLayout/SetupOnlineSignInDialog'
 import { useMatchSetupSession } from '../components/SetupPageLayout/useMatchSetupSession'
 import { ResumeOnlineMatchBanner } from '../components/ResumeOnlineMatchBanner/ResumeOnlineMatchBanner'
-import type { HunterConfig } from '@open-darts/game/types/hunter'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { buildHunterGamePath } from '@open-darts/game/hunter/hunterConfig'
-import { resolveStartingPlayerIndex } from '@open-darts/game/game/matchLegs'
+import type { HunterConfig } from '@open-dart/game/types/hunter'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { buildHunterGamePath } from '@open-dart/game/hunter/hunterConfig'
+import { resolveStartingPlayerIndex } from '@open-dart/game/game/matchLegs'
 import { isOnlineMatchesEnabled } from '../lib/matchServer/config'
 import {
   isOnlinePlaySelected,

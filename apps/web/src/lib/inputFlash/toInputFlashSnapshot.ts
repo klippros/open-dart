@@ -1,8 +1,8 @@
-import { getAroundTheClockCurrentTargetIndex } from '@open-darts/game/aroundTheClock/buildAroundTheClockDarts'
-import { getAroundTheClockConfig } from '@open-darts/game/aroundTheClock/aroundTheClockConfig'
-import { isAroundTheClockConfig, isHunterConfig } from '@open-darts/game/game/gameConfigGuards'
-import type { AppGameController } from '@open-darts/game/game/createSession'
-import { GameModeId } from '@open-darts/game/types/gameMode'
+import { getAroundTheClockCurrentTargetIndex } from '@open-dart/game/aroundTheClock/buildAroundTheClockDarts'
+import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
+import { isAroundTheClockConfig, isHunterConfig } from '@open-dart/game/game/gameConfigGuards'
+import type { AppGameController } from '@open-dart/game/game/createSession'
+import { GameModeId } from '@open-dart/game/types/gameMode'
 import { getGameModePickerTargets } from '../game/getGameModePickerTargets'
 import type { InputFlashTransitionSnapshot } from './buildInputFlashLabel'
 

@@ -1,23 +1,23 @@
-import { getAroundTheClockConfig } from '@open-darts/game/aroundTheClock/aroundTheClockConfig'
-import { getAroundTheClockTargetAimLabel } from '@open-darts/game/aroundTheClock/aroundTheClockRules'
-import { formatDart } from '@open-darts/game/formatDart'
+import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
+import { getAroundTheClockTargetAimLabel } from '@open-dart/game/aroundTheClock/aroundTheClockRules'
+import { formatDart } from '@open-dart/game/formatDart'
 import {
   isAroundTheClockConfig,
   isNinetyNineDartsConfig,
-} from '@open-darts/game/game/gameConfigGuards'
-import { getBullRunDartPoints } from '@open-darts/game/bullRun/bullRunRules'
+} from '@open-dart/game/game/gameConfigGuards'
+import { getBullRunDartPoints } from '@open-dart/game/bullRun/bullRunRules'
 import {
   getHunterAdvanceForDart,
   getHunterAimFieldNumberAfterDarts,
-} from '@open-darts/game/hunter/hunterRules'
-import { getNinetyNineDartsDartPoints } from '@open-darts/game/ninetyNineDarts/ninetyNineDartsRules'
-import { isOneTwentyOneRoundFailedVisit } from '@open-darts/game/oneTwentyOne/oneTwentyOneVisitMetadata'
-import { DartMultiplier } from '@open-darts/game/types/dart'
-import type { DartThrow } from '@open-darts/game/types/dart'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { GameConfig } from '@open-darts/game/types/gameMode'
-import type { Visit } from '@open-darts/game/types/visit'
-import { VisitInputMode } from '@open-darts/game/types/visit'
+} from '@open-dart/game/hunter/hunterRules'
+import { getNinetyNineDartsDartPoints } from '@open-dart/game/ninetyNineDarts/ninetyNineDartsRules'
+import { isOneTwentyOneRoundFailedVisit } from '@open-dart/game/oneTwentyOne/oneTwentyOneVisitMetadata'
+import { DartMultiplier } from '@open-dart/game/types/dart'
+import type { DartThrow } from '@open-dart/game/types/dart'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { GameConfig } from '@open-dart/game/types/gameMode'
+import type { Visit } from '@open-dart/game/types/visit'
+import { VisitInputMode } from '@open-dart/game/types/visit'
 import { formatSignedDelta } from './formatSignedDelta'
 
 export type InputFlashKind = 'input' | 'undo'

@@ -1,7 +1,7 @@
 import { Box, Button, Heading, Stack, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link as RouterLink, useParams } from 'react-router-dom'
-import type { PlayerProfileStats } from '@open-darts/analytics'
+import type { PlayerProfileStats } from '@open-dart/analytics'
 import { ContentContainer } from '../components/ContentContainer'
 import { DisplayNameEditor } from '../components/DisplayNameEditor/DisplayNameEditor'
 import { HistoryList } from '../components/HistoryList/HistoryList'
@@ -37,8 +37,8 @@ import {
   reportDisplayName,
 } from '../lib/profile/profileApi'
 import { AuthStatus } from '../types/auth'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { resolveHumanPlayerName } from '@open-darts/game/game/playerFactory'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { resolveHumanPlayerName } from '@open-dart/game/game/playerFactory'
 
 export const PlayerProfilePage = () => {
   const { userId: routeUserId } = useParams()

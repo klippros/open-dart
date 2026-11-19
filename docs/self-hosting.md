@@ -1,6 +1,6 @@
 # Optional backends
 
-Open Darts works without Supabase or Cloudflare. Local games stay in the
+Open Dart works without Supabase or Cloudflare. Local games stay in the
 browser. Online matches are available only when **both** Supabase and the
 match Worker are configured.
 
@@ -19,7 +19,7 @@ pnpm install
 pnpm dev
 ```
 
-The app is at `http://localhost:5173/tools/open-darts/`. Users stay anonymous
+The app is at `http://localhost:5173/`. Users stay anonymous
 and completed games stay in `localStorage`. Online play UI stays hidden.
 
 ## Supabase (optional sign-in and local-game sync)
@@ -40,25 +40,26 @@ Link the Supabase CLI and run `supabase db push` to apply all migrations.
 In **Authentication → URL Configuration**, set the production Site URL like:
 
 ```text
-https://klippros.com/tools/open-darts/
+https://opendart.app/
 ```
 
 Add these redirect URLs (exact match — do not append query strings):
 
 ```text
-http://localhost:5173/tools/open-darts/auth/callback
-https://klippros.com/tools/open-darts/auth/callback
+http://localhost:5173/auth/callback
+https://opendart.app/auth/callback
 ```
 
 Post-sign-in destinations (for example `/game/match-setup`) are stored in the
 browser and are not part of the redirect URL.
 
 For another deployment, replace the production origin and keep the
-`/tools/open-darts/auth/callback` path.
+`/auth/callback` path. The previous klippros.com callback can stay on the
+allowlist so a game already open there can refresh its session.
 
 #### Email
 
-Enable the Email provider. Open Darts uses `signInWithOtp`, so users receive a
+Enable the Email provider. Open Dart uses `signInWithOtp`, so users receive a
 magic link and never create a password.
 
 #### Google
@@ -149,7 +150,7 @@ pnpm exec wrangler deploy
 ```
 
 Put the deployed Worker origin in the web app build as `VITE_MATCH_SERVER_URL`
-(for example `https://open-darts-match-server.<account>.workers.dev`).
+(for example `https://open-dart-match-server.<account>.workers.dev`).
 
 Rebuild and redeploy the web app so the browser picks up the new URL.
 

@@ -1,8 +1,8 @@
-import { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock.ts'
-import { GameModeId } from '@open-darts/game/types/gameMode.ts'
-import type { GameSession } from '@open-darts/game/types/gameSession.ts'
-import { gameModeDefinitions } from '@open-darts/game/game/gameModeDefinitions.ts'
-import { getAroundTheClockAimModeLabel } from '@open-darts/game/aroundTheClock/aroundTheClockConfig.ts'
+import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock.ts'
+import { GameModeId } from '@open-dart/game/types/gameMode.ts'
+import type { GameSession } from '@open-dart/game/types/gameSession.ts'
+import { gameModeDefinitions } from '@open-dart/game/game/gameModeDefinitions.ts'
+import { getAroundTheClockAimModeLabel } from '@open-dart/game/aroundTheClock/aroundTheClockConfig.ts'
 import {
   getBob27AvgHitsPerVisit,
   getBob27SessionDoublesHit,

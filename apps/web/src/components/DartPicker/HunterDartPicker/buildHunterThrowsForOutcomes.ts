@@ -1,12 +1,12 @@
-import { buildHunterThrow } from '@open-darts/game/hunter/buildHunterDarts'
+import { buildHunterThrow } from '@open-dart/game/hunter/buildHunterDarts'
 import {
   advanceHunterFieldIndex,
   getHunterFieldIndexForNumber,
   getHunterFieldNumber,
-} from '@open-darts/game/hunter/hunterClock'
-import { getHunterAdvanceForOutcome } from '@open-darts/game/hunter/hunterRules'
-import type { DartThrow } from '@open-darts/game/types/dart'
-import type { HunterOutcome } from '@open-darts/game/types/hunter'
+} from '@open-dart/game/hunter/hunterClock'
+import { getHunterAdvanceForOutcome } from '@open-dart/game/hunter/hunterRules'
+import type { DartThrow } from '@open-dart/game/types/dart'
+import type { HunterOutcome } from '@open-dart/game/types/hunter'
 
 /**
  * Build visit throws for a sequence of picker outcomes, advancing the aim field

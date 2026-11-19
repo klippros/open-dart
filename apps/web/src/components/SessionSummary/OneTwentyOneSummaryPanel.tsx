@@ -4,8 +4,8 @@ import {
   formatCheckoutPercent,
   formatInteger,
 } from '../../lib/analytics/formatAnalytics'
-import { computeOneTwentyOneSingleSessionStats } from '@open-darts/analytics/oneTwentyOneVisitStats'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import { computeOneTwentyOneSingleSessionStats } from '@open-dart/analytics/oneTwentyOneVisitStats'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import { StatCard } from '../StatsPageSections/StatCard'
 
 export interface OneTwentyOneSummaryPanelProps {

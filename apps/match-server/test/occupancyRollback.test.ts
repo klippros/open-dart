@@ -1,6 +1,6 @@
 import { env } from 'cloudflare:workers'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { defaultX01Config } from '@open-darts/game/x01/x01Presets'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { defaultX01Config } from '@open-dart/game/x01/x01Presets'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createMatch } from '../src/http/createMatch'
 import { joinMatch } from '../src/http/joinMatch'

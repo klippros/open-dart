@@ -1,9 +1,9 @@
 import { Box, Stack, Text } from '@chakra-ui/react'
-import { formatDart } from '@open-darts/game/formatDart'
-import { getVisitsForLeg } from '@open-darts/game/game/matchLegs'
-import type { GameModeId } from '@open-darts/game/types/gameMode'
-import type { Player } from '@open-darts/game/types/player'
-import type { Visit } from '@open-darts/game/types/visit'
+import { formatDart } from '@open-dart/game/formatDart'
+import { getVisitsForLeg } from '@open-dart/game/game/matchLegs'
+import type { GameModeId } from '@open-dart/game/types/gameMode'
+import type { Player } from '@open-dart/game/types/player'
+import type { Visit } from '@open-dart/game/types/visit'
 import {
   getVisitHistoryEntryDisplay,
   getVisitHistoryHeadlineColor,

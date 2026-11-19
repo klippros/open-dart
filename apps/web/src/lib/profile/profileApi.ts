@@ -1,4 +1,4 @@
-import type { PlayerProfileStats } from '@open-darts/analytics'
+import type { PlayerProfileStats } from '@open-dart/analytics'
 import { HISTORY_PAGE_SIZE } from '../history/historyPager'
 import { listUserOnlineMatches, getMyOnlineMatchDetail } from '../matchServer/api'
 import type { ListOnlineMatchSummariesOptions } from '../matchServer/api'

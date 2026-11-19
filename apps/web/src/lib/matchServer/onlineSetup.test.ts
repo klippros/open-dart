@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { STARTING_PLAYER_INDEX_RANDOM } from '@open-darts/game/game/matchLegs'
-import { buildX01PresetPath, x01PresetConfigs, X01PresetId } from '@open-darts/game/x01/x01Presets'
+import { STARTING_PLAYER_INDEX_RANDOM } from '@open-dart/game/game/matchLegs'
+import { buildX01PresetPath, x01PresetConfigs, X01PresetId } from '@open-dart/game/x01/x01Presets'
 import { MatchPlayerSlot } from './types'
 import {
   buildOnlineSetupPath,

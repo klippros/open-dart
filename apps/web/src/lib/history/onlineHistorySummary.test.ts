@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
 import { MatchEndingKind, MatchStatus, PlayMode } from '../matchServer/types'
 import type { OnlineMatchHistoryRow } from '../matchServer/types'
 import {

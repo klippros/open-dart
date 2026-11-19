@@ -1,7 +1,7 @@
 import { SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import { formatCount, formatPercent } from '../../lib/analytics/formatAnalytics'
 import { computeHunterSingleSessionStats } from '../../lib/hunter/hunterVisitStats'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import { StatCard } from '../StatsPageSections/StatCard'
 
 export interface HunterSummaryPanelProps {

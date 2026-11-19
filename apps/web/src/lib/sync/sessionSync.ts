@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { GameStatus } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import { GameStatus } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import { SyncStatus } from '../../types/auth'
 import { isGameSession, loadStoredSessions, replaceStoredSessions } from '../storage/gameStore'
 import { browserLocalStorage } from '../storage/localStorageAdapter'

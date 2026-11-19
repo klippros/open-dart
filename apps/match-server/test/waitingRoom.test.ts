@@ -1,7 +1,7 @@
 import { env, exports } from 'cloudflare:workers'
 import { runDurableObjectAlarm, runInDurableObject } from 'cloudflare:test'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { defaultX01Config } from '@open-darts/game/x01/x01Presets'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { defaultX01Config } from '@open-dart/game/x01/x01Presets'
 import { describe, expect, it } from 'vitest'
 import type { MatchObject } from '../src/match/MatchObject'
 import {

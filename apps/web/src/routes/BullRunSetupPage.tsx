@@ -11,17 +11,17 @@ import { SetupGuestNameSection } from '../components/SetupPageLayout/SetupGuestN
 import { SetupOnlineSignInDialog } from '../components/SetupPageLayout/SetupOnlineSignInDialog'
 import { useMatchSetupSession } from '../components/SetupPageLayout/useMatchSetupSession'
 import { ResumeOnlineMatchBanner } from '../components/ResumeOnlineMatchBanner/ResumeOnlineMatchBanner'
-import { buildBullRunGamePath, getBullRunConfig } from '@open-darts/game/bullRun/bullRunConfig'
+import { buildBullRunGamePath, getBullRunConfig } from '@open-dart/game/bullRun/bullRunConfig'
 import {
   BULL_RUN_DEFAULT_TARGET_SCORE,
   BULL_RUN_TARGET_SCORE_MAX,
   BULL_RUN_TARGET_SCORE_MIN,
-} from '@open-darts/game/bullRun/bullRunRules'
-import { parseOpponentSetup } from '@open-darts/game/game/opponentSetup'
-import type { OpponentMode } from '@open-darts/game/game/opponentSetup'
-import { resolveStartingPlayerIndex } from '@open-darts/game/game/matchLegs'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { BullRunConfig } from '@open-darts/game/types/bullRun'
+} from '@open-dart/game/bullRun/bullRunRules'
+import { parseOpponentSetup } from '@open-dart/game/game/opponentSetup'
+import type { OpponentMode } from '@open-dart/game/game/opponentSetup'
+import { resolveStartingPlayerIndex } from '@open-dart/game/game/matchLegs'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { BullRunConfig } from '@open-dart/game/types/bullRun'
 import { isOnlineMatchesEnabled } from '../lib/matchServer/config'
 import {
   isOnlinePlaySelected,

@@ -1,5 +1,5 @@
-import { getInitialTurnIndex } from '@open-darts/game/game/createSession'
-import { GameStatus } from '@open-darts/game/types/gameMode'
+import { getInitialTurnIndex } from '@open-dart/game/game/createSession'
+import { GameStatus } from '@open-dart/game/types/gameMode'
 import { deleteAllDeadlines, deleteDeadline, upsertDeadline } from './alarms'
 import {
   anyAsyncPendingFinalization,

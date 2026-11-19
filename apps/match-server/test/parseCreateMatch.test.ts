@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock'
-import { defaultX01Config, x01PresetConfigs, X01PresetId } from '@open-darts/game/x01/x01Presets'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
+import { defaultX01Config, x01PresetConfigs, X01PresetId } from '@open-dart/game/x01/x01Presets'
 import { parseCreateMatchRequest } from '../src/http/parseCreateMatch'
 import { STARTING_PLAYER_SLOT_RANDOM } from '../src/match/types'
 

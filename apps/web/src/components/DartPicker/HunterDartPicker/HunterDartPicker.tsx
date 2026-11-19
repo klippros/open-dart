@@ -8,9 +8,9 @@ import {
   getHunterAimFieldNumberAfterDarts,
   getHunterPickerOutcomes,
   HUNTER_MAX_DARTS_PER_VISIT,
-} from '@open-darts/game/hunter/hunterRules'
-import { HunterOutcome } from '@open-darts/game/types/hunter'
-import type { DartThrow } from '@open-darts/game/types/dart'
+} from '@open-dart/game/hunter/hunterRules'
+import { HunterOutcome } from '@open-dart/game/types/hunter'
+import type { DartThrow } from '@open-dart/game/types/dart'
 import { HUNTER_OUTCOME_LABELS, getHunterThrownOutcome } from '../../../lib/hunter/hunterVisitStats'
 import { useVisitOutcomeSwipe } from '../visitOutcomeSwipe/useVisitOutcomeSwipe'
 import { buildHunterThrowsForOutcomes } from './buildHunterThrowsForOutcomes'

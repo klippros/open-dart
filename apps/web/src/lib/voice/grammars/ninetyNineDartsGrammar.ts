@@ -1,4 +1,4 @@
-import { NinetyNineDartsOutcome } from '@open-darts/game/types/ninetyNineDarts'
+import { NinetyNineDartsOutcome } from '@open-dart/game/types/ninetyNineDarts'
 
 const OUTCOME_TOKENS: Record<string, NinetyNineDartsOutcome> = {
   miss: NinetyNineDartsOutcome.Miss,

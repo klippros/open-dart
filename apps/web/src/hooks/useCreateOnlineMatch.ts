@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { OnlineMatchConfig, OnlineMatchMode } from '@open-darts/game/game/onlineMatchSetup'
+import type { OnlineMatchConfig, OnlineMatchMode } from '@open-dart/game/game/onlineMatchSetup'
 import { useAuth } from './authContext'
 import { useInProgressOnlineMatch } from './useInProgressOnlineMatch'
 import { buildMatchPath, createMatch, MatchServerApiError } from '../lib/matchServer/api'

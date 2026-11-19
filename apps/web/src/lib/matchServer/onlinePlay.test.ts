@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
-import { PlayerKind } from '@open-darts/game/types/player'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
+import { PlayerKind } from '@open-dart/game/types/player'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import {
   decorateOnlineSessionForViewer,
   parseOnlinePlaySnapshot,
@@ -9,7 +9,7 @@ import {
   resolvePendingFinishPlayerId,
 } from './onlinePlay'
 import { toPublicDartThrow } from './toPublicDartThrow'
-import { DartMultiplier, DartSegmentType } from '@open-darts/game/types/dart'
+import { DartMultiplier, DartSegmentType } from '@open-dart/game/types/dart'
 import { MatchEndingKind, MatchPlayerSlot, MatchStatus, PlayMode } from './types'
 import type { PublicMatchState } from './types'
 

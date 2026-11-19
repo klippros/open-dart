@@ -1,11 +1,11 @@
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { GameConfig } from '@open-darts/game/types/gameMode'
-import { LEGS_TO_WIN_MAX, LEGS_TO_WIN_MIN } from '@open-darts/game/types/match'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { GameConfig } from '@open-dart/game/types/gameMode'
+import { LEGS_TO_WIN_MAX, LEGS_TO_WIN_MIN } from '@open-dart/game/types/match'
 import {
   canonicalizeOnlineMatchConfig,
   isOnlineMatchMode,
-} from '@open-darts/game/game/onlineMatchSetup'
-import type { OnlineMatchMode } from '@open-darts/game/game/onlineMatchSetup'
+} from '@open-dart/game/game/onlineMatchSetup'
+import type { OnlineMatchMode } from '@open-dart/game/game/onlineMatchSetup'
 import { isJsonObject, isRecord } from '../json'
 import type { StartingPlayerSlot } from '../match/types'
 import { STARTING_PLAYER_SLOT_RANDOM } from '../match/types'

@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import { STARTING_PLAYER_INDEX_RANDOM } from '@open-darts/game/game/matchLegs'
+import { STARTING_PLAYER_INDEX_RANDOM } from '@open-dart/game/game/matchLegs'
 import { SetupOptionCard } from './SetupOptionCard'
 import { SetupSection } from './SetupSection'
 

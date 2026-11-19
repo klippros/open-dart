@@ -1,18 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { PlayerKind } from '@open-darts/game/types/player'
-import { DartMultiplier } from '@open-darts/game/types/dart'
-import { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock'
-import { numberDart, missDart, outerBullDart } from '@open-darts/game/testHelpers'
-import type { AroundTheClockTargetAttempt } from '@open-darts/analytics/aroundTheClockTargetHits'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { PlayerKind } from '@open-dart/game/types/player'
+import { DartMultiplier } from '@open-dart/game/types/dart'
+import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
+import { numberDart, missDart, outerBullDart } from '@open-dart/game/testHelpers'
+import type { AroundTheClockTargetAttempt } from '@open-dart/analytics/aroundTheClockTargetHits'
 import {
   computeAroundTheClockSingleSessionStats,
   aggregatePerTargetStats,
   aggregateAroundTheClockSessionStats,
   formatAroundTheClockLiveStatsLabel,
   getAroundTheClockLiveStats,
-} from '@open-darts/analytics/aroundTheClockStats'
+} from '@open-dart/analytics/aroundTheClockStats'
 
 const sampleSession = (overrides: Partial<GameSession> = {}): GameSession => ({
   id: 'session-1',

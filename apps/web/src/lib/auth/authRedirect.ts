@@ -1,4 +1,4 @@
-const AUTH_RETURN_TO_KEY = 'open-darts:auth-return-to'
+const AUTH_RETURN_TO_KEY = 'auth-return-to'
 
 /** Relative in-app path only — rejects open redirects. */
 export const resolveAuthReturnPath = (raw: string | null | undefined): string | null => {
@@ -37,6 +37,6 @@ export const consumeAuthReturnPath = (): string | null => {
 
 export const buildAuthRedirectUrl = (): string => {
   const baseUrlValue: unknown = import.meta.env.BASE_URL
-  const baseUrl = typeof baseUrlValue === 'string' ? baseUrlValue : '/tools/open-darts/'
+  const baseUrl = typeof baseUrlValue === 'string' ? baseUrlValue : '/'
   return new URL(`${baseUrl}auth/callback`, window.location.origin).toString()
 }

@@ -1,7 +1,7 @@
 import { SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import { formatAverage, formatInteger, formatPercent } from '../../lib/analytics/formatAnalytics'
-import { computeBullRunPlayerSessionStats } from '@open-darts/analytics/bullRunVisitStats'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import { computeBullRunPlayerSessionStats } from '@open-dart/analytics/bullRunVisitStats'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import { StatCard } from '../StatsPageSections/StatCard'
 
 export interface BullRunSummaryPanelProps {

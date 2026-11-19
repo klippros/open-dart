@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { GameModeId, GameStatus } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { PlayerKind } from '@open-darts/game/types/player'
-import { DartMultiplier } from '@open-darts/game/types/dart'
-import { numberDart } from '@open-darts/game/testHelpers'
-import { computeAnalytics } from '@open-darts/analytics/computeAnalytics'
-import { filterSessions } from '@open-darts/analytics/sessionFilters'
+import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { PlayerKind } from '@open-dart/game/types/player'
+import { DartMultiplier } from '@open-dart/game/types/dart'
+import { numberDart } from '@open-dart/game/testHelpers'
+import { computeAnalytics } from '@open-dart/analytics/computeAnalytics'
+import { filterSessions } from '@open-dart/analytics/sessionFilters'
 import {
   getPrimaryPlayerVisits,
   getThreeDartAverage,
   sessionFinishedWithCheckout,
-} from '@open-darts/analytics/visitStats'
+} from '@open-dart/analytics/visitStats'
 
 const sampleVisit = (
   overrides: Partial<GameSession['visits'][number]> = {},

@@ -1,18 +1,18 @@
-import type { CheckoutRules } from '@open-darts/game/types/checkout.ts'
-import { DartMultiplier, DartSegmentType } from '@open-darts/game/types/dart.ts'
-import type { DartThrow } from '@open-darts/game/types/dart.ts'
-import type { Visit } from '@open-darts/game/types/visit.ts'
-import { visitUsesVisitScoreInput } from '@open-darts/game/types/visit.ts'
-import { isDoubleDart } from '@open-darts/game/dartScoring.ts'
-import { formatDart } from '@open-darts/game/formatDart.ts'
-import type { CheckoutDart } from '@open-darts/game/checkout/checkoutSuggestions.ts'
+import type { CheckoutRules } from '@open-dart/game/types/checkout.ts'
+import { DartMultiplier, DartSegmentType } from '@open-dart/game/types/dart.ts'
+import type { DartThrow } from '@open-dart/game/types/dart.ts'
+import type { Visit } from '@open-dart/game/types/visit.ts'
+import { visitUsesVisitScoreInput } from '@open-dart/game/types/visit.ts'
+import { isDoubleDart } from '@open-dart/game/dartScoring.ts'
+import { formatDart } from '@open-dart/game/formatDart.ts'
+import type { CheckoutDart } from '@open-dart/game/checkout/checkoutSuggestions.ts'
 import {
   isCheckoutPossible,
   MAX_CHECKOUT_SCORE,
   suggestCheckoutPath,
-} from '@open-darts/game/checkout/checkoutSuggestions.ts'
-import { isSingleDartDoubleFinish } from '@open-darts/game/checkout/checkoutFallback.ts'
-import { DOUBLE_OUT_BOGEY_SCORES } from '@open-darts/game/checkout/pdcCheckoutTable.ts'
+} from '@open-dart/game/checkout/checkoutSuggestions.ts'
+import { isSingleDartDoubleFinish } from '@open-dart/game/checkout/checkoutFallback.ts'
+import { DOUBLE_OUT_BOGEY_SCORES } from '@open-dart/game/checkout/pdcCheckoutTable.ts'
 
 export interface DoubleCheckoutStats {
   attempts: number

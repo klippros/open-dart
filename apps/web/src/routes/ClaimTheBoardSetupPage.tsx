@@ -12,15 +12,15 @@ import { SetupGuestOnlineOpponentSection } from '../components/SetupPageLayout/S
 import { SetupOnlineSignInDialog } from '../components/SetupPageLayout/SetupOnlineSignInDialog'
 import { useMatchSetupSession } from '../components/SetupPageLayout/useMatchSetupSession'
 import { ResumeOnlineMatchBanner } from '../components/ResumeOnlineMatchBanner/ResumeOnlineMatchBanner'
-import { AroundTheClockAimMode } from '@open-darts/game/types/aroundTheClock'
-import type { ClaimTheBoardConfig } from '@open-darts/game/types/claimTheBoard'
-import { GameModeId } from '@open-darts/game/types/gameMode'
+import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
+import type { ClaimTheBoardConfig } from '@open-dart/game/types/claimTheBoard'
+import { GameModeId } from '@open-dart/game/types/gameMode'
 import {
   getAroundTheClockAimModeDescription,
   getAroundTheClockAimModeLabel,
-} from '@open-darts/game/aroundTheClock/aroundTheClockConfig'
-import { buildClaimTheBoardGamePath } from '@open-darts/game/claimTheBoard/claimTheBoardConfig'
-import { resolveStartingPlayerIndex } from '@open-darts/game/game/matchLegs'
+} from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
+import { buildClaimTheBoardGamePath } from '@open-dart/game/claimTheBoard/claimTheBoardConfig'
+import { resolveStartingPlayerIndex } from '@open-dart/game/game/matchLegs'
 import { isOnlineMatchesEnabled } from '../lib/matchServer/config'
 import {
   isOnlinePlaySelected,

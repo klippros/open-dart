@@ -1,5 +1,5 @@
-import { GameStatus } from '@open-darts/game/types/gameMode'
-import type { GameSession } from '@open-darts/game/types/gameSession'
+import { GameStatus } from '@open-dart/game/types/gameMode'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 
 export interface SessionMergeResult {
   sessions: GameSession[]

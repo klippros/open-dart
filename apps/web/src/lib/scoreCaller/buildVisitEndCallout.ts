@@ -1,8 +1,8 @@
 import { getVisitHistoryEntryDisplay } from '../../components/Scoreboard/visitHistoryDisplay'
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import type { Visit } from '@open-darts/game/types/visit'
-import { isMatchComplete } from '@open-darts/game/game/matchLegs'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import type { Visit } from '@open-dart/game/types/visit'
+import { isMatchComplete } from '@open-dart/game/game/matchLegs'
 import { capitalizeCallout, numberToWords } from './numberToWords'
 
 export interface VisitEndCalloutContext {

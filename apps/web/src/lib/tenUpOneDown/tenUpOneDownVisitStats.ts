@@ -1,12 +1,12 @@
-import type { GameSession } from '@open-darts/game/types/gameSession'
-import { GameModeId } from '@open-darts/game/types/gameMode'
-import { MAX_CHECKOUT_SCORE } from '@open-darts/game/checkout/checkoutSuggestions'
+import type { GameSession } from '@open-dart/game/types/gameSession'
+import { GameModeId } from '@open-dart/game/types/gameMode'
+import { MAX_CHECKOUT_SCORE } from '@open-dart/game/checkout/checkoutSuggestions'
 import {
   countCheckoutVisits,
   getHighestCheckout,
   getPrimaryPlayerVisits,
   getSessionCheckoutRate,
-} from '@open-darts/analytics/visitStats'
+} from '@open-dart/analytics/visitStats'
 
 export interface TenUpOneDownSingleSessionStats {
   checkouts: number
