@@ -1,4 +1,6 @@
 import { Box, Button, Heading, Stack, Text } from '@chakra-ui/react'
+import { faPen } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link as RouterLink, useParams } from 'react-router-dom'
 import type { PlayerProfileStats } from '@open-dart/analytics'
@@ -12,6 +14,7 @@ import { ProfileFollowButton } from '../components/ProfileFollowButton/ProfileFo
 import { ProfileStatSection } from '../components/ProfileStatSection/ProfileStatSection'
 import { SignInDialog } from '../components/SignInDialog/SignInDialog'
 import { useAuth } from '../hooks/authContext'
+import { toolbarControlSize } from '../layout'
 import { isSignInEnabled } from '../lib/klipprosHost'
 import {
   getOnlineMatchCompletedAt,
@@ -44,6 +47,7 @@ export const PlayerProfilePage = () => {
   const { userId: routeUserId } = useParams()
   const { user, profile, authStatus, isConfigured, setDisplayName } = useAuth()
   const [signInDialogOpen, setSignInDialogOpen] = useState(false)
+  const [displayNameDialogOpen, setDisplayNameDialogOpen] = useState(false)
   const [stats, setStats] = useState<PlayerProfileStats | null>(null)
   const [statsError, setStatsError] = useState<string | null>(null)
   const [loadingStats, setLoadingStats] = useState(false)
@@ -261,9 +265,28 @@ export const PlayerProfilePage = () => {
       <Box py={{ base: 6, md: 10 }} pb={10} maxW="720px" w="full" mx="auto">
         <Stack gap={8}>
           <Stack gap={3}>
-            <Heading as="h1" size="2xl" color="white" fontFamily="Archivo Black, sans-serif">
-              {displayName}
-            </Heading>
+            <Stack direction="row" align="center" gap={2}>
+              <Heading as="h1" size="2xl" color="white" fontFamily="Archivo Black, sans-serif">
+                {displayName}
+              </Heading>
+              {isOwnProfile ? (
+                <Button
+                  aria-label="Edit name"
+                  variant="ghost"
+                  color="whiteAlpha.800"
+                  minW={toolbarControlSize}
+                  w={toolbarControlSize}
+                  h={toolbarControlSize}
+                  p={0}
+                  _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
+                  onClick={() => {
+                    setDisplayNameDialogOpen(true)
+                  }}
+                >
+                  <FontAwesomeIcon icon={faPen} />
+                </Button>
+              ) : null}
+            </Stack>
             <Text color="whiteAlpha.700" fontSize="sm">
               <RouterLink to="/history">Back to history</RouterLink>
             </Text>
@@ -271,6 +294,8 @@ export const PlayerProfilePage = () => {
 
           {isOwnProfile ? (
             <DisplayNameEditor
+              open={displayNameDialogOpen}
+              onOpenChange={setDisplayNameDialogOpen}
               currentName={displayName}
               onSaved={(nextName) => {
                 setDisplayName(nextName)
