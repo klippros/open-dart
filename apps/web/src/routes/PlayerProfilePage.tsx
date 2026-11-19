@@ -16,11 +16,7 @@ import { SignInDialog } from '../components/SignInDialog/SignInDialog'
 import { useAuth } from '../hooks/authContext'
 import { toolbarControlSize } from '../layout'
 import { isSignInEnabled } from '../lib/klipprosHost'
-import {
-  getOnlineMatchCompletedAt,
-  getOnlineMatchResultSummary,
-  HistoryEntrySource,
-} from '../lib/history/onlineHistorySummary'
+import { getOnlineMatchCompletedAt, HistoryEntrySource } from '../lib/history/onlineHistorySummary'
 import { HISTORY_PAGE_SIZE } from '../lib/history/historyPager'
 import { decorateOnlineSessionForViewer } from '../lib/matchServer/onlinePlay'
 import type { OnlineMatchHistoryRow, OnlineMatchSummary } from '../lib/matchServer/types'
@@ -55,10 +51,7 @@ export const PlayerProfilePage = () => {
   const [hasMoreMatches, setHasMoreMatches] = useState(false)
   const [reportMessage, setReportMessage] = useState<string | null>(null)
   const [selectedSession, setSelectedSession] = useState<GameSession | null>(null)
-  const [selectedOnlineMatch, setSelectedOnlineMatch] = useState<{
-    match: OnlineMatchHistoryRow
-    resultSummary: string
-  } | null>(null)
+  const [selectedOnlineMatch, setSelectedOnlineMatch] = useState<OnlineMatchHistoryRow | null>(null)
 
   const profileUserId = routeUserId ?? ''
   const isSignedIn = authStatus === AuthStatus.Authenticated && user !== null
@@ -131,27 +124,14 @@ export const PlayerProfilePage = () => {
       return []
     }
 
-    return matches.map((match) => {
-      const opponentName = resolveHumanPlayerName(
-        match.playerUserIds.includes(user.id)
-          ? match.playerDisplayNames.find(
-              (_, index) => match.playerUserIds[index] !== profileUserId,
-            )
-          : match.opponentDisplayName,
-      )
-
-      const canOpenDetail = match.playerUserIds.includes(user.id)
-
-      return {
-        source: HistoryEntrySource.Online,
-        id: match.id,
-        sortAt: getOnlineMatchCompletedAt(match),
-        match,
-        resultSummary: getOnlineMatchResultSummary(match, profileUserId, opponentName),
-        canOpenDetail,
-      }
-    })
-  }, [matches, profileUserId, user])
+    return matches.map((match) => ({
+      source: HistoryEntrySource.Online,
+      id: match.id,
+      sortAt: getOnlineMatchCompletedAt(match),
+      match,
+      canOpenDetail: match.playerUserIds.includes(user.id),
+    }))
+  }, [matches, user])
 
   const handleLoadMore = useCallback(async () => {
     if (user === null || !hasMoreMatches) {
@@ -180,7 +160,7 @@ export const PlayerProfilePage = () => {
   }, [hasMoreMatches, matches, profileUserId, user])
 
   const handleSelectOnlineMatch = useCallback(
-    async (match: OnlineMatchSummary, resultSummary: string) => {
+    async (match: OnlineMatchSummary) => {
       if (user === null || !match.playerUserIds.includes(user.id)) {
         return
       }
@@ -203,15 +183,12 @@ export const PlayerProfilePage = () => {
 
         setSelectedSession(null)
         setSelectedOnlineMatch({
-          match: detail ?? { ...match, scorecardVersion: 1, session: null },
-          resultSummary,
+          ...(detail ?? { ...match, scorecardVersion: 1, session: null }),
+          resultLabel: match.resultLabel,
         })
       } catch {
         setSelectedSession(null)
-        setSelectedOnlineMatch({
-          match: { ...match, scorecardVersion: 1, session: null },
-          resultSummary,
-        })
+        setSelectedOnlineMatch({ ...match, scorecardVersion: 1, session: null })
       }
     },
     [profile?.displayName, user],
@@ -381,8 +358,8 @@ export const PlayerProfilePage = () => {
                 void handleLoadMore()
               }}
               onSelectSession={() => undefined}
-              onSelectOnlineMatch={(match, resultSummary) => {
-                void handleSelectOnlineMatch(match, resultSummary)
+              onSelectOnlineMatch={(match) => {
+                void handleSelectOnlineMatch(match)
               }}
             />
           </Stack>
@@ -397,9 +374,7 @@ export const PlayerProfilePage = () => {
       />
       <OnlineMatchSummaryDialog
         open={selectedOnlineMatch !== null}
-        match={selectedOnlineMatch?.match ?? null}
-        viewerUserId={user.id}
-        resultSummary={selectedOnlineMatch?.resultSummary ?? ''}
+        match={selectedOnlineMatch}
         onClose={() => {
           setSelectedOnlineMatch(null)
         }}

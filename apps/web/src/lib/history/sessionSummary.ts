@@ -21,12 +21,16 @@ import {
   getAroundTheClockConfig,
 } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
 import { getNinetyNineDartsConfigLabel } from '@open-dart/game/ninetyNineDarts/ninetyNineDartsConfig'
-import { formatChallengeMatchScore, isChallengeMode } from '@open-dart/game/game/challenge'
+import {
+  formatChallengeMatchScore,
+  formatChallengeNumericMatchScore,
+  isChallengeMode,
+} from '@open-dart/game/game/challenge'
 import { getOneTwentyOneRoundTargetFromVisit } from '@open-dart/game/oneTwentyOne/oneTwentyOneVisitMetadata'
 import { getHighestOneTwentyOneCheckoutTarget } from '@open-dart/analytics/oneTwentyOneVisitStats'
 import { isTenUpOneDownWinSession } from '../tenUpOneDown/tenUpOneDownVisitStats'
 import { getMatchWinnerId } from '@open-dart/game/game/matchLegs'
-import { formatLegWinLine } from '@open-dart/game/game/matchLegDisplay'
+import { formatLegWinLine, formatLegWinScore } from '@open-dart/game/game/matchLegDisplay'
 import { formatX01StartScore } from '@open-dart/game/x01/x01Presets'
 import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
 import type { GameSession } from '@open-dart/game/types/gameSession'
@@ -37,6 +41,55 @@ export interface MatchSummary {
   title: string
   details: string[]
 }
+
+export interface MatchSummaryHeader {
+  modeLabel: string
+  completedAtLabel: string
+  resultLabel: string | null
+}
+
+const NON_RESULT_DETAIL =
+  /^(?:\d+ visits?|\d+ legs?(?: to win)?|First to \d+ legs\b|Hit every target through bull|.+ wins the (?:match|leg)|.+ won|Won \d+ legs\b|Lost \d+ legs\b)$/u
+
+const pickResultDetail = (details: string[]): string | null => {
+  for (const detail of details) {
+    if (!NON_RESULT_DETAIL.test(detail)) {
+      return detail
+    }
+  }
+
+  return null
+}
+
+export const getMatchResultLabel = (session: GameSession): string | null => {
+  const { matchProgress } = session
+
+  if (matchProgress !== undefined) {
+    if (isChallengeMode(matchProgress)) {
+      const humanId = session.players[0]?.id
+      const wins = humanId === undefined ? 0 : (matchProgress.legWins[humanId] ?? 0)
+      const losses = matchProgress.legLosses ?? 0
+
+      return formatChallengeNumericMatchScore(wins, losses)
+    }
+
+    if (session.players.length === 2) {
+      return formatLegWinScore(session.players, matchProgress)
+    }
+
+    if (session.players.length > 2) {
+      return formatLegWinLine(session.players, matchProgress)
+    }
+  }
+
+  return pickResultDetail(getMatchSummary(session).details)
+}
+
+export const getMatchSummaryHeader = (session: GameSession): MatchSummaryHeader => ({
+  modeLabel: getSessionModeLabel(session),
+  completedAtLabel: formatSessionDate(getSessionCompletedAt(session)),
+  resultLabel: getMatchResultLabel(session),
+})
 
 export const getSessionModeLabel = (session: GameSession): string => {
   if (isX01Config(session.mode, session.config)) {

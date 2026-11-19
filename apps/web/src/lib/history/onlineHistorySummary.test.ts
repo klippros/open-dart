@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
 import { MatchEndingKind, MatchStatus, PlayMode } from '../matchServer/types'
 import type { OnlineMatchHistoryRow } from '../matchServer/types'
+import { formatSessionDate } from './sessionSummary'
 import {
   getOnlineMatchEndingLabel,
   getOnlineMatchModeLabel,
   getOnlineMatchResultSummary,
+  getOnlineMatchSummaryHeader,
   getOnlineMatchSummaryTitle,
   readOnlineMatchHistorySession,
 } from './onlineHistorySummary'
@@ -27,6 +29,7 @@ const sampleMatch = (overrides: Partial<OnlineMatchHistoryRow> = {}): OnlineMatc
   playerDisplayNames: ['Viewer', 'Alex'],
   opponentUserId: 'opponent',
   opponentDisplayName: 'Alex',
+  resultLabel: '2:1',
   scorecardVersion: 1,
   session: null,
   ...overrides,
@@ -84,6 +87,19 @@ describe('onlineHistorySummary', () => {
         'viewer',
       ),
     ).toBe('Draw')
+  })
+
+  it('builds an online match summary header from format, time, and result', () => {
+    expect(getOnlineMatchSummaryHeader(sampleMatch())).toEqual({
+      modeLabel: '501',
+      completedAtLabel: formatSessionDate('2026-09-08T12:00:00.000Z'),
+      resultLabel: '2:1',
+    })
+    expect(getOnlineMatchSummaryHeader(sampleMatch({ resultLabel: null }))).toEqual({
+      modeLabel: '501',
+      completedAtLabel: formatSessionDate('2026-09-08T12:00:00.000Z'),
+      resultLabel: null,
+    })
   })
 
   it('reads a stored game session from result_payload', () => {

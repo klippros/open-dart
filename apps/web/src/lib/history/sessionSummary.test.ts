@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
+import { ChallengeLegEndMode } from '@open-dart/game/types/match'
 import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
 import type { GameSession } from '@open-dart/game/types/gameSession'
 import { PlayerKind } from '@open-dart/game/types/player'
 import {
   formatSessionDate,
+  getMatchResultLabel,
   getMatchSummary,
+  getMatchSummaryHeader,
   getSessionModeLabel,
   getSessionResultSummary,
   sortSessionsByDate,
@@ -272,5 +275,150 @@ describe('sessionSummary', () => {
         }),
       ).title,
     ).toBe('Match won!')
+  })
+
+  it('labels two-player match results as a numeric leg score', () => {
+    expect(
+      getMatchResultLabel(
+        sampleSession({
+          players: [
+            { id: 'viewer', name: 'Timon', kind: PlayerKind.Human },
+            { id: 'opponent', name: 'Alex', kind: PlayerKind.Remote },
+          ],
+          matchProgress: {
+            legsToWin: 2,
+            currentLeg: 3,
+            legWins: { viewer: 2, opponent: 1 },
+            startingPlayerIndex: 0,
+          },
+        }),
+      ),
+    ).toBe('2:1')
+  })
+
+  it('labels challenge match results as a numeric win-loss score', () => {
+    expect(
+      getMatchResultLabel(
+        sampleSession({
+          matchProgress: {
+            legsToWin: 3,
+            currentLeg: 4,
+            legWins: { 'player-1': 2 },
+            legLosses: 1,
+            startingPlayerIndex: 0,
+            challenge: {
+              maxVisits: 9,
+              legEndMode: ChallengeLegEndMode.PlayToCheckout,
+            },
+          },
+        }),
+      ),
+    ).toBe('2:1')
+  })
+
+  it('labels solo checkouts from the score detail', () => {
+    expect(
+      getMatchResultLabel(
+        sampleSession({
+          config: { startScore: 301, doubleIn: false, doubleOut: true },
+          visits: [
+            {
+              visitIndex: 0,
+              playerId: 'player-1',
+              darts: [],
+              visitScore: 50,
+              scoreBefore: 50,
+              scoreAfter: 0,
+              bust: false,
+              checkout: true,
+            },
+          ],
+        }),
+      ),
+    ).toBe('Checked out from 50')
+  })
+
+  it('labels practice scores without win sentences', () => {
+    expect(
+      getMatchResultLabel(
+        sampleSession({
+          mode: GameModeId.BullRun,
+          config: { targetScore: 50 },
+          visits: [
+            {
+              visitIndex: 0,
+              playerId: 'player-1',
+              darts: [],
+              visitScore: 25,
+              scoreBefore: 0,
+              scoreAfter: 25,
+              bust: false,
+              checkout: false,
+            },
+          ],
+        }),
+      ),
+    ).toMatch(/pts$/u)
+
+    expect(
+      getMatchResultLabel(
+        sampleSession({
+          mode: GameModeId.AroundTheClock,
+          config: { finishOnBull: true, aimMode: AroundTheClockAimMode.Singles },
+          visits: [],
+        }),
+      ),
+    ).toBeNull()
+
+    expect(
+      getMatchResultLabel(
+        sampleSession({
+          mode: GameModeId.TenUpOneDown,
+          config: {
+            startScore: 60,
+            incrementUp: 10,
+            decrementDown: 1,
+            minScore: 2,
+            doubleOut: true,
+          },
+          finishedEarly: true,
+          visits: [
+            {
+              visitIndex: 0,
+              playerId: 'player-1',
+              darts: [],
+              visitScore: 60,
+              scoreBefore: 60,
+              scoreAfter: 70,
+              bust: false,
+              checkout: false,
+            },
+          ],
+        }),
+      ),
+    ).toBe('Stopped on 70')
+  })
+
+  it('builds a match summary header from format, time, and result', () => {
+    expect(
+      getMatchSummaryHeader(
+        sampleSession({
+          players: [
+            { id: 'viewer', name: 'Timon', kind: PlayerKind.Human },
+            { id: 'opponent', name: 'Alex', kind: PlayerKind.Remote },
+          ],
+          matchProgress: {
+            legsToWin: 2,
+            currentLeg: 3,
+            legWins: { viewer: 2, opponent: 1 },
+            startingPlayerIndex: 0,
+          },
+        }),
+      ),
+    ).toEqual({
+      modeLabel: '501',
+      completedAtLabel: formatSessionDate('2026-01-01T10:15:00.000Z'),
+      resultLabel: '2:1',
+    })
   })
 })

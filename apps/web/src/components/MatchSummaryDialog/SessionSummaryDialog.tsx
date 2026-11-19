@@ -1,6 +1,6 @@
 import { Dialog, Portal } from '@chakra-ui/react'
 import type { GameSession } from '@open-dart/game/types/gameSession'
-import { getMatchSummary } from '../../lib/history/sessionSummary'
+import { getMatchSummaryHeader } from '../../lib/history/sessionSummary'
 import { darkDialogContentProps } from '../darkDialogContentProps'
 import { MatchSummaryBody } from '../SessionSummary/MatchSummaryBody'
 import { MatchSummaryTitle } from '../SessionSummary/MatchSummaryTitle'
@@ -22,7 +22,7 @@ export const SessionSummaryDialog = ({
     return null
   }
 
-  const summary = getMatchSummary(session)
+  const header = getMatchSummaryHeader(session)
 
   return (
     <Dialog.Root
@@ -47,8 +47,8 @@ export const SessionSummaryDialog = ({
             maxW={{ base: 'calc(100vw - 2rem)', sm: '28rem', md: '36rem', lg: '42rem' }}
           >
             <Dialog.Header>
-              <Dialog.Title color="white">
-                <MatchSummaryTitle title={summary.title} />
+              <Dialog.Title color="white" w="full">
+                <MatchSummaryTitle header={header} />
               </Dialog.Title>
             </Dialog.Header>
             <Dialog.Body>

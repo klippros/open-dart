@@ -1,10 +1,10 @@
 import { Badge, Box, Button, Stack, Text } from '@chakra-ui/react'
 import { Link as RouterLink } from 'react-router-dom'
+import type { MatchSummaryHeader } from '../../lib/history/sessionSummary'
+import { MatchSummaryTitle } from '../SessionSummary/MatchSummaryTitle'
 
 export interface HistoryListItemProps {
-  modeLabel: string
-  resultSummary: string
-  completedAtLabel: string
+  header: MatchSummaryHeader
   badgeLabel?: string
   opponentProfileTo?: string
   opponentName?: string
@@ -12,9 +12,7 @@ export interface HistoryListItemProps {
 }
 
 export const HistoryListItem = ({
-  modeLabel,
-  resultSummary,
-  completedAtLabel,
+  header,
   badgeLabel,
   opponentProfileTo,
   opponentName,
@@ -22,24 +20,16 @@ export const HistoryListItem = ({
 }: HistoryListItemProps) => {
   const content = (
     <Stack gap={1}>
-      <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" gap={1}>
-        <Stack direction="row" align="center" gap={2}>
-          <Text fontWeight="semibold" color="white">
-            {modeLabel}
-          </Text>
-          {badgeLabel !== undefined && (
+      <MatchSummaryTitle
+        header={header}
+        badge={
+          badgeLabel === undefined ? undefined : (
             <Badge colorPalette="orange" variant="subtle">
               {badgeLabel}
             </Badge>
-          )}
-        </Stack>
-        <Text fontSize="sm" color="whiteAlpha.600">
-          {completedAtLabel}
-        </Text>
-      </Stack>
-      <Text fontSize="sm" color="whiteAlpha.700">
-        {resultSummary}
-      </Text>
+          )
+        }
+      />
       {opponentProfileTo !== undefined && opponentName !== undefined ? (
         <Text fontSize="sm" color="orange.200">
           <RouterLink

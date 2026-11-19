@@ -1,15 +1,9 @@
 import { Box, Button, Stack, Text } from '@chakra-ui/react'
 import type { GameSession } from '@open-dart/game/types/gameSession'
 import type { OnlineMatchSummary } from '../../lib/matchServer/types'
+import { getMatchSummaryHeader } from '../../lib/history/sessionSummary'
 import {
-  formatSessionDate,
-  getSessionCompletedAt,
-  getSessionModeLabel,
-  getSessionResultSummary,
-} from '../../lib/history/sessionSummary'
-import {
-  formatOnlineMatchDate,
-  getOnlineMatchModeLabel,
+  getOnlineMatchSummaryHeader,
   HistoryEntrySource,
 } from '../../lib/history/onlineHistorySummary'
 import { HistoryListItem } from './HistoryListItem'
@@ -26,7 +20,6 @@ export type HistoryListEntry =
       id: string
       sortAt: string
       match: OnlineMatchSummary
-      resultSummary: string
       canOpenDetail: boolean
     }
 
@@ -35,7 +28,7 @@ export interface HistoryListProps {
   hasMore?: boolean
   onLoadMore?: () => void
   onSelectSession: (session: GameSession) => void
-  onSelectOnlineMatch: (match: OnlineMatchSummary, resultSummary: string) => void
+  onSelectOnlineMatch: (match: OnlineMatchSummary) => void
 }
 
 export const HistoryList = ({
@@ -69,9 +62,7 @@ export const HistoryList = ({
           return (
             <HistoryListItem
               key={`local:${entry.id}`}
-              modeLabel={getSessionModeLabel(entry.session)}
-              resultSummary={getSessionResultSummary(entry.session)}
-              completedAtLabel={formatSessionDate(getSessionCompletedAt(entry.session))}
+              header={getMatchSummaryHeader(entry.session)}
               onClick={() => {
                 onSelectSession(entry.session)
               }}
@@ -85,16 +76,14 @@ export const HistoryList = ({
         return (
           <HistoryListItem
             key={`online:${entry.id}`}
-            modeLabel={getOnlineMatchModeLabel(entry.match)}
-            resultSummary={entry.resultSummary}
-            completedAtLabel={formatOnlineMatchDate(entry.match)}
+            header={getOnlineMatchSummaryHeader(entry.match)}
             badgeLabel="Online"
             opponentProfileTo={opponentUserId === null ? undefined : `/players/${opponentUserId}`}
             opponentName={opponentName}
             onClick={
               entry.canOpenDetail
                 ? () => {
-                    onSelectOnlineMatch(entry.match, entry.resultSummary)
+                    onSelectOnlineMatch(entry.match)
                   }
                 : undefined
             }
