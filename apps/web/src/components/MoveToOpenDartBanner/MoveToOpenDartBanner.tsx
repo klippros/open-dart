@@ -1,5 +1,5 @@
 import { Box, Button, Stack, Text } from '@chakra-ui/react'
-import { isOpenDartHost, OPEN_DART_APP_URL, readBrowserHostname } from '../../lib/klipprosHost'
+import { isKlipprosHost, OPEN_DART_APP_URL, readBrowserHostname } from '../../lib/klipprosHost'
 import { LOCAL_EXPORT_FILENAME, buildLocalExport } from '../../lib/storage/localExport'
 
 const downloadLocalExport = (): void => {
@@ -13,7 +13,7 @@ const downloadLocalExport = (): void => {
 }
 
 export const MoveToOpenDartBanner = () => {
-  if (isOpenDartHost(readBrowserHostname())) {
+  if (!isKlipprosHost(readBrowserHostname())) {
     return null
   }
 
