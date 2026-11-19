@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(26);
+SELECT plan(35);
 
 SELECT ok(
   NOT has_function_privilege('anon', 'public.list_user_online_matches(uuid,timestamptz,uuid,integer)', 'EXECUTE'),
@@ -10,6 +10,58 @@ SELECT ok(
 SELECT ok(
   has_function_privilege('authenticated', 'public.list_user_online_matches(uuid,timestamptz,uuid,integer)', 'EXECUTE'),
   'authenticated users can list public profile history'
+);
+
+SELECT ok(
+  (
+    select prosecdef
+    from pg_proc
+    where oid = 'public.list_my_online_match_summaries(timestamptz,uuid,integer,timestamptz)'::regprocedure
+  ),
+  'list_my_online_match_summaries runs as security definer'
+);
+
+SELECT ok(
+  NOT has_function_privilege(
+    'anon',
+    'public.list_my_online_match_summaries(timestamptz,uuid,integer,timestamptz)',
+    'EXECUTE'
+  ),
+  'anonymous users cannot list their own match summaries'
+);
+
+SELECT ok(
+  NOT has_function_privilege('anon', 'public.list_my_online_match_history()', 'EXECUTE'),
+  'anonymous users cannot list the legacy match history wrapper'
+);
+
+SELECT ok(
+  has_column_privilege('service_role', 'public.profiles', 'user_id', 'SELECT')
+  AND has_column_privilege('service_role', 'public.profiles', 'display_name', 'SELECT'),
+  'service_role can read profile columns used by profile stats'
+);
+
+SELECT ok(
+  has_column_privilege('service_role', 'public.game_sessions', 'user_id', 'SELECT')
+  AND has_column_privilege('service_role', 'public.game_sessions', 'mode', 'SELECT')
+  AND has_column_privilege('service_role', 'public.game_sessions', 'status', 'SELECT')
+  AND has_column_privilege('service_role', 'public.game_sessions', 'completed_at', 'SELECT')
+  AND has_column_privilege('service_role', 'public.game_sessions', 'payload', 'SELECT'),
+  'service_role can read game session columns used by profile stats'
+);
+
+SELECT ok(
+  NOT has_table_privilege('service_role', 'public.profiles', 'INSERT')
+  AND NOT has_table_privilege('service_role', 'public.profiles', 'UPDATE')
+  AND NOT has_table_privilege('service_role', 'public.profiles', 'DELETE'),
+  'service_role cannot write profiles'
+);
+
+SELECT ok(
+  NOT has_table_privilege('service_role', 'public.game_sessions', 'INSERT')
+  AND NOT has_table_privilege('service_role', 'public.game_sessions', 'UPDATE')
+  AND NOT has_table_privilege('service_role', 'public.game_sessions', 'DELETE'),
+  'service_role cannot write game sessions'
 );
 
 SELECT ok(
@@ -276,6 +328,24 @@ SELECT set_config(
   true
 );
 SET LOCAL ROLE authenticated;
+
+SELECT is(
+  (
+    select count(*)::integer
+    from public.list_my_online_match_summaries(null, null, 30, null)
+  ),
+  1,
+  'a participant can list their own match summaries'
+);
+
+SELECT is(
+  (
+    select count(*)::integer
+    from public.list_my_online_match_history()
+  ),
+  1,
+  'a participant can list the legacy match history wrapper'
+);
 
 SELECT is(
   (
