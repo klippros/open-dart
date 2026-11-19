@@ -7,6 +7,7 @@ import {
 } from '@open-dart/game/aroundTheClock/buildAroundTheClockDarts'
 import type { AroundTheClockDartOrdinal } from '@open-dart/game/aroundTheClock/buildAroundTheClockDarts'
 import { buildBob27DartsForHitCount } from '@open-dart/game/bob27/buildBob27Darts'
+import { buildBigNumbersDartsForHitCount } from '@open-dart/game/bigNumbers/buildBigNumbersDarts'
 import { buildClaimTheBoardDartsForHitCount } from '@open-dart/game/claimTheBoard/buildClaimTheBoardDarts'
 import { buildNinetyNineDartsThrow } from '@open-dart/game/ninetyNineDarts/buildNinetyNineDarts'
 import { isNinetyNineDartsTripleAllowed } from '@open-dart/game/ninetyNineDarts/ninetyNineDartsRules'
@@ -130,6 +131,16 @@ const resolveBob27TargetIndex = (controller: AppGameController): number | null =
   return targets.bob27TargetIndex ?? null
 }
 
+const resolveBigNumbersTargetIndex = (controller: AppGameController): number | null => {
+  const targets = getGameModePickerTargets(
+    controller.session.mode,
+    controller.engineState,
+    controller.activePlayerId,
+  )
+
+  return targets.bigNumbersTargetIndex ?? null
+}
+
 const resolveClaimTheBoardTargetIndex = (controller: AppGameController): number | null => {
   const targets = getGameModePickerTargets(
     controller.session.mode,
@@ -247,6 +258,19 @@ const buildGameplayDarts = (
           targetIndex,
           controller.session.config.aimMode,
         ),
+        playback: [intent.hitCount === 0 ? 'miss' : 'hit'],
+      }
+    }
+
+    if (controller.session.mode === GameModeId.BigNumbers) {
+      const targetIndex = resolveBigNumbersTargetIndex(controller)
+
+      if (targetIndex === null) {
+        return null
+      }
+
+      return {
+        darts: buildBigNumbersDartsForHitCount(intent.hitCount, targetIndex),
         playback: [intent.hitCount === 0 ? 'miss' : 'hit'],
       }
     }

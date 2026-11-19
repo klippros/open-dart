@@ -78,7 +78,10 @@ const labelForOneTwentyOneRoundFailed = (visit: Visit): string => {
 }
 
 const applyVisitOutcomeOverride = (mode: GameModeId, visit: Visit, inputLabel: string): string => {
-  if ((isScoreCheckoutMode(mode) || mode === GameModeId.BullRun) && visit.checkout) {
+  if (
+    (isScoreCheckoutMode(mode) || mode === GameModeId.BullRun || mode === GameModeId.BigNumbers) &&
+    visit.checkout
+  ) {
     return GAME_SHOT
   }
 
@@ -111,6 +114,16 @@ const labelForClaimTheBoardVisit = (visit: Visit): string => {
   }
 
   return formatSignedDelta(visit.visitScore)
+}
+
+const labelForBigNumbersVisit = (visit: Visit): string => {
+  const hitCount = readHitCount(visit) ?? visit.visitScore
+
+  if (hitCount === 0) {
+    return MISS
+  }
+
+  return hitCount === 1 ? '1 hit' : `${hitCount} hits`
 }
 
 const labelForAroundTheClockDarts = (
@@ -226,6 +239,10 @@ const labelForCommittedVisitInput = (
     return applyVisitOutcomeOverride(mode, visit, labelForClaimTheBoardVisit(visit))
   }
 
+  if (mode === GameModeId.BigNumbers) {
+    return applyVisitOutcomeOverride(mode, visit, labelForBigNumbersVisit(visit))
+  }
+
   const addedDarts = visit.darts.slice(before.pendingDarts.length)
   const gestureDarts = addedDarts.length > 0 ? addedDarts : visit.darts
   const inputLabel = labelForAddedDarts(mode, config, gestureDarts, before)
@@ -264,7 +281,10 @@ const labelForRemovedDart = (
 }
 
 const labelForRemovedVisit = (mode: GameModeId, visit: Visit): string => {
-  if ((isScoreCheckoutMode(mode) || mode === GameModeId.BullRun) && visit.checkout) {
+  if (
+    (isScoreCheckoutMode(mode) || mode === GameModeId.BullRun || mode === GameModeId.BigNumbers) &&
+    visit.checkout
+  ) {
     return GAME_SHOT
   }
 
@@ -288,11 +308,15 @@ const labelForRemovedVisit = (mode: GameModeId, visit: Visit): string => {
     return labelForClaimTheBoardVisit(visit)
   }
 
+  if (mode === GameModeId.BigNumbers) {
+    return labelForBigNumbersVisit(visit)
+  }
+
   return String(visit.visitScore)
 }
 
 const isVisitUndoMode = (mode: GameModeId): boolean =>
-  mode === GameModeId.Bob27 || mode === GameModeId.ClaimTheBoard
+  mode === GameModeId.Bob27 || mode === GameModeId.ClaimTheBoard || mode === GameModeId.BigNumbers
 
 /**
  * Build the flash label for a controller transition after an input or undo.

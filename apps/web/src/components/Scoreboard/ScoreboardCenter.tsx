@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Stack } from '@chakra-ui/react'
 import { sumDartPoints } from '@open-dart/game/dartScoring'
 import { getAroundTheClockLiveStats } from '@open-dart/analytics/aroundTheClockStats'
+import { getBigNumbersLiveStats } from '@open-dart/analytics/bigNumbersVisitStats'
 import type { DoubleCheckoutStats } from '@open-dart/analytics/doubleCheckoutStats'
 import {
   getNinetyNineDartsLiveScoreMetrics,
@@ -24,11 +25,13 @@ import {
 } from '@open-dart/game/game/challenge'
 import {
   isAroundTheClockConfig,
+  isBigNumbersConfig,
   isNinetyNineDartsConfig,
   isOneTwentyOneConfig,
   isX01Config,
   toCheckoutSuggestionRules,
 } from '@open-dart/game/game/gameConfigGuards'
+import { getBigNumbersRequiredHitsLabel } from '@open-dart/game/bigNumbers/bigNumbersConfig'
 import { getLegStartingPlayerIndex } from '@open-dart/game/game/matchLegs'
 import { GameModeId } from '@open-dart/game/types/gameMode'
 import type { MatchProgress } from '@open-dart/game/types/match'
@@ -39,7 +42,11 @@ import { NinetyNineDartsScorePanel } from './NinetyNineDartsScorePanel'
 import type { ScoreboardDisplayPlayer } from './PlayerScorePanel'
 import { PlayerScorePanels } from './PlayerScorePanel'
 import type { ChallengeScoreDetails } from './scoreMetrics'
-import { buildAroundTheClockScoreMetrics, buildVisitScoreMetric } from './scoreMetrics'
+import {
+  buildAroundTheClockScoreMetrics,
+  buildBigNumbersScoreMetrics,
+  buildVisitScoreMetric,
+} from './scoreMetrics'
 import { VisitDartSlots } from './VisitDartSlots'
 import { HunterBoardPanel } from '../HunterBoard/HunterBoardPanel'
 
@@ -101,6 +108,7 @@ export const ScoreboardCenter = ({
     mode !== GameModeId.AroundTheClock &&
     mode !== GameModeId.ClaimTheBoard &&
     mode !== GameModeId.Bob27 &&
+    mode !== GameModeId.BigNumbers &&
     mode !== GameModeId.NinetyNineDarts &&
     mode !== GameModeId.Hunter &&
     mode !== GameModeId.BullRun
@@ -169,6 +177,22 @@ export const ScoreboardCenter = ({
           primaryScore: liveStats.score,
           primaryDisplay: String(liveStats.score),
           secondaryMetrics: getBullRunLiveScoreMetrics(liveStats),
+        }
+      })
+    }
+
+    if (mode === GameModeId.BigNumbers && isBigNumbersConfig(mode, config)) {
+      const requiredHitsLabel = getBigNumbersRequiredHitsLabel(config.requiredHits)
+
+      return players.map((player) => {
+        const liveStats = getBigNumbersLiveStats(visits, player.playerId)
+
+        return {
+          ...player,
+          secondaryMetrics: buildBigNumbersScoreMetrics({
+            requiredHitsLabel,
+            ...liveStats,
+          }),
         }
       })
     }

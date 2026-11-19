@@ -1,11 +1,13 @@
 import { gameModeDefinitions } from '@open-dart/game/game/gameModeDefinitions.ts'
 import {
   isAroundTheClockConfig,
+  isBigNumbersConfig,
   isBullRunConfig,
   isClaimTheBoardConfig,
   isNinetyNineDartsConfig,
   isX01Config,
 } from '@open-dart/game/game/gameConfigGuards.ts'
+import { getBigNumbersConfigLabel } from '@open-dart/game/bigNumbers/bigNumbersConfig.ts'
 import { getBullRunConfigLabel } from '@open-dart/game/bullRun/bullRunConfig.ts'
 import {
   getAroundTheClockAimModeLabel,
@@ -39,6 +41,10 @@ export const getSessionModeLabel = (session: GameSession): string => {
 
   if (isBullRunConfig(session.mode, session.config)) {
     return `${gameModeDefinitions[session.mode].label} · ${getBullRunConfigLabel(session.config)}`
+  }
+
+  if (isBigNumbersConfig(session.mode, session.config)) {
+    return `${gameModeDefinitions[session.mode].label} · ${getBigNumbersConfigLabel(session.config)}`
   }
 
   return gameModeDefinitions[session.mode].label

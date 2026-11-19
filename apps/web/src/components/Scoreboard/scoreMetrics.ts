@@ -82,6 +82,25 @@ export const buildAroundTheClockScoreMetrics = (stats: AroundTheClockLiveStats):
   },
 ]
 
+export const buildBigNumbersScoreMetrics = (stats: {
+  requiredHitsLabel: string
+  visitCount: number
+  stepBackCount: number
+}): ScoreMetric[] => [
+  {
+    label: 'Need',
+    value: stats.requiredHitsLabel,
+  },
+  {
+    label: 'Visits',
+    value: String(stats.visitCount),
+  },
+  {
+    label: 'Back',
+    value: String(stats.stepBackCount),
+  },
+]
+
 export const buildVisitScoreMetric = (visitsUsed: number, maxVisits: number): ScoreMetric[] => [
   {
     label: 'Visit',

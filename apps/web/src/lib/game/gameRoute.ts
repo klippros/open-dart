@@ -1,6 +1,7 @@
 import { GameModeId } from '@open-dart/game/types/gameMode'
 import type { CreateSessionParams } from '@open-dart/game/game/createSession'
 import { parseAroundTheClockConfigFromSearchParams } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
+import { parseBigNumbersConfigFromSearchParams } from '@open-dart/game/bigNumbers/bigNumbersConfig'
 import { parseBullRunConfigFromSearchParams } from '@open-dart/game/bullRun/bullRunConfig'
 import { parseClaimTheBoardConfigFromSearchParams } from '@open-dart/game/claimTheBoard/claimTheBoardConfig'
 import { parseHunterConfigFromSearchParams } from '@open-dart/game/hunter/hunterConfig'
@@ -21,6 +22,7 @@ export type PracticeGameMode =
   | GameModeId.AroundTheClock
   | GameModeId.TenUpOneDown
   | GameModeId.NinetyNineDarts
+  | GameModeId.BigNumbers
 
 export type LocalMatchGameMode = OnlineMatchMode
 
@@ -30,6 +32,7 @@ const PRACTICE_MODE_ROUTES: { mode: PracticeGameMode; param: string }[] = [
   { mode: GameModeId.TenUpOneDown, param: '10-up-1-down' },
   { mode: GameModeId.AroundTheClock, param: 'around-the-clock' },
   { mode: GameModeId.NinetyNineDarts, param: '99-darts' },
+  { mode: GameModeId.BigNumbers, param: 'big-numbers' },
 ]
 
 export const isPracticeGameMode = (mode: GameModeId): mode is PracticeGameMode =>
@@ -64,6 +67,14 @@ export const parseGameLaunchParams = (
       mode: practiceMode,
       players: [createSoloHumanPlayer(humanName)],
       config: parseNinetyNineDartsConfigFromSearchParams(params),
+    }
+  }
+
+  if (practiceMode === GameModeId.BigNumbers) {
+    return {
+      mode: practiceMode,
+      players: [createSoloHumanPlayer(humanName)],
+      config: parseBigNumbersConfigFromSearchParams(params),
     }
   }
 

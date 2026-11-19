@@ -1,12 +1,14 @@
 import { SimpleGrid, Stack } from '@chakra-ui/react'
 import type {
   AroundTheClockPracticeStats,
+  BigNumbersPracticeStats,
   Bob27PracticeStats,
   BullRunPracticeStats,
   CheckoutPracticeStats,
   ClaimTheBoardPracticeStats,
   NinetyNineDartsPracticeStats,
 } from '@open-dart/analytics/computeAnalytics'
+import { getBigNumbersRequiredHitsLabel } from '@open-dart/game/bigNumbers/bigNumbersConfig'
 import type { StatTimelineSelection } from '../../lib/analytics/statTimelines'
 import {
   formatAverage,
@@ -514,3 +516,88 @@ export const BullRunPracticeCard = ({
     </SimpleGrid>
   </PracticeModeCard>
 )
+
+const getBigNumbersVariantKey = (stats: BigNumbersPracticeStats): string => stats.requiredHits
+const getBigNumbersLastPlayedAt = (stats: BigNumbersPracticeStats): string => stats.lastPlayedAt
+
+export const BigNumbersPracticeCard = ({
+  variants,
+  onStatSelect,
+}: {
+  variants: BigNumbersPracticeStats[]
+  onStatSelect: (selection: StatTimelineSelection) => void
+}) => {
+  const { selected, selectedKey, setSelectedKey } = useLastPlayedVariantSelection(
+    variants,
+    getBigNumbersVariantKey,
+    getBigNumbersLastPlayedAt,
+  )
+
+  if (selected === undefined) {
+    return null
+  }
+
+  const scopeLabel = selected.label
+
+  return (
+    <PracticeModeCard
+      title={gameModeDefinitions[GameModeId.BigNumbers].label}
+      trailing={
+        <StatsVariantToggle
+          items={variants.map((stats) => ({
+            value: stats.requiredHits,
+            label: getBigNumbersRequiredHitsLabel(stats.requiredHits),
+            count: stats.gameCount,
+          }))}
+          value={selectedKey}
+          onChange={setSelectedKey}
+        />
+      }
+    >
+      <SimpleGrid columns={{ base: 1, sm: 2 }} gap={3}>
+        {selected.avgHitsPerVisit !== null && (
+          <StatCard
+            label="Avg hits / visit"
+            value={formatAverage(selected.avgHitsPerVisit)}
+            onClick={() => {
+              onStatSelect({
+                scope: { type: 'practice-big-numbers', requiredHits: selected.requiredHits },
+                metric: 'avgHitsPerVisit',
+                metricLabel: 'Hits / visit',
+                scopeLabel,
+              })
+            }}
+          />
+        )}
+        {selected.avgVisitsToComplete !== null && (
+          <StatCard
+            label="Avg visits to complete"
+            value={formatAverage(selected.avgVisitsToComplete)}
+            onClick={() => {
+              onStatSelect({
+                scope: { type: 'practice-big-numbers', requiredHits: selected.requiredHits },
+                metric: 'avgVisitsToComplete',
+                metricLabel: 'Visits to complete',
+                scopeLabel,
+              })
+            }}
+          />
+        )}
+        {selected.bestVisitsToComplete !== null && (
+          <StatCard
+            label="Best visits"
+            value={formatInteger(selected.bestVisitsToComplete)}
+            onClick={() => {
+              onStatSelect({
+                scope: { type: 'practice-big-numbers', requiredHits: selected.requiredHits },
+                metric: 'bestVisitsToComplete',
+                metricLabel: 'Visits to complete',
+                scopeLabel,
+              })
+            }}
+          />
+        )}
+      </SimpleGrid>
+    </PracticeModeCard>
+  )
+}

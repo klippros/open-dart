@@ -17,6 +17,7 @@ export interface GameModePickerTargets {
   aroundTheClockTargetIndex?: number
   claimTheBoardTargetIndex?: number
   bob27TargetIndex?: number
+  bigNumbersTargetIndex?: number
   hunterFieldNumber?: number
 }
 
@@ -91,6 +92,10 @@ export const getGameModePickerTargets = (
     return { bob27TargetIndex: targetIndex }
   }
 
+  if (mode === GameModeId.BigNumbers) {
+    return { bigNumbersTargetIndex: targetIndex }
+  }
+
   return {}
 }
 
@@ -133,6 +138,16 @@ export const getDartPickerHelpContent = (
       title: 'How to score',
       paragraphs: [
         `Record how many times you hit ${targetLabel}. Each hit adds the double score, zero hits subtract it; then the next target starts.`,
+      ],
+      voice,
+    }
+  }
+
+  if (mode === GameModeId.BigNumbers) {
+    return {
+      title: 'How to score',
+      paragraphs: [
+        'Record how many times you hit the current number. Enough hits advances one; fewer hits send you back one (or keep you on 1).',
       ],
       voice,
     }

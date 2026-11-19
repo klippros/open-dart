@@ -2,6 +2,7 @@ import type { CheckoutRules } from '../types/checkout.ts'
 import { GameModeId } from '../types/gameMode.ts'
 import type { GameConfig } from '../types/gameMode.ts'
 import type { AroundTheClockConfig } from '../types/aroundTheClock.ts'
+import type { BigNumbersConfig } from '../types/bigNumbers.ts'
 import type { BullRunConfig } from '../types/bullRun.ts'
 import type { ClaimTheBoardConfig } from '../types/claimTheBoard.ts'
 import type { HunterConfig } from '../types/hunter.ts'
@@ -43,6 +44,11 @@ export const isHunterConfig = (mode: GameModeId, _config: GameConfig): _config i
 
 export const isBullRunConfig = (mode: GameModeId, _config: GameConfig): _config is BullRunConfig =>
   mode === GameModeId.BullRun
+
+export const isBigNumbersConfig = (
+  mode: GameModeId,
+  _config: GameConfig,
+): _config is BigNumbersConfig => mode === GameModeId.BigNumbers
 
 export const toCheckoutSuggestionRules = (
   mode: GameModeId,

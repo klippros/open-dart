@@ -40,7 +40,11 @@ export interface ParseVoiceCommandOptions {
 }
 
 const parseGameplayTokens = (mode: GameModeId, tokens: string[]): VoiceGameplayIntent | null => {
-  if (mode === GameModeId.Bob27 || mode === GameModeId.ClaimTheBoard) {
+  if (
+    mode === GameModeId.Bob27 ||
+    mode === GameModeId.ClaimTheBoard ||
+    mode === GameModeId.BigNumbers
+  ) {
     const hitCount = parseBob27Command(tokens)
 
     if (hitCount === null) {

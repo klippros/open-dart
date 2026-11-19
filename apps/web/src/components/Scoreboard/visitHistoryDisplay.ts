@@ -15,10 +15,16 @@ export interface VisitHistoryEntryDisplay {
 const isTenUpOneDownMode = (mode: GameModeId): boolean => mode === GameModeId.TenUpOneDown
 
 const isHitCountVisitMode = (mode: GameModeId): boolean =>
-  mode === GameModeId.ClaimTheBoard || mode === GameModeId.Bob27
+  mode === GameModeId.ClaimTheBoard || mode === GameModeId.Bob27 || mode === GameModeId.BigNumbers
 
 /** Hit-count modes only record how many targets were hit, not dart order. */
 export const showsVisitDartBreakdown = (mode: GameModeId): boolean => !isHitCountVisitMode(mode)
+
+const readVisitAdvanced = (visit: Visit): boolean | null => {
+  const advanced = visit.metadata?.advanced
+
+  return typeof advanced === 'boolean' ? advanced : null
+}
 
 const readVisitHitCount = (visit: Visit): number | null => {
   const hitCount = visit.metadata?.hitCount
@@ -60,6 +66,19 @@ export const getVisitHistoryEntryDisplay = (
   visit: Visit,
   mode: GameModeId,
 ): VisitHistoryEntryDisplay => {
+  if (mode === GameModeId.BigNumbers) {
+    const advanced = readVisitAdvanced(visit)
+    const hitCount = readVisitHitCount(visit)
+    const targetLabel = readVisitTargetLabel(visit) ?? String(visit.scoreBefore)
+    const hitsPart = hitCount === null ? null : hitCount === 1 ? '1 hit' : `${hitCount} hits`
+
+    return {
+      headline: targetLabel,
+      ...(hitsPart === undefined || hitsPart === null ? {} : { detail: hitsPart }),
+      tone: advanced === true ? (visit.checkout ? 'success' : 'default') : 'failed',
+    }
+  }
+
   if (isHitCountVisitMode(mode)) {
     const hitCount = readVisitHitCount(visit)
     const detail = formatHitCountVisitDetail(visit)

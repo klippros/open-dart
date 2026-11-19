@@ -2,10 +2,12 @@ import { GameModeId } from '../types/gameMode.ts'
 import type { GameConfig } from '../types/gameMode.ts'
 import type { AroundTheClockConfig } from '../types/aroundTheClock.ts'
 import { AroundTheClockAimMode } from '../types/aroundTheClock.ts'
+import type { BigNumbersConfig } from '../types/bigNumbers.ts'
 import type { ClaimTheBoardConfig } from '../types/claimTheBoard.ts'
 import type { Bob27Config } from '../types/bob27.ts'
 import type { HunterConfig } from '../types/hunter.ts'
 import type { TenUpOneDownConfig } from '../types/tenUpOneDown.ts'
+import { DEFAULT_BIG_NUMBERS_CONFIG } from '../bigNumbers/bigNumbersConfig.ts'
 import { DEFAULT_BULL_RUN_CONFIG } from '../bullRun/bullRunConfig.ts'
 import { DEFAULT_CLAIM_THE_BOARD_CONFIG } from '../claimTheBoard/claimTheBoardConfig.ts'
 import { DEFAULT_HUNTER_CONFIG } from '../hunter/hunterConfig.ts'
@@ -86,6 +88,12 @@ export const gameModeDefinitions: Record<GameModeId, GameModeDefinition> = {
     label: 'Bull Run',
     description: 'Race to the bull target · outer 1, bullseye 2',
   },
+  [GameModeId.BigNumbers]: {
+    mode: GameModeId.BigNumbers,
+    defaultConfig: DEFAULT_BIG_NUMBERS_CONFIG satisfies BigNumbersConfig,
+    label: 'Big Numbers',
+    description: 'Hit 1–20; advance with enough hits or go back',
+  },
 }
 
 export const getDefaultConfig = (mode: GameModeId): GameConfig =>
@@ -98,7 +106,8 @@ export const supportsScoreCaller = (mode: GameModeId): boolean =>
   mode !== GameModeId.ClaimTheBoard &&
   mode !== GameModeId.NinetyNineDarts &&
   mode !== GameModeId.Hunter &&
-  mode !== GameModeId.BullRun
+  mode !== GameModeId.BullRun &&
+  mode !== GameModeId.BigNumbers
 
 export const supportsVisitScoreInput = (mode: GameModeId): boolean =>
   mode === GameModeId.X01 || mode === GameModeId.OneTwentyOne || mode === GameModeId.TenUpOneDown

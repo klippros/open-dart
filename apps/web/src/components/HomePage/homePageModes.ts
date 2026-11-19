@@ -85,4 +85,10 @@ export const PRACTICE_MODES: readonly HomePageModeLink[] = [
     description: '99 darts at a chosen target',
     to: '/game/99-darts/setup',
   },
+  {
+    id: 'big-numbers',
+    label: 'Big Numbers',
+    description: 'Hit 1–20; advance with enough hits or go back',
+    to: '/game/big-numbers/setup',
+  },
 ]

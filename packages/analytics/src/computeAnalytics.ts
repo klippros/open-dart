@@ -32,4 +32,5 @@ export type {
   AroundTheClockPracticeStats,
   NinetyNineDartsPracticeStats,
   BullRunPracticeStats,
+  BigNumbersPracticeStats,
 } from './practiceStats'
