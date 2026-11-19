@@ -19,7 +19,7 @@ pnpm install
 pnpm dev
 ```
 
-The app is at `http://localhost:5173/tools/open-darts/`. Users stay anonymous
+The app is at `http://localhost:5173/`. Users stay anonymous
 and completed games stay in `localStorage`. Online play UI stays hidden.
 
 ## Supabase (optional sign-in and local-game sync)
@@ -40,21 +40,22 @@ Link the Supabase CLI and run `supabase db push` to apply all migrations.
 In **Authentication → URL Configuration**, set the production Site URL like:
 
 ```text
-https://klippros.com/tools/open-darts/
+https://opendart.app/
 ```
 
 Add these redirect URLs (exact match — do not append query strings):
 
 ```text
-http://localhost:5173/tools/open-darts/auth/callback
-https://klippros.com/tools/open-darts/auth/callback
+http://localhost:5173/auth/callback
+https://opendart.app/auth/callback
 ```
 
 Post-sign-in destinations (for example `/game/match-setup`) are stored in the
 browser and are not part of the redirect URL.
 
 For another deployment, replace the production origin and keep the
-`/tools/open-darts/auth/callback` path.
+`/auth/callback` path. The previous klippros.com callback can stay on the
+allowlist so a game already open there can refresh its session.
 
 #### Email
 

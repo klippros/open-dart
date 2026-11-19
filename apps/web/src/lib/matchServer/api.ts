@@ -248,9 +248,7 @@ export const buildInvitePath = (inviteToken: string): string => `/match/join/${i
 export const buildInviteAbsoluteUrl = (
   inviteToken: string,
   origin = window.location.origin,
-  baseUrl: string = typeof import.meta.env.BASE_URL === 'string'
-    ? import.meta.env.BASE_URL
-    : '/tools/open-darts/',
+  baseUrl: string = typeof import.meta.env.BASE_URL === 'string' ? import.meta.env.BASE_URL : '/',
 ): string => {
   const basePath = baseUrl.replace(/\/$/u, '')
   return `${origin}${basePath}${buildInvitePath(inviteToken)}`

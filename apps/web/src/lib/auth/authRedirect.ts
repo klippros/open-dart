@@ -37,6 +37,6 @@ export const consumeAuthReturnPath = (): string | null => {
 
 export const buildAuthRedirectUrl = (): string => {
   const baseUrlValue: unknown = import.meta.env.BASE_URL
-  const baseUrl = typeof baseUrlValue === 'string' ? baseUrlValue : '/tools/open-darts/'
+  const baseUrl = typeof baseUrlValue === 'string' ? baseUrlValue : '/'
   return new URL(`${baseUrl}auth/callback`, window.location.origin).toString()
 }

@@ -51,8 +51,8 @@ describe('matchServer api helpers', () => {
 
     expect(buildInvitePath(token)).toBe(`/match/join/${token}`)
     expect(buildMatchPath(matchId)).toBe(`/match/${matchId}`)
-    expect(buildInviteAbsoluteUrl(token, 'https://example.com', '/tools/open-darts/')).toBe(
-      `https://example.com/tools/open-darts/match/join/${token}`,
+    expect(buildInviteAbsoluteUrl(token, 'https://example.com', '/')).toBe(
+      `https://example.com/match/join/${token}`,
     )
   })
 })
