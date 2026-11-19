@@ -1,5 +1,6 @@
-import { Heading, Stack, Text } from '@chakra-ui/react'
+import { Heading, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import type { ProfileStatRow } from '../../lib/profile/formatProfileStats'
+import { StatCard } from '../StatsPageSections/StatCard'
 
 export interface ProfileStatSectionProps {
   title: string
@@ -22,26 +23,11 @@ export const ProfileStatSection = ({ title, windowLabel, rows }: ProfileStatSect
           {windowLabel}
         </Text>
       </Stack>
-      <Stack gap={2}>
+      <SimpleGrid columns={{ base: 1, sm: 2 }} gap={3}>
         {rows.map((row) => (
-          <Stack
-            key={row.label}
-            direction="row"
-            justify="space-between"
-            gap={4}
-            borderBottomWidth="1px"
-            borderColor="whiteAlpha.100"
-            pb={2}
-          >
-            <Text color="whiteAlpha.700" fontSize="sm">
-              {row.label}
-            </Text>
-            <Text color="white" fontWeight="semibold" fontSize="sm">
-              {row.value}
-            </Text>
-          </Stack>
+          <StatCard key={row.label} label={row.label} value={row.value} />
         ))}
-      </Stack>
+      </SimpleGrid>
     </Stack>
   )
 }
