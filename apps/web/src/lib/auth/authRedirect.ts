@@ -1,4 +1,4 @@
-const AUTH_RETURN_TO_KEY = 'open-darts:auth-return-to'
+const AUTH_RETURN_TO_KEY = 'auth-return-to'
 
 /** Relative in-app path only — rejects open redirects. */
 export const resolveAuthReturnPath = (raw: string | null | undefined): string | null => {

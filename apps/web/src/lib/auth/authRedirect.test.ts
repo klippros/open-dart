@@ -69,13 +69,13 @@ describe('stashAuthReturnPath / consumeAuthReturnPath', () => {
   })
 
   it('clears stashed path when returnTo is missing or unsafe', () => {
-    sessionStorage.setItem('open-darts:auth-return-to', '/match/new')
+    sessionStorage.setItem('auth-return-to', '/match/new')
     stashAuthReturnPath('https://evil.example')
     expect(consumeAuthReturnPath()).toBeNull()
   })
 
   it('ignores unsafe values left in storage', () => {
-    sessionStorage.setItem('open-darts:auth-return-to', 'https://evil.example')
+    sessionStorage.setItem('auth-return-to', 'https://evil.example')
     expect(consumeAuthReturnPath()).toBeNull()
   })
 })
