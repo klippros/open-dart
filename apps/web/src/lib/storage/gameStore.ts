@@ -33,7 +33,7 @@ export const isGameSession = (value: unknown): value is GameSession => {
   )
 }
 
-const isActiveGameSnapshot = (value: unknown): value is ActiveGameSnapshot => {
+export const isActiveGameSnapshot = (value: unknown): value is ActiveGameSnapshot => {
   if (typeof value !== 'object' || value === null) {
     return false
   }

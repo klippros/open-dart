@@ -2,7 +2,10 @@ import { Box, Flex } from '@chakra-ui/react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { AppHeader } from './components/AppHeader/AppHeader'
 import { Footer } from './components/Footer'
+import { KlipprosSignedInRedirect } from './components/KlipprosSignedInRedirect/KlipprosSignedInRedirect'
+import { MoveToOpenDartBanner } from './components/MoveToOpenDartBanner/MoveToOpenDartBanner'
 import { PendingOnlineMatchInvitesBanner } from './components/PendingOnlineMatchInvitesBanner/PendingOnlineMatchInvitesBanner'
+import { isLegacyPlayRoute } from './lib/klipprosHost'
 import { AuthProvider } from './hooks/AuthProvider'
 import { GameChromeProvider } from './hooks/GameChromeProvider'
 import { SettingsProvider } from './hooks/SettingsProvider'
@@ -10,14 +13,14 @@ import { VoiceControlProvider } from './hooks/VoiceControlProvider'
 
 export const App = () => {
   const { pathname } = useLocation()
-  const isOnlineMatchPlayRoute = /^\/match\/[^/]+$/u.test(pathname) && pathname !== '/match/new'
-  const isGameRoute = pathname === '/game' || isOnlineMatchPlayRoute
+  const isGameRoute = isLegacyPlayRoute(pathname)
 
   return (
     <AuthProvider>
       <SettingsProvider>
         <VoiceControlProvider>
           <GameChromeProvider>
+            <KlipprosSignedInRedirect />
             <Box
               h="100dvh"
               overflow="hidden"
@@ -37,6 +40,7 @@ export const App = () => {
                 className="hide-scrollbar"
               >
                 <Flex direction="column" w="full" minH="100%" h={isGameRoute ? '100%' : undefined}>
+                  {!isGameRoute ? <MoveToOpenDartBanner /> : null}
                   {!isGameRoute ? <PendingOnlineMatchInvitesBanner /> : null}
                   <Box
                     flex="1"

@@ -10,6 +10,7 @@ import { ResetStatsDialog } from '../components/ResetStatsDialog/ResetStatsDialo
 import { SignInDialog } from '../components/SignInDialog/SignInDialog'
 import { useAuth } from '../hooks/authContext'
 import { getSyncStatusLabel } from '../lib/auth/syncStatusLabel'
+import { isSignInEnabled } from '../lib/klipprosHost'
 import {
   getOnlineMatchCompletedAt,
   getOnlineMatchResultSummary,
@@ -261,8 +262,10 @@ export const HistoryPage = () => {
               History
             </Heading>
             <Text color="whiteAlpha.800" fontSize="md" lineHeight="1.65">
-              Completed games are saved locally. Sign in optionally to back them up and use your
-              History and Stats across devices.
+              Completed games are saved locally.
+              {isSignInEnabled
+                ? ' Sign in optionally to back them up and use your History and Stats across devices.'
+                : ''}
               {isOnlineMatchesEnabled
                 ? ' Online matches appear here for both players under the same match id.'
                 : ''}
@@ -299,7 +302,7 @@ export const HistoryPage = () => {
                       Reset history and stats
                     </Button>
                   )}
-                  {isConfigured && (
+                  {isSignInEnabled && isConfigured && (
                     <Button
                       variant="cta"
                       flexShrink={0}

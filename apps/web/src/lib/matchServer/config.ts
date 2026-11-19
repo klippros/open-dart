@@ -1,5 +1,6 @@
-import { isSupabaseConfigured } from '../supabase/client'
 import { readEnvironmentVariable } from '../env'
+import { isKlipprosHost, readBrowserHostname } from '../klipprosHost'
+import { isSupabaseConfigured } from '../supabase/client'
 
 export const matchServerUrl = readEnvironmentVariable(import.meta.env.VITE_MATCH_SERVER_URL)
 
@@ -10,7 +11,6 @@ export const resolveOnlineMatchesEnabled = (
   matchServerConfigured: boolean,
 ): boolean => supabaseConfigured && matchServerConfigured
 
-export const isOnlineMatchesEnabled = resolveOnlineMatchesEnabled(
-  isSupabaseConfigured,
-  isMatchServerConfigured,
-)
+export const isOnlineMatchesEnabled =
+  !isKlipprosHost(readBrowserHostname()) &&
+  resolveOnlineMatchesEnabled(isSupabaseConfigured, isMatchServerConfigured)

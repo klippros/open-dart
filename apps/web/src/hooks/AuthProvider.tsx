@@ -2,6 +2,7 @@ import type { User } from '@supabase/supabase-js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { buildAuthRedirectUrl, stashAuthReturnPath } from '../lib/auth/authRedirect'
+import { isSignInEnabled } from '../lib/klipprosHost'
 import { getMyRequireMutualFollowForInvites } from '../lib/profile/profileApi'
 import { isSupabaseConfigured, supabaseClient } from '../lib/supabase/client'
 import {
@@ -119,6 +120,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   const signInWithGoogle = useCallback(async (returnTo?: string): Promise<string | null> => {
+    if (!isSignInEnabled) {
+      return 'Sign-in has moved to opendart.app.'
+    }
+
     if (supabaseClient === null) {
       return 'Sign-in is not configured.'
     }
@@ -134,6 +139,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithEmail = useCallback(
     async (email: string, returnTo?: string): Promise<string | null> => {
+      if (!isSignInEnabled) {
+        return 'Sign-in has moved to opendart.app.'
+      }
+
       if (supabaseClient === null) {
         return 'Sign-in is not configured.'
       }

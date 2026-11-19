@@ -12,6 +12,7 @@ import { ProfileFollowButton } from '../components/ProfileFollowButton/ProfileFo
 import { ProfileStatSection } from '../components/ProfileStatSection/ProfileStatSection'
 import { SignInDialog } from '../components/SignInDialog/SignInDialog'
 import { useAuth } from '../hooks/authContext'
+import { isSignInEnabled } from '../lib/klipprosHost'
 import {
   getOnlineMatchCompletedAt,
   getOnlineMatchResultSummary,
@@ -230,8 +231,12 @@ export const PlayerProfilePage = () => {
             <Heading as="h1" size="2xl" color="white" fontFamily="Archivo Black, sans-serif">
               Player profile
             </Heading>
-            <Text color="whiteAlpha.800">Sign in to view player profiles.</Text>
-            {isConfigured ? (
+            <Text color="whiteAlpha.800">
+              {isSignInEnabled
+                ? 'Sign in to view player profiles.'
+                : 'Player profiles are on opendart.app.'}
+            </Text>
+            {isSignInEnabled && isConfigured ? (
               <Button
                 variant="cta"
                 alignSelf="start"

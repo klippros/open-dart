@@ -69,6 +69,19 @@ const buttonRecipe = defineRecipe({
           bg: 'red.600',
         },
       },
+      success: {
+        ...pressMotion,
+        bg: 'green.500',
+        color: 'white',
+        borderColor: 'transparent',
+        _hover: {
+          ...pressMotion._hover,
+          bg: 'green.600',
+        },
+        _active: {
+          bg: 'green.700',
+        },
+      },
     },
   },
 })

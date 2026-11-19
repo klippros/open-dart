@@ -51,9 +51,11 @@ const mergeAppSettings = (value: unknown): AppSettings | null => {
   }
 }
 
+export const parseAppSettings = (value: unknown): AppSettings | null => mergeAppSettings(value)
+
 export const loadSettings = (storage: StorageAdapter = browserLocalStorage): AppSettings => {
   const parsed = parseJson(storage.getItem(StorageKey.Settings))
-  const merged = mergeAppSettings(parsed)
+  const merged = parseAppSettings(parsed)
 
   return merged ?? DEFAULT_APP_SETTINGS
 }

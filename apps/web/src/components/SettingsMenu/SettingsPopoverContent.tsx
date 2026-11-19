@@ -1,6 +1,7 @@
 import { Stack } from '@chakra-ui/react'
 import { useSettings } from '../../hooks/settingsContext'
 import { SingleDartScoringMode } from '../../types/settings'
+import { ImportStatsControl } from './ImportStatsControl'
 import { SettingsSegmentRow } from './SettingsSegmentRow'
 import { SettingsSwitchRow } from './SettingsSwitchRow'
 
@@ -41,6 +42,7 @@ export const SettingsPopoverContent = () => {
         options={SINGLE_DART_SCORING_OPTIONS}
         onValueChange={setSingleDartScoring}
       />
+      <ImportStatsControl />
     </Stack>
   )
 }
