@@ -91,4 +91,10 @@ export const PRACTICE_MODES: readonly HomePageModeLink[] = [
     description: 'Hit 1–20; advance with enough hits or go back',
     to: '/game/big-numbers/setup',
   },
+  {
+    id: 'jdc-challenge',
+    label: 'JDC Challenge',
+    description: 'Shanghai 10–15 · doubles · Shanghai 15–20',
+    to: buildPracticeGamePath(GameModeId.JdcChallenge),
+  },
 ]

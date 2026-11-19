@@ -1,6 +1,7 @@
 import { getVisitAverages, getPrimaryPlayerVisits } from '@open-dart/analytics/visitStats'
 import { computeAroundTheClockSingleSessionStats } from '@open-dart/analytics/aroundTheClockStats'
 import { computeBullRunSingleSessionStats } from '@open-dart/analytics/bullRunVisitStats'
+import { computeJdcChallengeSingleSessionStats } from '@open-dart/analytics/jdcChallengeVisitStats'
 import { computeNinetyNineDartsSingleSessionStats } from '@open-dart/analytics/ninetyNineVisitStats'
 import {
   computeClaimTheBoardSingleSessionStats,
@@ -406,6 +407,25 @@ export const getMatchSummary = (session: GameSession): MatchSummary => {
     }
 
     if (details.length === 0) {
+      details.push(`${visitCount} visit${visitCount === 1 ? '' : 's'}`)
+    }
+
+    return {
+      title: finishedEarly ? `${modeLabel} session ended` : `${modeLabel} complete`,
+      details,
+    }
+  }
+
+  if (session.mode === GameModeId.JdcChallenge) {
+    const stats = computeJdcChallengeSingleSessionStats(session)
+    const modeLabel = getSessionModeLabel(session)
+    const details: string[] = []
+
+    if (stats !== null) {
+      details.push(`${stats.score} pts`)
+      details.push(stats.gradeLabel)
+      details.push(`${stats.shanghaisHit} Shanghais`)
+    } else {
       details.push(`${visitCount} visit${visitCount === 1 ? '' : 's'}`)
     }
 

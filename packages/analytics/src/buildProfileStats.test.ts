@@ -150,6 +150,7 @@ describe('buildProfileStats', () => {
     expect(stats.bob27).toBeNull()
     expect(stats.ninetyNineDarts).toBeNull()
     expect(stats.aroundTheClock).toBeNull()
+    expect(stats.jdcChallenge).toBeNull()
   })
 
   it('uses independent active windows and mode-specific practice aggregation', () => {

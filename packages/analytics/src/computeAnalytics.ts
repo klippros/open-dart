@@ -33,4 +33,5 @@ export type {
   NinetyNineDartsPracticeStats,
   BullRunPracticeStats,
   BigNumbersPracticeStats,
+  JdcChallengePracticeStats,
 } from './practiceStats'

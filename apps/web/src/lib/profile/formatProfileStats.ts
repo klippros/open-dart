@@ -3,6 +3,7 @@ import type {
   ProfileAroundTheClockStats,
   ProfileBob27Stats,
   ProfileFiveOhOneStats,
+  ProfileJdcChallengeStats,
   ProfileNinetyNineDartsStats,
   ProfileStatWindow,
 } from '@open-dart/analytics'
@@ -88,8 +89,19 @@ export const buildAroundTheClockRows = (stats: ProfileAroundTheClockStats): Prof
   return rows
 }
 
+export const buildJdcChallengeRows = (stats: ProfileJdcChallengeStats): ProfileStatRow[] => {
+  const rows: ProfileStatRow[] = []
+  pushRow(rows, 'Sessions played', formatNumber(stats.sessionsPlayed, 0))
+  pushRow(rows, 'Avg score', formatNumber(stats.avgFinalScore))
+  pushRow(rows, 'Best score', formatNumber(stats.bestFinalScore, 0))
+  pushRow(rows, 'Avg Shanghais', formatNumber(stats.avgShanghaisPerGame))
+  pushRow(rows, 'Best Shanghais', formatNumber(stats.bestShanghaisPerGame, 0))
+  return rows
+}
+
 export const profileHasAnyStats = (stats: PlayerProfileStats): boolean =>
   stats.fiveOhOne !== null ||
   stats.bob27 !== null ||
   stats.ninetyNineDarts !== null ||
-  stats.aroundTheClock !== null
+  stats.aroundTheClock !== null ||
+  stats.jdcChallenge !== null

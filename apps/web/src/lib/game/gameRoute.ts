@@ -23,6 +23,7 @@ export type PracticeGameMode =
   | GameModeId.TenUpOneDown
   | GameModeId.NinetyNineDarts
   | GameModeId.BigNumbers
+  | GameModeId.JdcChallenge
 
 export type LocalMatchGameMode = OnlineMatchMode
 
@@ -33,6 +34,7 @@ const PRACTICE_MODE_ROUTES: { mode: PracticeGameMode; param: string }[] = [
   { mode: GameModeId.AroundTheClock, param: 'around-the-clock' },
   { mode: GameModeId.NinetyNineDarts, param: '99-darts' },
   { mode: GameModeId.BigNumbers, param: 'big-numbers' },
+  { mode: GameModeId.JdcChallenge, param: 'jdc-challenge' },
 ]
 
 export const isPracticeGameMode = (mode: GameModeId): mode is PracticeGameMode =>

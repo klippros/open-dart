@@ -52,6 +52,9 @@ export const filterBob27Sessions = (sessions: GameSession[]): GameSession[] =>
 export const filterBullRunSessions = (sessions: GameSession[]): GameSession[] =>
   sessions.filter((session) => session.mode === GameModeId.BullRun)
 
+export const filterJdcChallengeSessions = (sessions: GameSession[]): GameSession[] =>
+  sessions.filter((session) => session.mode === GameModeId.JdcChallenge)
+
 export const filterBigNumbersSessions = (
   sessions: GameSession[],
   requiredHits?: BigNumbersRequiredHits,

@@ -33,10 +33,8 @@ export const GamePage = () => {
   // Match the side-history breakpoint so stacked history covers every width
   // where the sidebar columns are hidden (no md–lg dead zone).
   const isMobile =
-    useBreakpointValue(
-      { base: true, [visitHistorySidebarBreakpoint]: false },
-      { ssr: false },
-    ) ?? true
+    useBreakpointValue({ base: true, [visitHistorySidebarBreakpoint]: false }, { ssr: false }) ??
+    true
 
   const inputDisabled = controller.isComplete || loadState.kind === 'conflict'
 
@@ -89,6 +87,7 @@ export const GamePage = () => {
       bob27TargetIndex={pickerTargets.bob27TargetIndex}
       bigNumbersTargetIndex={pickerTargets.bigNumbersTargetIndex}
       hunterFieldNumber={pickerTargets.hunterFieldNumber}
+      jdcChallengeVisitIndex={pickerTargets.jdcChallengeVisitIndex}
       checkoutTarget={activeCheckoutTarget}
       pendingDarts={controller.pendingDarts}
       visitEntryMode={visitEntryMode}

@@ -6,10 +6,17 @@ import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTh
 import { aggregateAroundTheClockSessionStats } from './aroundTheClockStats.ts'
 import {
   isBob27PracticeStats,
+  isJdcChallengePracticeStats,
   isNinetyNineDartsPracticeStats,
   computePracticeStats,
 } from './practiceStats.ts'
-import { filterFiveOhOneSessions, filterNinetyNineDartsSessions } from './sessionScope.ts'
+import { computeJdcChallengeSingleSessionStats } from './jdcChallengeVisitStats.ts'
+import {
+  filterFiveOhOneSessions,
+  filterJdcChallengeSessions,
+  filterNinetyNineDartsSessions,
+} from './sessionScope.ts'
+import type { JdcChallengeGrade } from '@open-dart/game/types/jdcChallenge.ts'
 import { getSessionCompletedAt } from './sessionLabels.ts'
 import {
   countDartsInVisits,
@@ -66,6 +73,24 @@ export interface ProfileAroundTheClockStats {
   bestDartsFullRun: number | null
 }
 
+export interface ProfileJdcChallengeBadge {
+  score: number
+  grade: JdcChallengeGrade
+  /** False when showing the last score because there is no score this calendar month. */
+  isCurrentMonth: boolean
+  bestEverGrade: JdcChallengeGrade
+}
+
+export interface ProfileJdcChallengeStats {
+  window: ProfileStatWindow
+  sessionsPlayed: number
+  avgFinalScore: number | null
+  bestFinalScore: number | null
+  avgShanghaisPerGame: number | null
+  bestShanghaisPerGame: number | null
+  badge: ProfileJdcChallengeBadge | null
+}
+
 export interface PlayerProfileStats {
   version: typeof PROFILE_STATS_VERSION
   displayName: string
@@ -73,6 +98,7 @@ export interface PlayerProfileStats {
   bob27: ProfileBob27Stats | null
   ninetyNineDarts: ProfileNinetyNineDartsStats | null
   aroundTheClock: ProfileAroundTheClockStats | null
+  jdcChallenge: ProfileJdcChallengeStats | null
 }
 
 export interface BuildProfileStatsInput {
@@ -327,6 +353,79 @@ const buildAroundTheClockStats = (
   }
 }
 
+const calendarMonthStartIso = (at: Date): string =>
+  new Date(Date.UTC(at.getUTCFullYear(), at.getUTCMonth(), 1)).toISOString()
+
+const buildJdcChallengeBadge = (
+  finishedSessions: GameSession[],
+): ProfileJdcChallengeBadge | null => {
+  const scored = finishedSessions
+    .map((session) => {
+      const stats = computeJdcChallengeSingleSessionStats(session)
+      if (stats === null || !stats.completed) {
+        return null
+      }
+
+      return {
+        score: stats.score,
+        grade: stats.grade,
+        completedAt: getSessionCompletedAt(session),
+      }
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+    .sort((left, right) => left.completedAt.localeCompare(right.completedAt))
+
+  if (scored.length === 0) {
+    return null
+  }
+
+  const bestEver = scored.reduce((best, entry) => (entry.score > best.score ? entry : best))
+  const monthStart = calendarMonthStartIso(new Date())
+  const thisMonth = scored.filter((entry) => entry.completedAt >= monthStart)
+  const badgeSource =
+    thisMonth.length > 0
+      ? thisMonth.reduce((best, entry) => (entry.score > best.score ? entry : best))
+      : scored.at(-1)
+
+  if (badgeSource === undefined) {
+    return null
+  }
+
+  return {
+    score: badgeSource.score,
+    grade: badgeSource.grade,
+    isCurrentMonth: thisMonth.length > 0,
+    bestEverGrade: bestEver.grade,
+  }
+}
+
+const buildJdcChallengeStats = (
+  practiceSessions: GameSession[],
+): ProfileJdcChallengeStats | null => {
+  const modeSessions = filterJdcChallengeSessions(practiceSessions).filter(isCompleted)
+  const finished = modeSessions.filter((session) => session.finishedEarly !== true)
+  const badge = buildJdcChallengeBadge(finished)
+
+  const anchor = latestCompletedAt(modeSessions)
+  if (anchor === null) {
+    return null
+  }
+
+  const window = windowFromAnchor(anchor)
+  const windowSessions = sessionsInWindow(modeSessions, window)
+  const practice = computePracticeStats(windowSessions).other.find(isJdcChallengePracticeStats)
+
+  return {
+    window,
+    sessionsPlayed: windowSessions.length,
+    avgFinalScore: practice?.avgFinalScore ?? null,
+    bestFinalScore: practice?.bestFinalScore ?? null,
+    avgShanghaisPerGame: practice?.avgShanghaisPerGame ?? null,
+    bestShanghaisPerGame: practice?.bestShanghaisPerGame ?? null,
+    badge,
+  }
+}
+
 export const buildProfileStats = (input: BuildProfileStatsInput): PlayerProfileStats => {
   const online = input.onlineSessions
     .filter(isCompleted)
@@ -340,5 +439,6 @@ export const buildProfileStats = (input: BuildProfileStatsInput): PlayerProfileS
     bob27: buildBob27Stats(practice),
     ninetyNineDarts: buildNinetyNineDartsStats(practice),
     aroundTheClock: buildAroundTheClockStats(practice),
+    jdcChallenge: buildJdcChallengeStats(practice),
   }
 }

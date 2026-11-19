@@ -100,10 +100,8 @@ export const OnlineMatchPlayBoard = ({
   // Match the side-history breakpoint so stacked history covers every width
   // where the sidebar columns are hidden (no md–lg dead zone).
   const isMobile =
-    useBreakpointValue(
-      { base: true, [visitHistorySidebarBreakpoint]: false },
-      { ssr: false },
-    ) ?? true
+    useBreakpointValue({ base: true, [visitHistorySidebarBreakpoint]: false }, { ssr: false }) ??
+    true
   const [pendingDarts, setPendingDarts] = useState<DartThrow[]>([])
   const [visitEntryModeOverride, setVisitEntryModeOverride] = useState<VisitInputMode | null>(null)
   const [correctingVisitIndex, setCorrectingVisitIndex] = useState<number | null>(null)

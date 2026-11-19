@@ -12,6 +12,10 @@ import {
   getBullRunLiveScoreMetrics,
   getBullRunLiveStats,
 } from '@open-dart/analytics/bullRunVisitStats'
+import {
+  getJdcChallengeLiveScoreMetrics,
+  getJdcChallengeLiveStats,
+} from '@open-dart/analytics/jdcChallengeVisitStats'
 import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
 import { requiredHitsToNumber } from '@open-dart/game/bigNumbers/bigNumbersRules'
 import type { ScoreboardPlayerEntry } from '@open-dart/game/game/GameEngine'
@@ -38,6 +42,7 @@ import type { MatchProgress } from '@open-dart/game/types/match'
 import type { DartThrow } from '@open-dart/game/types/dart'
 import type { GameConfig, GameModeId as GameModeIdType } from '@open-dart/game/types/gameMode'
 import type { Visit } from '@open-dart/game/types/visit'
+import { JdcChallengeScorePanel } from './JdcChallengeScorePanel'
 import { NinetyNineDartsScorePanel } from './NinetyNineDartsScorePanel'
 import type { ScoreboardDisplayPlayer } from './PlayerScorePanel'
 import { PlayerScorePanels } from './PlayerScorePanel'
@@ -111,7 +116,8 @@ export const ScoreboardCenter = ({
     mode !== GameModeId.BigNumbers &&
     mode !== GameModeId.NinetyNineDarts &&
     mode !== GameModeId.Hunter &&
-    mode !== GameModeId.BullRun
+    mode !== GameModeId.BullRun &&
+    mode !== GameModeId.JdcChallenge
   const scoreBeforeVisit =
     activePlayer === undefined ? 0 : activePlayer.primaryScore + sumDartPoints(pendingDarts)
   const legStartingPlayerIndex =
@@ -236,10 +242,28 @@ export const ScoreboardCenter = ({
     )
   }, [activePlayer, config, mode, pendingDarts, visits])
 
+  const jdcChallengeLive = useMemo(() => {
+    if (mode !== GameModeId.JdcChallenge || activePlayer === undefined) {
+      return null
+    }
+
+    const stats = getJdcChallengeLiveStats(visits, activePlayer.playerId, pendingDarts)
+    return {
+      stats,
+      metrics: getJdcChallengeLiveScoreMetrics(stats),
+    }
+  }, [activePlayer, mode, pendingDarts, visits])
+
   return (
     <Stack gap={5}>
       {mode === GameModeId.Hunter ? (
         <HunterBoardPanel players={playersForDisplay} visits={visits} pendingDarts={pendingDarts} />
+      ) : jdcChallengeLive !== null ? (
+        <JdcChallengeScorePanel
+          stats={jdcChallengeLive.stats}
+          metrics={jdcChallengeLive.metrics}
+          isActive={activePlayer?.isActive ?? true}
+        />
       ) : ninetyNineDartsMetrics !== null ? (
         <NinetyNineDartsScorePanel
           metrics={ninetyNineDartsMetrics}

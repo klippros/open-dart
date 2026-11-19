@@ -19,6 +19,7 @@ export interface GameModePickerTargets {
   bob27TargetIndex?: number
   bigNumbersTargetIndex?: number
   hunterFieldNumber?: number
+  jdcChallengeVisitIndex?: number
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -58,6 +59,19 @@ const readSharedTargetIndex = (engineState: object): number | undefined => {
   return engineState.sharedTargetIndex
 }
 
+const readPlayerVisitsCompleted = (engineState: object, playerId: string): number | undefined => {
+  if (!('players' in engineState) || !isRecord(engineState.players)) {
+    return undefined
+  }
+
+  const player = engineState.players[playerId]
+  if (!isRecord(player) || typeof player.visitsCompleted !== 'number') {
+    return undefined
+  }
+
+  return player.visitsCompleted
+}
+
 /** Reads mode-specific dart-picker target indices from engine state. */
 export const getGameModePickerTargets = (
   mode: GameModeId,
@@ -94,6 +108,13 @@ export const getGameModePickerTargets = (
 
   if (mode === GameModeId.BigNumbers) {
     return { bigNumbersTargetIndex: targetIndex }
+  }
+
+  if (mode === GameModeId.JdcChallenge) {
+    const visitsCompleted = readPlayerVisitsCompleted(engineState, activePlayerId)
+    return {
+      jdcChallengeVisitIndex: visitsCompleted ?? 0,
+    }
   }
 
   return {}
@@ -159,6 +180,17 @@ export const getDartPickerHelpContent = (
       paragraphs: [
         'Use the three dart columns left to right. Bottom to top: Miss, Single, Treble, Double (no Treble on bull).',
         'Enter one outcome per dart in order. Undo removes the last dart.',
+      ],
+      voice,
+    }
+  }
+
+  if (mode === GameModeId.JdcChallenge) {
+    return {
+      title: 'How to score',
+      paragraphs: [
+        'Shanghai visits: three columns for the current number. Bottom to top: Miss, Single, Treble, Double. Hit all three rings for a 100-point Shanghai bonus.',
+        'Doubles visits: each column is one target (D1, D2, D3…). Hit or Miss only. The bullseye scores 100; the outer bull does not count.',
       ],
       voice,
     }

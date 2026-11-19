@@ -48,9 +48,7 @@ export const AroundTheClockHistoryColumn = ({
     <Stack
       gap={3}
       align={isStack ? 'stretch' : isRight ? 'flex-end' : 'flex-start'}
-      display={
-        isStack ? 'flex' : { base: 'none', [visitHistorySidebarBreakpoint]: 'flex' }
-      }
+      display={isStack ? 'flex' : { base: 'none', [visitHistorySidebarBreakpoint]: 'flex' }}
       w={isStack ? 'full' : undefined}
     >
       {showPlayerName && (

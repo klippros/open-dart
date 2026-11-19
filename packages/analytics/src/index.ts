@@ -10,6 +10,8 @@ export type {
   ProfileAroundTheClockStats,
   ProfileBob27Stats,
   ProfileFiveOhOneStats,
+  ProfileJdcChallengeBadge,
+  ProfileJdcChallengeStats,
   ProfileNinetyNineDartsStats,
   ProfileStatWindow,
 } from './buildProfileStats.ts'

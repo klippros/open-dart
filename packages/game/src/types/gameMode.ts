@@ -4,6 +4,7 @@ import type { BullRunConfig } from './bullRun.ts'
 import type { ClaimTheBoardConfig } from './claimTheBoard.ts'
 import type { Bob27Config } from './bob27.ts'
 import type { HunterConfig } from './hunter.ts'
+import type { JdcChallengeConfig } from './jdcChallenge.ts'
 import type { NinetyNineDartsConfig } from './ninetyNineDarts.ts'
 import type { OneTwentyOneConfig } from './oneTwentyOne.ts'
 import type { TenUpOneDownConfig } from './tenUpOneDown.ts'
@@ -20,6 +21,7 @@ export enum GameModeId {
   Hunter = 'hunter',
   BullRun = 'bull-run',
   BigNumbers = 'big-numbers',
+  JdcChallenge = 'jdc-challenge',
 }
 
 export enum GameStatus {
@@ -39,3 +41,4 @@ export type GameConfig =
   | HunterConfig
   | BullRunConfig
   | BigNumbersConfig
+  | JdcChallengeConfig
