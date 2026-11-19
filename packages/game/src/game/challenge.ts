@@ -194,6 +194,40 @@ export const getChallengeLegStatuses = (
   })
 }
 
+export const syncChallengeLegResults = (
+  matchProgress: MatchProgress,
+  playerId: string,
+  visits: Visit[],
+): MatchProgress => {
+  const challenge = matchProgress.challenge
+
+  if (challenge === undefined) {
+    return matchProgress
+  }
+
+  let wins = 0
+  let losses = 0
+
+  for (let legNumber = 1; legNumber <= matchProgress.currentLeg; legNumber += 1) {
+    const outcome = getCompletedChallengeLegOutcome(visits, legNumber, playerId, challenge)
+
+    if (outcome === ChallengeLegStatus.Won) {
+      wins += 1
+    } else if (outcome === ChallengeLegStatus.Lost) {
+      losses += 1
+    }
+  }
+
+  return {
+    ...matchProgress,
+    legWins: {
+      ...matchProgress.legWins,
+      [playerId]: wins,
+    },
+    legLosses: losses,
+  }
+}
+
 export const formatChallengeMatchScore = (wins: number, losses: number): string =>
   `${wins} – ${losses}`
 
