@@ -10,6 +10,7 @@ import type {
   NinetyNineDartsPracticeStats,
 } from '@open-dart/analytics/computeAnalytics'
 import { getBigNumbersRequiredHitsLabel } from '@open-dart/game/bigNumbers/bigNumbersConfig'
+import { getJdcChallengeGrade } from '@open-dart/game/jdcChallenge/jdcChallengeRules'
 import type { StatTimelineSelection } from '../../lib/analytics/statTimelines'
 import {
   formatAverage,
@@ -21,6 +22,10 @@ import {
 import { getAroundTheClockAimModeLabel } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
 import { gameModeDefinitions } from '@open-dart/game/game/gameModeDefinitions'
 import { GameModeId } from '@open-dart/game/types/gameMode'
+import {
+  jdcChallengeGradeColor,
+  jdcChallengeGradeTextColor,
+} from '../../lib/jdcChallenge/jdcChallengeGradeColors'
 import {
   getNinetyNineDartsStatGroupLabel,
   NinetyNineDartsStatGroup,
@@ -609,63 +614,125 @@ export const JdcChallengePracticeCard = ({
 }: {
   stats: JdcChallengePracticeStats
   onStatSelect: (selection: StatTimelineSelection) => void
-}) => (
-  <PracticeModeCard title={stats.label} trailing={<StatsCountLabel count={stats.gameCount} />}>
-    <SimpleGrid columns={{ base: 1, sm: 2 }} gap={3}>
-      <StatCard
-        label="Avg score"
-        value={formatAverage(stats.avgFinalScore)}
-        onClick={() => {
-          onStatSelect({
-            scope: { type: 'practice-jdc-challenge' },
-            metric: 'avgFinalScore',
-            metricLabel: 'Score',
-            scopeLabel: stats.label,
-          })
-        }}
-      />
-      {stats.bestFinalScore !== null && (
-        <StatCard
-          label="Best score"
-          value={formatInteger(stats.bestFinalScore)}
-          onClick={() => {
-            onStatSelect({
-              scope: { type: 'practice-jdc-challenge' },
-              metric: 'bestFinalScore',
-              metricLabel: 'Score',
-              scopeLabel: stats.label,
-            })
-          }}
-        />
-      )}
-      {stats.avgShanghaisPerGame !== null && (
-        <StatCard
-          label="Avg Shanghais"
-          value={formatAverage(stats.avgShanghaisPerGame)}
-          onClick={() => {
-            onStatSelect({
-              scope: { type: 'practice-jdc-challenge' },
-              metric: 'avgShanghaisPerGame',
-              metricLabel: 'Shanghais',
-              scopeLabel: stats.label,
-            })
-          }}
-        />
-      )}
-      {stats.bestShanghaisPerGame !== null && (
-        <StatCard
-          label="Best Shanghais"
-          value={formatInteger(stats.bestShanghaisPerGame)}
-          onClick={() => {
-            onStatSelect({
-              scope: { type: 'practice-jdc-challenge' },
-              metric: 'bestShanghaisPerGame',
-              metricLabel: 'Shanghais',
-              scopeLabel: stats.label,
-            })
-          }}
-        />
-      )}
-    </SimpleGrid>
-  </PracticeModeCard>
-)
+}) => {
+  const avgGrade = stats.avgFinalScore === null ? null : getJdcChallengeGrade(stats.avgFinalScore)
+  const bestGrade =
+    stats.bestFinalScore === null ? null : getJdcChallengeGrade(stats.bestFinalScore)
+
+  return (
+    <PracticeModeCard title={stats.label} trailing={<StatsCountLabel count={stats.gameCount} />}>
+      <Stack gap={3}>
+        <SimpleGrid columns={{ base: 1, sm: 2 }} gap={3}>
+          <StatCard
+            label="Avg score"
+            value={formatAverage(stats.avgFinalScore)}
+            {...(avgGrade === null
+              ? {}
+              : {
+                  bg: jdcChallengeGradeColor(avgGrade),
+                  color: jdcChallengeGradeTextColor(avgGrade),
+                  labelColor: jdcChallengeGradeTextColor(avgGrade),
+                })}
+            onClick={() => {
+              onStatSelect({
+                scope: { type: 'practice-jdc-challenge' },
+                metric: 'avgFinalScore',
+                metricLabel: 'Score',
+                scopeLabel: stats.label,
+              })
+            }}
+          />
+          {stats.bestFinalScore !== null && (
+            <StatCard
+              label="Best score"
+              value={formatInteger(stats.bestFinalScore)}
+              {...(bestGrade === null
+                ? {}
+                : {
+                    bg: jdcChallengeGradeColor(bestGrade),
+                    color: jdcChallengeGradeTextColor(bestGrade),
+                    labelColor: jdcChallengeGradeTextColor(bestGrade),
+                  })}
+              onClick={() => {
+                onStatSelect({
+                  scope: { type: 'practice-jdc-challenge' },
+                  metric: 'bestFinalScore',
+                  metricLabel: 'Score',
+                  scopeLabel: stats.label,
+                })
+              }}
+            />
+          )}
+        </SimpleGrid>
+        <SimpleGrid columns={{ base: 1, sm: 3 }} gap={3}>
+          <StatCard
+            label="Avg SH 10–15"
+            value={formatAverage(stats.avgShanghaiLowScore)}
+            onClick={() => {
+              onStatSelect({
+                scope: { type: 'practice-jdc-challenge' },
+                metric: 'avgShanghaiLowScore',
+                metricLabel: 'SH 10–15',
+                scopeLabel: stats.label,
+              })
+            }}
+          />
+          <StatCard
+            label="Avg Doubles"
+            value={formatAverage(stats.avgDoublesScore)}
+            onClick={() => {
+              onStatSelect({
+                scope: { type: 'practice-jdc-challenge' },
+                metric: 'avgDoublesScore',
+                metricLabel: 'Doubles',
+                scopeLabel: stats.label,
+              })
+            }}
+          />
+          <StatCard
+            label="Avg SH 15–20"
+            value={formatAverage(stats.avgShanghaiHighScore)}
+            onClick={() => {
+              onStatSelect({
+                scope: { type: 'practice-jdc-challenge' },
+                metric: 'avgShanghaiHighScore',
+                metricLabel: 'SH 15–20',
+                scopeLabel: stats.label,
+              })
+            }}
+          />
+        </SimpleGrid>
+        <SimpleGrid columns={{ base: 1, sm: 2 }} gap={3}>
+          {stats.avgShanghaisPerGame !== null && (
+            <StatCard
+              label="Avg Shanghais"
+              value={formatAverage(stats.avgShanghaisPerGame)}
+              onClick={() => {
+                onStatSelect({
+                  scope: { type: 'practice-jdc-challenge' },
+                  metric: 'avgShanghaisPerGame',
+                  metricLabel: 'Shanghais',
+                  scopeLabel: stats.label,
+                })
+              }}
+            />
+          )}
+          {stats.bestShanghaisPerGame !== null && (
+            <StatCard
+              label="Best Shanghais"
+              value={formatInteger(stats.bestShanghaisPerGame)}
+              onClick={() => {
+                onStatSelect({
+                  scope: { type: 'practice-jdc-challenge' },
+                  metric: 'bestShanghaisPerGame',
+                  metricLabel: 'Shanghais',
+                  scopeLabel: stats.label,
+                })
+              }}
+            />
+          )}
+        </SimpleGrid>
+      </Stack>
+    </PracticeModeCard>
+  )
+}

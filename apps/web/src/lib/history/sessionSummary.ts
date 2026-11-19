@@ -3,7 +3,6 @@ import { computeAroundTheClockSingleSessionStats } from '@open-dart/analytics/ar
 import { computeBullRunSingleSessionStats } from '@open-dart/analytics/bullRunVisitStats'
 import { computeJdcChallengeSingleSessionStats } from '@open-dart/analytics/jdcChallengeVisitStats'
 import { computeNinetyNineDartsSingleSessionStats } from '@open-dart/analytics/ninetyNineVisitStats'
-import { JDC_CHALLENGE_MAX_SHANGHAIS } from '@open-dart/game/jdcChallenge/jdcChallengeRules'
 import {
   computeClaimTheBoardSingleSessionStats,
   getClaimTheBoardScoreLeaderId,
@@ -425,7 +424,7 @@ export const getMatchSummary = (session: GameSession): MatchSummary => {
     if (stats !== null) {
       details.push(`${stats.score} pts`)
       details.push(stats.gradeLabel)
-      details.push(`${stats.shanghaisHit}/${JDC_CHALLENGE_MAX_SHANGHAIS} Shanghais`)
+      details.push(`${stats.shanghaisHit} Shanghais`)
     } else {
       details.push(`${visitCount} visit${visitCount === 1 ? '' : 's'}`)
     }

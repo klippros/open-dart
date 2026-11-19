@@ -1,4 +1,4 @@
-import { Grid, Stack, Text } from '@chakra-ui/react'
+import { Grid, Stack } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { VisitDartSlotCard } from '../../Scoreboard/VisitDartSlotCard'
 import { PressScaleButton } from '../../PressScaleButton/PressScaleButton'
@@ -13,7 +13,6 @@ import {
   getJdcChallengeDoubleOutcome,
   getJdcChallengeShanghaiOutcome,
   getJdcChallengeTargetLabel,
-  getJdcChallengeVisitTargetLabel,
   JDC_CHALLENGE_MAX_DARTS_PER_VISIT,
   getJdcChallengePartForVisit,
 } from '@open-dart/game/jdcChallenge/jdcChallengeRules'
@@ -83,7 +82,6 @@ export const JdcChallengeDartPicker = ({
   const part = getJdcChallengePartForVisit(visitIndex)
   const isDoubles = part === JdcChallengePart.Doubles
   const pendingCount = pendingDarts.length
-  const visitLabel = getJdcChallengeVisitTargetLabel(visitIndex)
 
   const shanghaiTargetNumber = useMemo(() => {
     const target = getJdcChallengeDartTarget(visitIndex, 0)
@@ -195,10 +193,6 @@ export const JdcChallengeDartPicker = ({
 
   return (
     <Stack gap={3}>
-      <Text color="whiteAlpha.700" fontSize="sm" textAlign="center">
-        Aim: {visitLabel}
-      </Text>
-
       <Grid
         ref={swipe.gridRef}
         templateColumns={`repeat(${JDC_CHALLENGE_MAX_DARTS_PER_VISIT}, 1fr)`}

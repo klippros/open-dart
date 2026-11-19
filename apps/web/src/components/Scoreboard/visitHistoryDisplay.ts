@@ -1,6 +1,6 @@
+import { isOneTwentyOneRoundFailedVisit } from '@open-dart/game/oneTwentyOne/oneTwentyOneVisitMetadata'
 import { GameModeId } from '@open-dart/game/types/gameMode'
 import type { Visit } from '@open-dart/game/types/visit'
-import { isOneTwentyOneRoundFailedVisit } from '@open-dart/game/oneTwentyOne/oneTwentyOneVisitMetadata'
 
 export type VisitHistoryTone = 'default' | 'success' | 'failed'
 
@@ -9,6 +9,8 @@ export interface VisitHistoryEntryDisplay {
   sublabel?: string
   /** Secondary line under the headline (e.g. hit count). */
   detail?: string
+  /** Show a star beside the headline (e.g. Shanghai hit). */
+  showStar?: boolean
   tone: VisitHistoryTone
 }
 
@@ -145,15 +147,11 @@ export const getVisitHistoryEntryDisplay = (
   }
 
   if (mode === GameModeId.JdcChallenge) {
-    const targetLabel = readVisitTargetLabel(visit)
     const isShanghai = visit.metadata?.isShanghai === true
 
     return {
       headline: String(visit.visitScore),
-      detail:
-        targetLabel === null
-          ? String(visit.scoreAfter)
-          : `${targetLabel}${isShanghai ? ' · SH' : ''} · ${visit.scoreAfter}`,
+      showStar: isShanghai,
       tone:
         isShanghai || visit.checkout ? 'success' : visit.visitScore === 0 ? 'failed' : 'default',
     }

@@ -124,12 +124,6 @@ export const JdcChallengeScorePanel = ({
               </Flex>
             ))}
         </Flex>
-
-        {stats.targetLabel !== null ? (
-          <Text fontSize="sm" color="whiteAlpha.700" textAlign="center">
-            Next: {stats.targetLabel}
-          </Text>
-        ) : null}
       </Stack>
     </Box>
   )

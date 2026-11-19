@@ -88,6 +88,9 @@ export type StatMetricId =
   | 'bestVisitsToComplete'
   | 'avgShanghaisPerGame'
   | 'bestShanghaisPerGame'
+  | 'avgShanghaiLowScore'
+  | 'avgDoublesScore'
+  | 'avgShanghaiHighScore'
 
 export type StatTimelineScope =
   | { type: 'x01-501' }
@@ -189,6 +192,9 @@ const getX01LegMetric = (slice: X01LegSlice, metric: StatMetricId): number | nul
     case 'bestVisitsToComplete':
     case 'avgShanghaisPerGame':
     case 'bestShanghaisPerGame':
+    case 'avgShanghaiLowScore':
+    case 'avgDoublesScore':
+    case 'avgShanghaiHighScore':
       return null
   }
 
@@ -250,6 +256,9 @@ const getCheckoutPracticeSessionMetric = (
     case 'bestVisitsToComplete':
     case 'avgShanghaisPerGame':
     case 'bestShanghaisPerGame':
+    case 'avgShanghaiLowScore':
+    case 'avgDoublesScore':
+    case 'avgShanghaiHighScore':
       return null
   }
 
@@ -294,6 +303,9 @@ const getBob27SessionMetric = (session: GameSession, metric: StatMetricId): numb
     case 'bestVisitsToComplete':
     case 'avgShanghaisPerGame':
     case 'bestShanghaisPerGame':
+    case 'avgShanghaiLowScore':
+    case 'avgDoublesScore':
+    case 'avgShanghaiHighScore':
       return null
   }
 
@@ -352,6 +364,9 @@ const getAroundTheClockSessionMetric = (
     case 'bestVisitsToComplete':
     case 'avgShanghaisPerGame':
     case 'bestShanghaisPerGame':
+    case 'avgShanghaiLowScore':
+    case 'avgDoublesScore':
+    case 'avgShanghaiHighScore':
       return null
   }
 
@@ -406,6 +421,9 @@ const getNinetyNineDartsSessionMetric = (
     case 'bestVisitsToComplete':
     case 'avgShanghaisPerGame':
     case 'bestShanghaisPerGame':
+    case 'avgShanghaiLowScore':
+    case 'avgDoublesScore':
+    case 'avgShanghaiHighScore':
       return null
   }
 
@@ -456,6 +474,9 @@ const getBullRunSessionMetric = (session: GameSession, metric: StatMetricId): nu
     case 'bestVisitsToComplete':
     case 'avgShanghaisPerGame':
     case 'bestShanghaisPerGame':
+    case 'avgShanghaiLowScore':
+    case 'avgDoublesScore':
+    case 'avgShanghaiHighScore':
       return null
   }
 
@@ -476,6 +497,12 @@ const getJdcChallengeSessionMetric = (
     case 'avgFinalScore':
     case 'bestFinalScore':
       return stats.score
+    case 'avgShanghaiLowScore':
+      return stats.shanghaiLowScore
+    case 'avgDoublesScore':
+      return stats.doublesScore
+    case 'avgShanghaiHighScore':
+      return stats.shanghaiHighScore
     case 'avgShanghaisPerGame':
     case 'bestShanghaisPerGame':
       return stats.shanghaisHit
@@ -526,6 +553,9 @@ const getBigNumbersSessionMetric = (session: GameSession, metric: StatMetricId):
       return completed ? visitCount : null
     case 'avgShanghaisPerGame':
     case 'bestShanghaisPerGame':
+    case 'avgShanghaiLowScore':
+    case 'avgDoublesScore':
+    case 'avgShanghaiHighScore':
     case 'threeDartAverage':
     case 'threeDartAverageUntil170':
     case 'threeDartAverageUntilDouble':
@@ -596,6 +626,9 @@ export const getStatTimelineFormat = (metric: StatMetricId): StatTimelineFormat 
     case 'avgPerThreeDarts':
     case 'avgVisitsToComplete':
     case 'avgShanghaisPerGame':
+    case 'avgShanghaiLowScore':
+    case 'avgDoublesScore':
+    case 'avgShanghaiHighScore':
       return 'average'
   }
 

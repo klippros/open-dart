@@ -152,6 +152,9 @@ export interface JdcChallengePracticeStats {
   completedCount: number
   avgFinalScore: number | null
   bestFinalScore: number | null
+  avgShanghaiLowScore: number | null
+  avgDoublesScore: number | null
+  avgShanghaiHighScore: number | null
   avgShanghaisPerGame: number | null
   bestShanghaisPerGame: number | null
   lastPlayedAt: string
@@ -491,6 +494,9 @@ const computeJdcChallengeStats = (sessions: GameSession[]): JdcChallengePractice
     .filter((stats): stats is NonNullable<typeof stats> => stats !== null && stats.completed)
 
   const scores = completedStats.map((stats) => stats.score)
+  const shanghaiLowScores = completedStats.map((stats) => stats.shanghaiLowScore)
+  const doublesScores = completedStats.map((stats) => stats.doublesScore)
+  const shanghaiHighScores = completedStats.map((stats) => stats.shanghaiHighScore)
   const shanghais = completedStats.map((stats) => stats.shanghaisHit)
 
   return {
@@ -500,6 +506,9 @@ const computeJdcChallengeStats = (sessions: GameSession[]): JdcChallengePractice
     completedCount: completedSessions.length,
     avgFinalScore: averageOrNull(scores),
     bestFinalScore: scores.length === 0 ? null : Math.max(...scores),
+    avgShanghaiLowScore: averageOrNull(shanghaiLowScores),
+    avgDoublesScore: averageOrNull(doublesScores),
+    avgShanghaiHighScore: averageOrNull(shanghaiHighScores),
     avgShanghaisPerGame: averageOrNull(shanghais),
     bestShanghaisPerGame: shanghais.length === 0 ? null : Math.max(...shanghais),
     lastPlayedAt,

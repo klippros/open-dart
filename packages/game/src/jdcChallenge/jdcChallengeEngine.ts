@@ -5,10 +5,7 @@ import { getJdcChallengeConfig } from './jdcChallengeConfig'
 import {
   getJdcChallengeGrade,
   getJdcChallengeGradeLabel,
-  getJdcChallengeVisitIndex,
-  getJdcChallengeVisitTargetLabel,
   JDC_CHALLENGE_MAX_DARTS_PER_VISIT,
-  JDC_CHALLENGE_MAX_SHANGHAIS,
   JDC_CHALLENGE_VISIT_COUNT,
   resolveJdcChallengeVisit,
 } from './jdcChallengeRules'
@@ -46,19 +43,14 @@ export const jdcChallengeEngine: GameEngine<JdcChallengeState, JdcChallengeConfi
     mode: GameModeId.JdcChallenge,
     players: players.map((player) => {
       const playerState = getPlayerState(state, player.id)
-      const visitIndex = getJdcChallengeVisitIndex(playerState.visitsCompleted)
       const visitsRemaining = Math.max(0, JDC_CHALLENGE_VISIT_COUNT - playerState.visitsCompleted)
       const grade = getJdcChallengeGrade(playerState.score)
-      const targetLabel =
-        playerState.visitsCompleted >= JDC_CHALLENGE_VISIT_COUNT
-          ? 'Done'
-          : getJdcChallengeVisitTargetLabel(visitIndex)
 
       return {
         playerId: player.id,
         name: player.name,
         primaryScore: playerState.score,
-        secondaryLabel: `${getJdcChallengeGradeLabel(grade)} · ${playerState.shanghaisHit}/${JDC_CHALLENGE_MAX_SHANGHAIS} SH · ${visitsRemaining} left · ${targetLabel}`,
+        secondaryLabel: `${getJdcChallengeGradeLabel(grade)} · ${playerState.shanghaisHit} SH · ${visitsRemaining} left`,
         isActive: player.id === activePlayerId,
       }
     }),

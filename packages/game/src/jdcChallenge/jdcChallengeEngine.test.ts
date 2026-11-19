@@ -181,7 +181,7 @@ describe('jdcChallengeEngine', () => {
       isActive: true,
     })
     expect(scoreboard.players[0]?.secondaryLabel).toContain('White')
-    expect(scoreboard.players[0]?.secondaryLabel).toContain('0/12 SH')
-    expect(scoreboard.players[0]?.secondaryLabel).toContain('11')
+    expect(scoreboard.players[0]?.secondaryLabel).toContain('0 SH')
+    expect(scoreboard.players[0]?.secondaryLabel).toContain('left')
   })
 })

@@ -1,4 +1,6 @@
-import { Box, Stack, Text } from '@chakra-ui/react'
+import { Box, Flex, Stack, Text } from '@chakra-ui/react'
+import { faStar } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { formatDart } from '@open-dart/game/formatDart'
 import { getVisitsForLeg } from '@open-dart/game/game/matchLegs'
 import type { GameModeId } from '@open-dart/game/types/gameMode'
@@ -101,9 +103,26 @@ export const VisitHistoryColumn = ({
               </Text>
             )}
             {showsVisitDartBreakdown(mode) && visit.darts.length > 0 && (
-              <Text mt={1} color="whiteAlpha.700" fontSize="sm" lineHeight="short">
-                {visit.darts.map((dart) => formatDart(dart)).join(' · ')}
-              </Text>
+              <Flex mt={1} gap={2} align="center" justify={isRight ? 'flex-end' : 'flex-start'}>
+                <Text color="whiteAlpha.700" fontSize="sm" lineHeight="short">
+                  {visit.darts.map((dart) => formatDart(dart)).join(' · ')}
+                </Text>
+                {display.showStar === true && (
+                  <Box
+                    as="span"
+                    color="yellow.300"
+                    fontSize="sm"
+                    aria-label="Shanghai"
+                    lineHeight="1"
+                  >
+                    <FontAwesomeIcon
+                      icon={faStar}
+                      aria-hidden
+                      style={{ height: '0.85em', width: '0.85em' }}
+                    />
+                  </Box>
+                )}
+              </Flex>
             )}
           </Box>
         )

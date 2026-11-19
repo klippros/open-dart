@@ -5,19 +5,32 @@ interface StatCardProps {
   value: string
   detail?: string
   onClick?: () => void
+  bg?: string
+  color?: string
+  labelColor?: string
+  detailColor?: string
 }
 
-export const StatCard = ({ label, value, detail, onClick }: StatCardProps) => {
+export const StatCard = ({
+  label,
+  value,
+  detail,
+  onClick,
+  bg = 'whiteAlpha.50',
+  color = 'white',
+  labelColor = 'whiteAlpha.700',
+  detailColor = 'whiteAlpha.600',
+}: StatCardProps) => {
   const content = (
     <>
-      <Text fontSize="sm" color="whiteAlpha.700" mb={1}>
+      <Text fontSize="sm" color={labelColor} mb={1}>
         {label}
       </Text>
-      <Text color="white" fontFamily="Archivo Black, sans-serif" fontSize="2xl" lineHeight="1">
+      <Text color={color} fontFamily="Archivo Black, sans-serif" fontSize="2xl" lineHeight="1">
         {value}
       </Text>
       {detail !== undefined && (
-        <Text mt={2} fontSize="sm" color="whiteAlpha.600" lineHeight="1.5">
+        <Text mt={2} fontSize="sm" color={detailColor} lineHeight="1.5">
           {detail}
         </Text>
       )}
@@ -30,7 +43,8 @@ export const StatCard = ({ label, value, detail, onClick }: StatCardProps) => {
         borderWidth="1px"
         borderColor="whiteAlpha.200"
         borderRadius="lg"
-        bg="whiteAlpha.50"
+        bg={bg}
+        color={color}
         px={5}
         py={4}
       >
@@ -51,14 +65,15 @@ export const StatCard = ({ label, value, detail, onClick }: StatCardProps) => {
       borderWidth="1px"
       borderColor="whiteAlpha.200"
       borderRadius="lg"
-      bg="whiteAlpha.50"
+      bg={bg}
+      color={color}
       px={5}
       py={4}
       cursor="pointer"
       fontWeight="normal"
       whiteSpace="normal"
-      transition="border-color 0.15s ease, background 0.15s ease"
-      _hover={{ borderColor: 'whiteAlpha.400', bg: 'whiteAlpha.100' }}
+      transition="border-color 0.15s ease, background 0.15s ease, filter 0.15s ease"
+      _hover={{ borderColor: 'whiteAlpha.400', filter: 'brightness(1.08)' }}
       _focusVisible={{ outline: '2px solid', outlineColor: 'orange.300', outlineOffset: '2px' }}
     >
       {content}

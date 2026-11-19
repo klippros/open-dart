@@ -6,9 +6,6 @@ import { JdcChallengeGrade, JdcChallengePart } from '@open-dart/game/types/jdcCh
 import {
   getJdcChallengeGrade,
   getJdcChallengeGradeLabel,
-  getJdcChallengePartForVisit,
-  getJdcChallengeVisitTargetLabel as getVisitTargetLabelForIndex,
-  JDC_CHALLENGE_MAX_SHANGHAIS,
   JDC_CHALLENGE_VISIT_COUNT,
   resolveJdcChallengeVisit,
 } from '@open-dart/game/jdcChallenge/jdcChallengeRules.ts'
@@ -25,8 +22,6 @@ export interface JdcChallengeLiveStats {
   visitsRemaining: number
   grade: JdcChallengeGrade
   gradeLabel: string
-  targetLabel: string | null
-  part: JdcChallengePart | null
 }
 
 export interface JdcChallengeLiveScoreMetric {
@@ -102,23 +97,16 @@ const emptyLiveStats = (): JdcChallengeLiveStats => ({
   visitsRemaining: JDC_CHALLENGE_VISIT_COUNT,
   grade: JdcChallengeGrade.White,
   gradeLabel: getJdcChallengeGradeLabel(JdcChallengeGrade.White),
-  targetLabel: null,
-  part: null,
 })
 
 const statsFromLastVisit = (visit: Visit | undefined): JdcChallengeLiveStats => {
   if (visit === undefined) {
-    return {
-      ...emptyLiveStats(),
-      targetLabel: getVisitTargetLabelForIndex(0),
-      part: getJdcChallengePartForVisit(0),
-    }
+    return emptyLiveStats()
   }
 
   const score = visit.scoreAfter
   const grade = getJdcChallengeGrade(score)
   const visitsCompleted = visit.visitIndex + 1
-  const finished = visitsCompleted >= JDC_CHALLENGE_VISIT_COUNT
 
   return {
     score,
@@ -131,8 +119,6 @@ const statsFromLastVisit = (visit: Visit | undefined): JdcChallengeLiveStats => 
     visitsRemaining: Math.max(0, JDC_CHALLENGE_VISIT_COUNT - visitsCompleted),
     grade,
     gradeLabel: getJdcChallengeGradeLabel(grade),
-    targetLabel: finished ? null : getVisitTargetLabelForIndex(visitsCompleted),
-    part: finished ? null : getJdcChallengePartForVisit(visitsCompleted),
   }
 }
 
@@ -172,8 +158,6 @@ export const getJdcChallengeLiveStats = (
     visitsRemaining: base.visitsRemaining,
     grade,
     gradeLabel: getJdcChallengeGradeLabel(grade),
-    targetLabel: outcome.targetLabel,
-    part: outcome.part,
   }
 }
 
@@ -187,7 +171,7 @@ export const getJdcChallengeLiveScoreMetrics = (
   { label: 'SH 15–20', value: String(stats.shanghaiHighScore) },
   {
     label: 'Shanghais',
-    value: `${stats.shanghaisHit}/${JDC_CHALLENGE_MAX_SHANGHAIS}`,
+    value: String(stats.shanghaisHit),
   },
 ]
 
