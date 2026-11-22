@@ -1,4 +1,4 @@
-import { Grid, Stack } from '@chakra-ui/react'
+import { Box, Grid, Stack } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { VisitDartSlotCard } from '../../Scoreboard/VisitDartSlotCard'
 import { PressScaleButton } from '../../PressScaleButton/PressScaleButton'
@@ -13,6 +13,7 @@ import { HunterOutcome } from '@open-dart/game/types/hunter'
 import type { DartThrow } from '@open-dart/game/types/dart'
 import { HUNTER_OUTCOME_LABELS, getHunterThrownOutcome } from '../../../lib/hunter/hunterVisitStats'
 import { useVisitOutcomeSwipe } from '../visitOutcomeSwipe/useVisitOutcomeSwipe'
+import { VisitOutcomeSwipeTrailOverlay } from '../visitOutcomeSwipe/VisitOutcomeSwipeTrailOverlay'
 import { buildHunterThrowsForOutcomes } from './buildHunterThrowsForOutcomes'
 
 export interface HunterDartPickerProps {
@@ -86,6 +87,8 @@ export const HunterDartPicker = ({
     previewForColumn,
     isTapTarget,
     handleSlotClick,
+    gridTouchAction,
+    swipeTrail,
     gridPointerProps,
   } = useVisitOutcomeSwipe({
     parseOutcome,
@@ -97,89 +100,92 @@ export const HunterDartPicker = ({
 
   return (
     <Stack gap={3}>
-      <Grid
-        ref={gridRef}
-        templateColumns={`repeat(${HUNTER_MAX_DARTS_PER_VISIT}, 1fr)`}
-        gap={3}
-        touchAction="none"
-        {...gridPointerProps}
-      >
-        {Array.from({ length: HUNTER_MAX_DARTS_PER_VISIT }, (_, slotIndex) => {
-          const isThrown = slotIndex < pendingCount
-          const tapTarget = isTapTarget(slotIndex)
-          const previewOutcome = previewForColumn(slotIndex)
-          const isAvailableColumn = availableColumn === slotIndex
-          const thrownDart = pendingDarts[slotIndex]
-          const slotAimField = getHunterAimFieldNumberAfterDarts(
-            committedFieldNumber,
-            pendingDarts.slice(0, slotIndex),
-          )
-          const thrownOutcome =
-            thrownDart === undefined ? null : getHunterThrownOutcome(thrownDart, slotAimField)
-          const selectedOutcome = isThrown ? thrownOutcome : previewOutcome
+      <Box position="relative">
+        <Grid
+          ref={gridRef}
+          templateColumns={`repeat(${HUNTER_MAX_DARTS_PER_VISIT}, 1fr)`}
+          gap={3}
+          touchAction={gridTouchAction}
+          {...gridPointerProps}
+        >
+          {Array.from({ length: HUNTER_MAX_DARTS_PER_VISIT }, (_, slotIndex) => {
+            const isThrown = slotIndex < pendingCount
+            const tapTarget = isTapTarget(slotIndex)
+            const previewOutcome = previewForColumn(slotIndex)
+            const isAvailableColumn = availableColumn === slotIndex
+            const thrownDart = pendingDarts[slotIndex]
+            const slotAimField = getHunterAimFieldNumberAfterDarts(
+              committedFieldNumber,
+              pendingDarts.slice(0, slotIndex),
+            )
+            const thrownOutcome =
+              thrownDart === undefined ? null : getHunterThrownOutcome(thrownDart, slotAimField)
+            const selectedOutcome = isThrown ? thrownOutcome : previewOutcome
 
-          if (selectedOutcome !== null) {
+            if (selectedOutcome !== null) {
+              return (
+                <Stack key={slotIndex} gap={2}>
+                  {displayOutcomes.map((outcome) => {
+                    const isSelected = outcome === selectedOutcome
+
+                    return (
+                      <Stack
+                        key={outcome}
+                        data-swipe-column={isThrown ? undefined : slotIndex}
+                        data-swipe-outcome={isThrown ? undefined : outcome}
+                        gap={0}
+                      >
+                        <VisitDartSlotCard
+                          label={isSelected ? HUNTER_OUTCOME_LABELS[outcome] : null}
+                          variant={isSelected ? 'thrown' : 'empty'}
+                          tone={isSelected ? toneForOutcome(outcome) : 'neutral'}
+                          size={getOutcomeSlotSize(outcome)}
+                          showArrow={false}
+                        />
+                      </Stack>
+                    )
+                  })}
+                </Stack>
+              )
+            }
+
             return (
               <Stack key={slotIndex} gap={2}>
                 {displayOutcomes.map((outcome) => {
-                  const isSelected = outcome === selectedOutcome
+                  const showActiveChrome = tapTarget || isAvailableColumn
 
                   return (
                     <Stack
                       key={outcome}
-                      data-swipe-column={isThrown ? undefined : slotIndex}
-                      data-swipe-outcome={isThrown ? undefined : outcome}
+                      data-swipe-column={slotIndex}
+                      data-swipe-outcome={outcome}
                       gap={0}
                     >
                       <VisitDartSlotCard
-                        label={isSelected ? HUNTER_OUTCOME_LABELS[outcome] : null}
-                        variant={isSelected ? 'thrown' : 'empty'}
-                        tone={isSelected ? toneForOutcome(outcome) : 'neutral'}
+                        label={HUNTER_OUTCOME_LABELS[outcome]}
+                        variant={showActiveChrome ? 'selectable' : 'empty'}
+                        tone={showActiveChrome ? toneForOutcome(outcome) : 'neutral'}
                         size={getOutcomeSlotSize(outcome)}
                         showArrow={false}
+                        disabled={!tapTarget}
+                        ariaLabel={`${HUNTER_OUTCOME_LABELS[outcome]} on ${aimFieldNumber}, dart ${slotIndex + 1}`}
+                        onClick={
+                          tapTarget
+                            ? () => {
+                                handleSlotClick(outcome)
+                              }
+                            : undefined
+                        }
                       />
                     </Stack>
                   )
                 })}
               </Stack>
             )
-          }
-
-          return (
-            <Stack key={slotIndex} gap={2}>
-              {displayOutcomes.map((outcome) => {
-                const showActiveChrome = tapTarget || isAvailableColumn
-
-                return (
-                  <Stack
-                    key={outcome}
-                    data-swipe-column={slotIndex}
-                    data-swipe-outcome={outcome}
-                    gap={0}
-                  >
-                    <VisitDartSlotCard
-                      label={HUNTER_OUTCOME_LABELS[outcome]}
-                      variant={showActiveChrome ? 'selectable' : 'empty'}
-                      tone={showActiveChrome ? toneForOutcome(outcome) : 'neutral'}
-                      size={getOutcomeSlotSize(outcome)}
-                      showArrow={false}
-                      disabled={!tapTarget}
-                      ariaLabel={`${HUNTER_OUTCOME_LABELS[outcome]} on ${aimFieldNumber}, dart ${slotIndex + 1}`}
-                      onClick={
-                        tapTarget
-                          ? () => {
-                              handleSlotClick(outcome)
-                            }
-                          : undefined
-                      }
-                    />
-                  </Stack>
-                )
-              })}
-            </Stack>
-          )
-        })}
-      </Grid>
+          })}
+        </Grid>
+        <VisitOutcomeSwipeTrailOverlay trail={swipeTrail} />
+      </Box>
 
       <PressScaleButton
         variant="cta"

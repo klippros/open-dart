@@ -48,6 +48,10 @@ const mergeAppSettings = (value: unknown): AppSettings | null => {
       DEFAULT_APP_SETTINGS.uiSoundsEnabled,
     ),
     singleDartScoring: readSingleDartScoring(stored.singleDartScoring),
+    enableInputSwiping: readBooleanSetting(
+      stored.enableInputSwiping,
+      DEFAULT_APP_SETTINGS.enableInputSwiping,
+    ),
   }
 }
 

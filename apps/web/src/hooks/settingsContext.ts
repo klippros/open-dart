@@ -8,6 +8,8 @@ export interface SettingsContextValue {
   setUiSoundsEnabled: (enabled: boolean) => void
   singleDartScoring: SingleDartScoringMode
   setSingleDartScoring: (mode: SingleDartScoringMode) => void
+  enableInputSwiping: boolean
+  setEnableInputSwiping: (enabled: boolean) => void
 }
 
 export const SettingsContext = createContext<SettingsContextValue | null>(null)

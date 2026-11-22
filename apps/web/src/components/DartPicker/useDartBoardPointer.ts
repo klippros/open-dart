@@ -1,11 +1,13 @@
 import { useCallback, useRef, useState } from 'react'
 import type { PointerEvent } from 'react'
+import { useSettings } from '../../hooks/settingsContext'
 import type { ArmedMultiplier } from '../../lib/dartKeyboardInput'
 import { getActiveBoardMultiplier } from '../../lib/dartKeyboardInput'
 import { DartMultiplier } from '@open-dart/game/types/dart'
 import { resolveBoardHoverTarget } from './boardHover'
 import type { CenterZone, CornerZone } from './dartboardLayout'
 import { resolveCenterDragRelease } from './centerDragGesture'
+import type { SwipeTrailPoint } from './visitOutcomeSwipe/buildVisitOutcomeSwipeTrail'
 
 export interface UseDartBoardPointerOptions {
   onUndo: () => void
@@ -46,12 +48,15 @@ export const useDartBoardPointer = ({
   inputDisabled = false,
   undoDisabled = inputDisabled,
 }: UseDartBoardPointerOptions) => {
+  const { enableInputSwiping } = useSettings()
   const svgRef = useRef<SVGSVGElement>(null)
   const [heldMultiplier, setHeldMultiplier] = useState<DartMultiplier | null>(null)
   const [hoveredNumber, setHoveredNumber] = useState<number | null>(null)
   const [hoveredCorner, setHoveredCorner] = useState<CornerZone | null>(null)
   const [hoveredCenterZone, setHoveredCenterZone] = useState<CenterZone | null>(null)
   const [activeCenterZone, setActiveCenterZone] = useState<CenterZone | null>(null)
+  const [swipeTrailStart, setSwipeTrailStart] = useState<SwipeTrailPoint | null>(null)
+  const [swipeTrailFinger, setSwipeTrailFinger] = useState<SwipeTrailPoint | null>(null)
   const centerDragRef = useRef<{ zone: CenterZone; armedBefore: ArmedMultiplier } | null>(null)
 
   const getSvgPoint = useCallback((clientX: number, clientY: number) => {
@@ -86,6 +91,8 @@ export const useDartBoardPointer = ({
     setHoveredNumber(null)
     setHoveredCorner(null)
     setHoveredCenterZone(null)
+    setSwipeTrailStart(null)
+    setSwipeTrailFinger(null)
   }, [])
 
   const handleCornerClick = useCallback(
@@ -187,23 +194,36 @@ export const useDartBoardPointer = ({
       setActiveCenterZone(zone)
       setHoveredNumber(null)
       setHoveredCorner(null)
+
+      if (enableInputSwiping) {
+        const point = getSvgPoint(event.clientX, event.clientY)
+        if (point !== null) {
+          setSwipeTrailStart(point)
+          setSwipeTrailFinger(point)
+        }
+      }
     },
-    [armedMultiplier, inputDisabled],
+    [armedMultiplier, enableInputSwiping, getSvgPoint, inputDisabled],
   )
 
   const handlePointerMove = useCallback(
     (event: PointerEvent<SVGSVGElement>) => {
+      if (!enableInputSwiping) {
+        return
+      }
+
       const point = getSvgPoint(event.clientX, event.clientY)
 
       if (point === null || centerDragRef.current === null) {
         return
       }
 
+      setSwipeTrailFinger(point)
       const target = resolveBoardHoverTarget(point.x, point.y)
       setHoveredNumber(target.number)
       setActiveCenterZone(target.centerZone ?? centerDragRef.current.zone)
     },
-    [getSvgPoint],
+    [enableInputSwiping, getSvgPoint],
   )
 
   const handlePointerUp = useCallback(
@@ -220,8 +240,8 @@ export const useDartBoardPointer = ({
 
       const point = getSvgPoint(event.clientX, event.clientY)
       const release =
-        point === null
-          ? { number: null, centerZone: null }
+        !enableInputSwiping || point === null
+          ? { number: null, centerZone: drag.zone }
           : resolveBoardHoverTarget(point.x, point.y)
 
       for (const action of resolveCenterDragRelease(drag.zone, release, drag.armedBefore)) {
@@ -234,7 +254,7 @@ export const useDartBoardPointer = ({
 
       clearCenterDragState()
     },
-    [clearCenterDragState, getSvgPoint, recordNumber, setArmedMultiplier],
+    [clearCenterDragState, enableInputSwiping, getSvgPoint, recordNumber, setArmedMultiplier],
   )
 
   const handlePointerLeave = useCallback(() => {
@@ -255,6 +275,8 @@ export const useDartBoardPointer = ({
     hoveredCorner,
     hoveredCenterZone,
     activeCenterZone,
+    swipeTrailStart,
+    swipeTrailFinger,
     handleCornerClick,
     handleNumberClick,
     handleCenterPointerDown,

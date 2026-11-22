@@ -48,6 +48,7 @@ const sampleSettings = (): AppSettings => ({
   scoreCallerEnabled: false,
   uiSoundsEnabled: true,
   singleDartScoring: SingleDartScoringMode.Always,
+  enableInputSwiping: true,
 })
 
 const emptyFile = () => ({

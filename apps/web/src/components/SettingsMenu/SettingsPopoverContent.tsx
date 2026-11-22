@@ -19,6 +19,8 @@ export const SettingsPopoverContent = () => {
     setUiSoundsEnabled,
     singleDartScoring,
     setSingleDartScoring,
+    enableInputSwiping,
+    setEnableInputSwiping,
   } = useSettings()
 
   return (
@@ -34,6 +36,12 @@ export const SettingsPopoverContent = () => {
         description="Play sound feedback when scoring"
         checked={uiSoundsEnabled}
         onCheckedChange={setUiSoundsEnabled}
+      />
+      <SettingsSwitchRow
+        label="Enable input swiping"
+        description="Drag across outcomes, or from double and treble onto a number"
+        checked={enableInputSwiping}
+        onCheckedChange={setEnableInputSwiping}
       />
       <SettingsSegmentRow
         label="Single dart scoring"

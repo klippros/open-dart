@@ -1,5 +1,8 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent, RefObject } from 'react'
+import { useSettings } from '../../../hooks/settingsContext'
+import { buildVisitOutcomeSwipeTrail } from './buildVisitOutcomeSwipeTrail'
+import type { VisitOutcomeSwipeTrail } from './buildVisitOutcomeSwipeTrail'
 import {
   fieldCenterRadius,
   getVisitOutcomeSwipeCommit,
@@ -22,6 +25,8 @@ export interface UseVisitOutcomeSwipeResult<TOutcome extends string> {
   previewForColumn: (slotIndex: number) => TOutcome | null
   isTapTarget: (slotIndex: number) => boolean
   handleSlotClick: (outcome: TOutcome) => void
+  gridTouchAction: 'none' | 'auto'
+  swipeTrail: VisitOutcomeSwipeTrail | null
   gridPointerProps: {
     onPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void
     onPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void
@@ -37,6 +42,7 @@ export const useVisitOutcomeSwipe = <TOutcome extends string>({
   inputDisabled = false,
   onCommit,
 }: UseVisitOutcomeSwipeOptions<TOutcome>): UseVisitOutcomeSwipeResult<TOutcome> => {
+  const { enableInputSwiping } = useSettings()
   const gridRef = useRef<HTMLDivElement>(null)
   const samplesRef = useRef<VisitOutcomeSwipeSample<TOutcome>[]>([])
   const centersRef = useRef<VisitOutcomeFieldCenter<TOutcome>[]>([])
@@ -48,6 +54,7 @@ export const useVisitOutcomeSwipe = <TOutcome extends string>({
   onCommitRef.current = onCommit
 
   const [previewOutcomes, setPreviewOutcomes] = useState<TOutcome[]>([])
+  const [fingerClient, setFingerClient] = useState<{ x: number; y: number } | null>(null)
   const isSwiping = previewOutcomes.length > 0
 
   const readFieldCenters = useCallback((): VisitOutcomeFieldCenter<TOutcome>[] => {
@@ -131,6 +138,8 @@ export const useVisitOutcomeSwipe = <TOutcome extends string>({
 
   const appendSample = useCallback(
     (clientX: number, clientY: number) => {
+      setFingerClient({ x: clientX, y: clientY })
+
       const hit = hitTest(clientX, clientY)
       const last = samplesRef.current.at(-1)
       const resolvedHit =
@@ -178,6 +187,7 @@ export const useVisitOutcomeSwipe = <TOutcome extends string>({
       samplesRef.current = []
       centersRef.current = []
       setPreviewOutcomes([])
+      setFingerClient(null)
       onCommitRef.current(committed)
     },
     [appendSample, pendingCount, visitDartCount],
@@ -185,7 +195,7 @@ export const useVisitOutcomeSwipe = <TOutcome extends string>({
 
   const handlePointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (inputDisabled || pendingCount >= visitDartCount) {
+      if (!enableInputSwiping || inputDisabled || pendingCount >= visitDartCount) {
         return
       }
 
@@ -205,7 +215,15 @@ export const useVisitOutcomeSwipe = <TOutcome extends string>({
       event.currentTarget.setPointerCapture(event.pointerId)
       appendSample(event.clientX, event.clientY)
     },
-    [appendSample, hitTest, inputDisabled, pendingCount, readFieldCenters, visitDartCount],
+    [
+      appendSample,
+      enableInputSwiping,
+      hitTest,
+      inputDisabled,
+      pendingCount,
+      readFieldCenters,
+      visitDartCount,
+    ],
   )
 
   const handlePointerMove = useCallback(
@@ -249,6 +267,29 @@ export const useVisitOutcomeSwipe = <TOutcome extends string>({
     [inputDisabled, isSwiping, pendingCount],
   )
 
+  const swipeTrail = useMemo((): VisitOutcomeSwipeTrail | null => {
+    if (!enableInputSwiping || (previewOutcomes.length === 0 && fingerClient === null)) {
+      return null
+    }
+
+    const grid = gridRef.current
+    const origin =
+      grid === null
+        ? { x: 0, y: 0 }
+        : (() => {
+            const rect = grid.getBoundingClientRect()
+            return { x: rect.left, y: rect.top }
+          })()
+
+    return buildVisitOutcomeSwipeTrail({
+      previewOutcomes,
+      pendingCount,
+      centers: centersRef.current,
+      finger: fingerClient,
+      origin,
+    })
+  }, [enableInputSwiping, fingerClient, pendingCount, previewOutcomes])
+
   return {
     gridRef,
     isSwiping,
@@ -256,6 +297,8 @@ export const useVisitOutcomeSwipe = <TOutcome extends string>({
     previewForColumn,
     isTapTarget,
     handleSlotClick,
+    gridTouchAction: enableInputSwiping ? 'none' : 'auto',
+    swipeTrail,
     gridPointerProps: {
       onPointerDown: handlePointerDown,
       onPointerMove: handlePointerMove,

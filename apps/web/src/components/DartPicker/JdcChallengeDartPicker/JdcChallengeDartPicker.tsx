@@ -1,4 +1,4 @@
-import { Grid, Stack } from '@chakra-ui/react'
+import { Box, Grid, Stack } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { VisitDartSlotCard } from '../../Scoreboard/VisitDartSlotCard'
 import { PressScaleButton } from '../../PressScaleButton/PressScaleButton'
@@ -24,6 +24,7 @@ import {
 } from '@open-dart/game/types/jdcChallenge'
 import type { DartThrow } from '@open-dart/game/types/dart'
 import { useVisitOutcomeSwipe } from '../visitOutcomeSwipe/useVisitOutcomeSwipe'
+import { VisitOutcomeSwipeTrailOverlay } from '../visitOutcomeSwipe/VisitOutcomeSwipeTrailOverlay'
 
 export interface JdcChallengeDartPickerProps {
   visitIndex: number
@@ -193,30 +194,99 @@ export const JdcChallengeDartPicker = ({
 
   return (
     <Stack gap={3}>
-      <Grid
-        ref={swipe.gridRef}
-        templateColumns={`repeat(${JDC_CHALLENGE_MAX_DARTS_PER_VISIT}, 1fr)`}
-        gap={3}
-        touchAction="none"
-        {...swipe.gridPointerProps}
-      >
-        {Array.from({ length: JDC_CHALLENGE_MAX_DARTS_PER_VISIT }, (_, slotIndex) => {
-          const isThrown = slotIndex < pendingCount
-          const tapTarget = swipe.isTapTarget(slotIndex)
-          const isAvailableColumn = swipe.availableColumn === slotIndex
-          const thrownDart = pendingDarts[slotIndex]
-          const dartTarget = getJdcChallengeDartTarget(visitIndex, slotIndex)
-          const dartTargetLabel = getJdcChallengeTargetLabel(dartTarget)
+      <Box position="relative">
+        <Grid
+          ref={swipe.gridRef}
+          templateColumns={`repeat(${JDC_CHALLENGE_MAX_DARTS_PER_VISIT}, 1fr)`}
+          gap={3}
+          touchAction={swipe.gridTouchAction}
+          {...swipe.gridPointerProps}
+        >
+          {Array.from({ length: JDC_CHALLENGE_MAX_DARTS_PER_VISIT }, (_, slotIndex) => {
+            const isThrown = slotIndex < pendingCount
+            const tapTarget = swipe.isTapTarget(slotIndex)
+            const isAvailableColumn = swipe.availableColumn === slotIndex
+            const thrownDart = pendingDarts[slotIndex]
+            const dartTarget = getJdcChallengeDartTarget(visitIndex, slotIndex)
+            const dartTargetLabel = getJdcChallengeTargetLabel(dartTarget)
 
-          if (isDoubles) {
-            const previewOutcome = doublesSwipe.previewForColumn(slotIndex)
+            if (isDoubles) {
+              const previewOutcome = doublesSwipe.previewForColumn(slotIndex)
+              const thrownOutcome =
+                thrownDart === undefined
+                  ? null
+                  : getJdcChallengeDoubleOutcome(thrownDart, dartTarget)
+              const selectedOutcome = isThrown ? thrownOutcome : previewOutcome
+
+              return (
+                <Stack key={slotIndex} gap={2}>
+                  {doubleDisplay.map((outcome) => {
+                    const isSelected = selectedOutcome === outcome
+                    const showActiveChrome =
+                      selectedOutcome !== null ? isSelected : tapTarget || isAvailableColumn
+
+                    return (
+                      <Stack
+                        key={outcome}
+                        data-swipe-column={isThrown ? undefined : slotIndex}
+                        data-swipe-outcome={isThrown ? undefined : outcome}
+                        gap={0}
+                      >
+                        <VisitDartSlotCard
+                          label={
+                            selectedOutcome !== null
+                              ? isSelected
+                                ? doubleLabel(outcome, dartTargetLabel)
+                                : null
+                              : doubleLabel(outcome, dartTargetLabel)
+                          }
+                          variant={
+                            selectedOutcome !== null
+                              ? isSelected
+                                ? 'thrown'
+                                : 'empty'
+                              : showActiveChrome
+                                ? 'selectable'
+                                : 'empty'
+                          }
+                          tone={
+                            selectedOutcome !== null
+                              ? isSelected
+                                ? toneForMissable(outcome === JdcChallengeDoubleOutcome.Miss)
+                                : 'neutral'
+                              : showActiveChrome
+                                ? toneForMissable(outcome === JdcChallengeDoubleOutcome.Miss)
+                                : 'neutral'
+                          }
+                          size="comfortable"
+                          showArrow={false}
+                          disabled={selectedOutcome !== null ? true : !tapTarget}
+                          ariaLabel={`${doubleLabel(outcome, dartTargetLabel)} on dart ${slotIndex + 1}`}
+                          onClick={
+                            selectedOutcome === null && tapTarget
+                              ? () => {
+                                  doublesSwipe.handleSlotClick(outcome)
+                                }
+                              : undefined
+                          }
+                        />
+                      </Stack>
+                    )
+                  })}
+                </Stack>
+              )
+            }
+
+            const previewOutcome = shanghaiSwipe.previewForColumn(slotIndex)
             const thrownOutcome =
-              thrownDart === undefined ? null : getJdcChallengeDoubleOutcome(thrownDart, dartTarget)
+              thrownDart === undefined
+                ? null
+                : getJdcChallengeShanghaiOutcome(thrownDart, shanghaiTargetNumber)
             const selectedOutcome = isThrown ? thrownOutcome : previewOutcome
 
             return (
               <Stack key={slotIndex} gap={2}>
-                {doubleDisplay.map((outcome) => {
+                {shanghaiDisplay.map((outcome) => {
                   const isSelected = selectedOutcome === outcome
                   const showActiveChrome =
                     selectedOutcome !== null ? isSelected : tapTarget || isAvailableColumn
@@ -232,9 +302,9 @@ export const JdcChallengeDartPicker = ({
                         label={
                           selectedOutcome !== null
                             ? isSelected
-                              ? doubleLabel(outcome, dartTargetLabel)
+                              ? shanghaiLabel(outcome, shanghaiTargetNumber)
                               : null
-                            : doubleLabel(outcome, dartTargetLabel)
+                            : shanghaiLabel(outcome, shanghaiTargetNumber)
                         }
                         variant={
                           selectedOutcome !== null
@@ -248,20 +318,20 @@ export const JdcChallengeDartPicker = ({
                         tone={
                           selectedOutcome !== null
                             ? isSelected
-                              ? toneForMissable(outcome === JdcChallengeDoubleOutcome.Miss)
+                              ? toneForMissable(outcome === JdcChallengeShanghaiOutcome.Miss)
                               : 'neutral'
                             : showActiveChrome
-                              ? toneForMissable(outcome === JdcChallengeDoubleOutcome.Miss)
+                              ? toneForMissable(outcome === JdcChallengeShanghaiOutcome.Miss)
                               : 'neutral'
                         }
-                        size="comfortable"
+                        size={shanghaiSlotSize(outcome)}
                         showArrow={false}
                         disabled={selectedOutcome !== null ? true : !tapTarget}
-                        ariaLabel={`${doubleLabel(outcome, dartTargetLabel)} on dart ${slotIndex + 1}`}
+                        ariaLabel={`${shanghaiLabel(outcome, shanghaiTargetNumber)} on dart ${slotIndex + 1}`}
                         onClick={
                           selectedOutcome === null && tapTarget
                             ? () => {
-                                doublesSwipe.handleSlotClick(outcome)
+                                shanghaiSwipe.handleSlotClick(outcome)
                               }
                             : undefined
                         }
@@ -271,74 +341,10 @@ export const JdcChallengeDartPicker = ({
                 })}
               </Stack>
             )
-          }
-
-          const previewOutcome = shanghaiSwipe.previewForColumn(slotIndex)
-          const thrownOutcome =
-            thrownDart === undefined
-              ? null
-              : getJdcChallengeShanghaiOutcome(thrownDart, shanghaiTargetNumber)
-          const selectedOutcome = isThrown ? thrownOutcome : previewOutcome
-
-          return (
-            <Stack key={slotIndex} gap={2}>
-              {shanghaiDisplay.map((outcome) => {
-                const isSelected = selectedOutcome === outcome
-                const showActiveChrome =
-                  selectedOutcome !== null ? isSelected : tapTarget || isAvailableColumn
-
-                return (
-                  <Stack
-                    key={outcome}
-                    data-swipe-column={isThrown ? undefined : slotIndex}
-                    data-swipe-outcome={isThrown ? undefined : outcome}
-                    gap={0}
-                  >
-                    <VisitDartSlotCard
-                      label={
-                        selectedOutcome !== null
-                          ? isSelected
-                            ? shanghaiLabel(outcome, shanghaiTargetNumber)
-                            : null
-                          : shanghaiLabel(outcome, shanghaiTargetNumber)
-                      }
-                      variant={
-                        selectedOutcome !== null
-                          ? isSelected
-                            ? 'thrown'
-                            : 'empty'
-                          : showActiveChrome
-                            ? 'selectable'
-                            : 'empty'
-                      }
-                      tone={
-                        selectedOutcome !== null
-                          ? isSelected
-                            ? toneForMissable(outcome === JdcChallengeShanghaiOutcome.Miss)
-                            : 'neutral'
-                          : showActiveChrome
-                            ? toneForMissable(outcome === JdcChallengeShanghaiOutcome.Miss)
-                            : 'neutral'
-                      }
-                      size={shanghaiSlotSize(outcome)}
-                      showArrow={false}
-                      disabled={selectedOutcome !== null ? true : !tapTarget}
-                      ariaLabel={`${shanghaiLabel(outcome, shanghaiTargetNumber)} on dart ${slotIndex + 1}`}
-                      onClick={
-                        selectedOutcome === null && tapTarget
-                          ? () => {
-                              shanghaiSwipe.handleSlotClick(outcome)
-                            }
-                          : undefined
-                      }
-                    />
-                  </Stack>
-                )
-              })}
-            </Stack>
-          )
-        })}
-      </Grid>
+          })}
+        </Grid>
+        <VisitOutcomeSwipeTrailOverlay trail={swipe.swipeTrail} />
+      </Box>
 
       <PressScaleButton
         variant="cta"
