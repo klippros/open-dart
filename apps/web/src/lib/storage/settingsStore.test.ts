@@ -20,7 +20,7 @@ const createMemoryStorage = (): StorageAdapter & { data: Map<string, string> } =
 }
 
 describe('settingsStore', () => {
-  it('defaults score caller, UI sounds, and Sub 171 single-dart scoring', () => {
+  it('defaults score caller, UI sounds, Sub 171 single-dart scoring, and input swiping on', () => {
     const storage = createMemoryStorage()
 
     expect(loadSettings(storage)).toEqual(DEFAULT_APP_SETTINGS)
@@ -34,6 +34,7 @@ describe('settingsStore', () => {
         scoreCallerEnabled: false,
         uiSoundsEnabled: false,
         singleDartScoring: SingleDartScoringMode.Never,
+        enableInputSwiping: false,
       },
       storage,
     )
@@ -42,6 +43,7 @@ describe('settingsStore', () => {
       scoreCallerEnabled: false,
       uiSoundsEnabled: false,
       singleDartScoring: SingleDartScoringMode.Never,
+      enableInputSwiping: false,
     })
   })
 
@@ -53,6 +55,7 @@ describe('settingsStore', () => {
       scoreCallerEnabled: false,
       uiSoundsEnabled: true,
       singleDartScoring: SingleDartScoringMode.Sub171,
+      enableInputSwiping: true,
     })
   })
 
@@ -72,6 +75,7 @@ describe('settingsStore', () => {
       scoreCallerEnabled: true,
       uiSoundsEnabled: true,
       singleDartScoring: SingleDartScoringMode.Sub171,
+      enableInputSwiping: true,
     })
   })
 
@@ -83,6 +87,7 @@ describe('settingsStore', () => {
       scoreCallerEnabled: true,
       uiSoundsEnabled: true,
       singleDartScoring: SingleDartScoringMode.Sub171,
+      enableInputSwiping: true,
     })
   })
 

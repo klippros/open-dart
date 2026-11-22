@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent, RefObject } from 'react'
+import { useSettings } from '../../../hooks/settingsContext'
 import {
   fieldCenterRadius,
   getVisitOutcomeSwipeCommit,
@@ -22,6 +23,7 @@ export interface UseVisitOutcomeSwipeResult<TOutcome extends string> {
   previewForColumn: (slotIndex: number) => TOutcome | null
   isTapTarget: (slotIndex: number) => boolean
   handleSlotClick: (outcome: TOutcome) => void
+  gridTouchAction: 'none' | 'auto'
   gridPointerProps: {
     onPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void
     onPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void
@@ -37,6 +39,7 @@ export const useVisitOutcomeSwipe = <TOutcome extends string>({
   inputDisabled = false,
   onCommit,
 }: UseVisitOutcomeSwipeOptions<TOutcome>): UseVisitOutcomeSwipeResult<TOutcome> => {
+  const { enableInputSwiping } = useSettings()
   const gridRef = useRef<HTMLDivElement>(null)
   const samplesRef = useRef<VisitOutcomeSwipeSample<TOutcome>[]>([])
   const centersRef = useRef<VisitOutcomeFieldCenter<TOutcome>[]>([])
@@ -185,7 +188,7 @@ export const useVisitOutcomeSwipe = <TOutcome extends string>({
 
   const handlePointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (inputDisabled || pendingCount >= visitDartCount) {
+      if (!enableInputSwiping || inputDisabled || pendingCount >= visitDartCount) {
         return
       }
 
@@ -205,7 +208,15 @@ export const useVisitOutcomeSwipe = <TOutcome extends string>({
       event.currentTarget.setPointerCapture(event.pointerId)
       appendSample(event.clientX, event.clientY)
     },
-    [appendSample, hitTest, inputDisabled, pendingCount, readFieldCenters, visitDartCount],
+    [
+      appendSample,
+      enableInputSwiping,
+      hitTest,
+      inputDisabled,
+      pendingCount,
+      readFieldCenters,
+      visitDartCount,
+    ],
   )
 
   const handlePointerMove = useCallback(
@@ -256,6 +267,7 @@ export const useVisitOutcomeSwipe = <TOutcome extends string>({
     previewForColumn,
     isTapTarget,
     handleSlotClick,
+    gridTouchAction: enableInputSwiping ? 'none' : 'auto',
     gridPointerProps: {
       onPointerDown: handlePointerDown,
       onPointerMove: handlePointerMove,

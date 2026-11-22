@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import type { PointerEvent } from 'react'
+import { useSettings } from '../../hooks/settingsContext'
 import type { ArmedMultiplier } from '../../lib/dartKeyboardInput'
 import { getActiveBoardMultiplier } from '../../lib/dartKeyboardInput'
 import { DartMultiplier } from '@open-dart/game/types/dart'
@@ -46,6 +47,7 @@ export const useDartBoardPointer = ({
   inputDisabled = false,
   undoDisabled = inputDisabled,
 }: UseDartBoardPointerOptions) => {
+  const { enableInputSwiping } = useSettings()
   const svgRef = useRef<SVGSVGElement>(null)
   const [heldMultiplier, setHeldMultiplier] = useState<DartMultiplier | null>(null)
   const [hoveredNumber, setHoveredNumber] = useState<number | null>(null)
@@ -193,6 +195,10 @@ export const useDartBoardPointer = ({
 
   const handlePointerMove = useCallback(
     (event: PointerEvent<SVGSVGElement>) => {
+      if (!enableInputSwiping) {
+        return
+      }
+
       const point = getSvgPoint(event.clientX, event.clientY)
 
       if (point === null || centerDragRef.current === null) {
@@ -203,7 +209,7 @@ export const useDartBoardPointer = ({
       setHoveredNumber(target.number)
       setActiveCenterZone(target.centerZone ?? centerDragRef.current.zone)
     },
-    [getSvgPoint],
+    [enableInputSwiping, getSvgPoint],
   )
 
   const handlePointerUp = useCallback(
@@ -220,8 +226,8 @@ export const useDartBoardPointer = ({
 
       const point = getSvgPoint(event.clientX, event.clientY)
       const release =
-        point === null
-          ? { number: null, centerZone: null }
+        !enableInputSwiping || point === null
+          ? { number: null, centerZone: drag.zone }
           : resolveBoardHoverTarget(point.x, point.y)
 
       for (const action of resolveCenterDragRelease(drag.zone, release, drag.armedBefore)) {
@@ -234,7 +240,7 @@ export const useDartBoardPointer = ({
 
       clearCenterDragState()
     },
-    [clearCenterDragState, getSvgPoint, recordNumber, setArmedMultiplier],
+    [clearCenterDragState, enableInputSwiping, getSvgPoint, recordNumber, setArmedMultiplier],
   )
 
   const handlePointerLeave = useCallback(() => {

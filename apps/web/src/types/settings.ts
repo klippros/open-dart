@@ -8,10 +8,12 @@ export interface AppSettings {
   scoreCallerEnabled: boolean
   uiSoundsEnabled: boolean
   singleDartScoring: SingleDartScoringMode
+  enableInputSwiping: boolean
 }
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {
   scoreCallerEnabled: true,
   uiSoundsEnabled: true,
   singleDartScoring: SingleDartScoringMode.Sub171,
+  enableInputSwiping: true,
 }

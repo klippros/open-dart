@@ -86,6 +86,7 @@ export const HunterDartPicker = ({
     previewForColumn,
     isTapTarget,
     handleSlotClick,
+    gridTouchAction,
     gridPointerProps,
   } = useVisitOutcomeSwipe({
     parseOutcome,
@@ -101,7 +102,7 @@ export const HunterDartPicker = ({
         ref={gridRef}
         templateColumns={`repeat(${HUNTER_MAX_DARTS_PER_VISIT}, 1fr)`}
         gap={3}
-        touchAction="none"
+        touchAction={gridTouchAction}
         {...gridPointerProps}
       >
         {Array.from({ length: HUNTER_MAX_DARTS_PER_VISIT }, (_, slotIndex) => {

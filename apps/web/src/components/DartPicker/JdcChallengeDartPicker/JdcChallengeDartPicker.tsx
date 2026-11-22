@@ -197,7 +197,7 @@ export const JdcChallengeDartPicker = ({
         ref={swipe.gridRef}
         templateColumns={`repeat(${JDC_CHALLENGE_MAX_DARTS_PER_VISIT}, 1fr)`}
         gap={3}
-        touchAction="none"
+        touchAction={swipe.gridTouchAction}
         {...swipe.gridPointerProps}
       >
         {Array.from({ length: JDC_CHALLENGE_MAX_DARTS_PER_VISIT }, (_, slotIndex) => {

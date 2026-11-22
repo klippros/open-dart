@@ -95,6 +95,7 @@ export const NinetyNineDartsDartPicker = ({
     previewForColumn,
     isTapTarget,
     handleSlotClick,
+    gridTouchAction,
     gridPointerProps,
   } = useVisitOutcomeSwipe({
     parseOutcome,
@@ -110,7 +111,7 @@ export const NinetyNineDartsDartPicker = ({
         ref={gridRef}
         templateColumns={`repeat(${NINETY_NINE_DARTS_MAX_DARTS_PER_VISIT}, 1fr)`}
         gap={3}
-        touchAction="none"
+        touchAction={gridTouchAction}
         {...gridPointerProps}
       >
         {Array.from({ length: NINETY_NINE_DARTS_MAX_DARTS_PER_VISIT }, (_, slotIndex) => {

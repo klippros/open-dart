@@ -29,11 +29,16 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       setSingleDartScoring: (mode: SingleDartScoringMode) => {
         patchSettings({ singleDartScoring: mode })
       },
+      enableInputSwiping: settings.enableInputSwiping,
+      setEnableInputSwiping: (enabled: boolean) => {
+        patchSettings({ enableInputSwiping: enabled })
+      },
     }),
     [
       settings.scoreCallerEnabled,
       settings.uiSoundsEnabled,
       settings.singleDartScoring,
+      settings.enableInputSwiping,
       patchSettings,
     ],
   )
