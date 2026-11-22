@@ -2,7 +2,12 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { GameStatus } from '@open-dart/game/types/gameMode'
 import type { GameSession } from '@open-dart/game/types/gameSession'
 import { SyncStatus } from '../../types/auth'
-import { isGameSession, loadStoredSessions, replaceStoredSessions } from '../storage/gameStore'
+import {
+  isGameSession,
+  loadStoredSessions,
+  removeStoredSession,
+  replaceStoredSessions,
+} from '../storage/gameStore'
 import { browserLocalStorage } from '../storage/localStorageAdapter'
 import type { StorageAdapter } from '../storage/localStorageAdapter'
 import { StorageKey } from '../storage/storageKeys'
@@ -12,7 +17,11 @@ export interface SessionSyncGateway {
   loadSessions: () => Promise<GameSession[]>
   upsertSessions: (sessions: GameSession[]) => Promise<void>
   deleteSessions: (sessionIds: string[]) => Promise<void>
+  deleteSession: (sessionId: string) => Promise<boolean>
 }
+
+export type DeleteSyncedSessionResult =
+  { ok: true; sessions: GameSession[] } | { ok: false; error: string }
 
 interface GameSessionRow {
   payload: unknown
@@ -127,16 +136,33 @@ export const createSupabaseSessionGateway = (client: SupabaseClient): SessionSyn
       }),
     )
   },
+  deleteSession: async (sessionId) => {
+    const result = await client.rpc('delete_local_game_session', {
+      session_id: sessionId,
+    })
+
+    if (result.error !== null) {
+      throw result.error
+    }
+
+    return result.data === true
+  },
   deleteSessions: async (sessionIds) => {
     if (sessionIds.length === 0) {
       return
     }
 
-    const { error } = await client.from('game_sessions').delete().in('id', sessionIds)
+    await Promise.all(
+      sessionIds.map(async (sessionId) => {
+        const result = await client.rpc('delete_local_game_session', {
+          session_id: sessionId,
+        })
 
-    if (error !== null) {
-      throw error
-    }
+        if (result.error !== null) {
+          throw result.error
+        }
+      }),
+    )
   },
 })
 
@@ -148,11 +174,20 @@ const isOnlineMatchIdUpsertRejection = (error: { message?: string; code?: string
 export const synchronizeSessions = async (
   gateway: SessionSyncGateway,
   storage: StorageAdapter = browserLocalStorage,
+  options: { excludeSessionIds?: readonly string[] } = {},
 ): Promise<void> => {
-  const localSessions = loadStoredSessions(storage)
+  const excludedIds = new Set([
+    ...loadQueuedDeletionIds(storage),
+    ...(options.excludeSessionIds ?? []),
+  ])
+  const localSessions = loadStoredSessions(storage).filter(
+    (session) => !excludedIds.has(session.id),
+  )
 
   try {
-    const remoteSessions = await gateway.loadSessions()
+    const remoteSessions = (await gateway.loadSessions()).filter(
+      (session) => !excludedIds.has(session.id),
+    )
     const { sessions, sessionsToUpload } = mergeCompletedSessions(localSessions, remoteSessions)
 
     replaceStoredSessions(sessions, storage)
@@ -250,6 +285,38 @@ const runSync = async (operation: (sync: ActiveSessionSync) => Promise<void>): P
   }
 }
 
+const runSerializedSync = async <T>(
+  operation: (sync: ActiveSessionSync) => Promise<T>,
+): Promise<T | undefined> => {
+  if (activeSync === null) {
+    return undefined
+  }
+
+  if (flushPromise !== null) {
+    await flushPromise
+    return runSerializedSync(operation)
+  }
+
+  const sync = activeSync
+  let settled: { value: T } | undefined
+  const currentPromise = (async () => {
+    try {
+      settled = { value: await operation(sync) }
+    } catch {
+      settled = undefined
+    }
+  })()
+
+  flushPromise = currentPromise
+  await currentPromise
+
+  if (flushPromise === currentPromise) {
+    flushPromise = null
+  }
+
+  return settled?.value
+}
+
 export const flushPendingSessionSync = (): Promise<void> => {
   if (activeSync === null) {
     return Promise.resolve()
@@ -331,3 +398,45 @@ export const queueSessionDeletionSync = (sessionId: string): void => {
   )
   void retrySessionSync()
 }
+
+export const deleteSyncedSessionAndRefresh = async (
+  sessionId: string,
+): Promise<DeleteSyncedSessionResult> => {
+  const result = await runSerializedSync(async (sync): Promise<DeleteSyncedSessionResult> => {
+    sync.onStatusChange(SyncStatus.Syncing)
+
+    try {
+      await sync.gateway.deleteSession(sessionId)
+    } catch {
+      if (activeSync === sync) {
+        sync.onStatusChange(SyncStatus.Error)
+      }
+
+      return { ok: false, error: 'Could not delete this game' }
+    }
+
+    removeQueuedIds([sessionId], browserLocalStorage)
+    removeStoredSession(sessionId)
+
+    try {
+      await synchronizeSessions(sync.gateway, browserLocalStorage, {
+        excludeSessionIds: [sessionId],
+      })
+      if (activeSync === sync) {
+        sync.onStatusChange(SyncStatus.Synced)
+      }
+
+      return { ok: true, sessions: loadStoredSessions() }
+    } catch {
+      if (activeSync === sync) {
+        sync.onStatusChange(SyncStatus.Error)
+      }
+
+      return { ok: true, sessions: loadStoredSessions() }
+    }
+  })
+
+  return result ?? { ok: false, error: 'Could not delete this game' }
+}
+
+export const isSessionSyncActive = (): boolean => activeSync !== null
