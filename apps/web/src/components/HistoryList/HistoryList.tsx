@@ -6,6 +6,7 @@ import {
   getOnlineMatchSummaryHeader,
   HistoryEntrySource,
 } from '../../lib/history/onlineHistorySummary'
+import { isDeletableHistoryEntry } from '../../lib/history/isDeletableHistoryEntry'
 import { HistoryListItem } from './HistoryListItem'
 
 export type HistoryListEntry =
@@ -29,6 +30,7 @@ export interface HistoryListProps {
   onLoadMore?: () => void
   onSelectSession: (session: GameSession) => void
   onSelectOnlineMatch: (match: OnlineMatchSummary) => void
+  onDeleteSession?: (session: GameSession) => void
 }
 
 export const HistoryList = ({
@@ -37,6 +39,7 @@ export const HistoryList = ({
   onLoadMore,
   onSelectSession,
   onSelectOnlineMatch,
+  onDeleteSession,
 }: HistoryListProps) => {
   if (entries.length === 0) {
     return (
@@ -66,6 +69,13 @@ export const HistoryList = ({
               onClick={() => {
                 onSelectSession(entry.session)
               }}
+              onDelete={
+                onDeleteSession !== undefined && isDeletableHistoryEntry(entry.source)
+                  ? () => {
+                      onDeleteSession(entry.session)
+                    }
+                  : undefined
+              }
             />
           )
         }

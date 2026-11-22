@@ -2,6 +2,7 @@ import { Box, Button, Heading, Stack, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { ContentContainer } from '../components/ContentContainer'
+import { DeleteSessionDialog } from '../components/DeleteSessionDialog/DeleteSessionDialog'
 import { HistoryList } from '../components/HistoryList/HistoryList'
 import type { HistoryListEntry } from '../components/HistoryList/HistoryList'
 import { OnlineMatchSummaryDialog } from '../components/MatchSummaryDialog/OnlineMatchSummaryDialog'
@@ -11,6 +12,7 @@ import { SignInDialog } from '../components/SignInDialog/SignInDialog'
 import { useAuth } from '../hooks/authContext'
 import { getSyncStatusLabel } from '../lib/auth/syncStatusLabel'
 import { isSignInEnabled } from '../lib/klipprosHost'
+import { isDeletableHistoryEntry } from '../lib/history/isDeletableHistoryEntry'
 import { getOnlineMatchCompletedAt, HistoryEntrySource } from '../lib/history/onlineHistorySummary'
 import {
   HISTORY_PAGE_SIZE,
@@ -22,7 +24,12 @@ import { getMyOnlineMatchDetail, listMyOnlineMatchSummaries } from '../lib/match
 import { isOnlineMatchesEnabled } from '../lib/matchServer/config'
 import { decorateOnlineSessionForViewer } from '../lib/matchServer/onlinePlay'
 import type { OnlineMatchHistoryRow, OnlineMatchSummary } from '../lib/matchServer/types'
-import { clearStoredSessions, loadStoredSessions } from '../lib/storage/gameStore'
+import {
+  clearStoredSessions,
+  loadStoredSessions,
+  removeStoredSession,
+} from '../lib/storage/gameStore'
+import { deleteSyncedSessionAndRefresh, isSessionSyncActive } from '../lib/sync/sessionSync'
 import { AuthStatus, SyncStatus } from '../types/auth'
 import type { GameSession } from '@open-dart/game/types/gameSession'
 import { resolveHumanPlayerName } from '@open-dart/game/game/playerFactory'
@@ -32,6 +39,9 @@ export const HistoryPage = () => {
     useAuth()
   const [signInDialogOpen, setSignInDialogOpen] = useState(false)
   const [resetDialogOpen, setResetDialogOpen] = useState(false)
+  const [sessionPendingDelete, setSessionPendingDelete] = useState<GameSession | null>(null)
+  const [isDeletingSession, setIsDeletingSession] = useState(false)
+  const [deleteSessionError, setDeleteSessionError] = useState<string | null>(null)
   const [selectedSession, setSelectedSession] = useState<GameSession | null>(null)
   const [selectedOnlineMatch, setSelectedOnlineMatch] = useState<OnlineMatchHistoryRow | null>(null)
   const [sessions, setSessions] = useState(() => sortSessionsByDate(loadStoredSessions()))
@@ -145,6 +155,60 @@ export const HistoryPage = () => {
     setSelectedOnlineMatch(null)
     setSelectedSession(session)
   }, [])
+
+  const handleRequestDeleteSession = useCallback((session: GameSession) => {
+    if (!isDeletableHistoryEntry(HistoryEntrySource.Local)) {
+      return
+    }
+
+    const current = loadStoredSessions().find((entry) => entry.id === session.id)
+    if (current === undefined) {
+      return
+    }
+
+    setDeleteSessionError(null)
+    setSessionPendingDelete(current)
+  }, [])
+
+  const handleConfirmDeleteSession = useCallback(async () => {
+    const pending = sessionPendingDelete
+    if (pending === null || isDeletingSession) {
+      return
+    }
+
+    if (!isDeletableHistoryEntry(HistoryEntrySource.Local)) {
+      return
+    }
+
+    const current = loadStoredSessions().find((entry) => entry.id === pending.id)
+    if (current === undefined) {
+      setSessionPendingDelete(null)
+      return
+    }
+
+    setIsDeletingSession(true)
+    setDeleteSessionError(null)
+
+    try {
+      if (isSessionSyncActive()) {
+        const result = await deleteSyncedSessionAndRefresh(current.id)
+        if (!result.ok) {
+          setDeleteSessionError(result.error)
+          return
+        }
+
+        setSessions(sortSessionsByDate(result.sessions))
+      } else {
+        removeStoredSession(current.id)
+        setSessions(sortSessionsByDate(loadStoredSessions()))
+      }
+
+      setSelectedSession((selected) => (selected?.id === current.id ? null : selected))
+      setSessionPendingDelete(null)
+    } finally {
+      setIsDeletingSession(false)
+    }
+  }, [isDeletingSession, sessionPendingDelete])
 
   const localEntries = useMemo(
     (): HistoryListEntry[] =>
@@ -359,6 +423,7 @@ export const HistoryPage = () => {
             onSelectOnlineMatch={(match) => {
               void handleSelectOnlineMatch(match)
             }}
+            onDeleteSession={handleRequestDeleteSession}
           />
         </Stack>
       </Box>
@@ -375,6 +440,20 @@ export const HistoryPage = () => {
         onClose={() => {
           setSelectedOnlineMatch(null)
         }}
+      />
+      <DeleteSessionDialog
+        open={sessionPendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && !isDeletingSession) {
+            setSessionPendingDelete(null)
+            setDeleteSessionError(null)
+          }
+        }}
+        onConfirm={() => {
+          void handleConfirmDeleteSession()
+        }}
+        isDeleting={isDeletingSession}
+        errorMessage={deleteSessionError}
       />
       <ResetStatsDialog
         open={resetDialogOpen}

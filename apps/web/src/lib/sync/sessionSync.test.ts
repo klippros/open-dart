@@ -10,6 +10,7 @@ import { StorageKey } from '../storage/storageKeys'
 import {
   clearSyncedLocalSessionData,
   createSupabaseSessionGateway,
+  deleteSyncedSessionAndRefresh,
   flushPendingSessionSync,
   queueCompletedSessionSync,
   retrySessionSync,
@@ -18,6 +19,8 @@ import {
   synchronizeSessions,
 } from './sessionSync'
 import type { SessionSyncGateway } from './sessionSync'
+
+const unusedDeleteSession = async (): Promise<boolean> => false
 
 const createMemoryStorage = (): StorageAdapter & { data: Map<string, string> } => {
   const data = new Map<string, string>()
@@ -78,6 +81,7 @@ describe('synchronizeSessions', () => {
       loadSessions: async () => remote,
       upsertSessions,
       deleteSessions: async () => undefined,
+      deleteSession: unusedDeleteSession,
     }
     saveStoredSession(local, storage)
 
@@ -98,6 +102,7 @@ describe('synchronizeSessions', () => {
         throw new Error('offline')
       },
       deleteSessions: async () => undefined,
+      deleteSession: unusedDeleteSession,
     }
     saveStoredSession(local, storage)
 
@@ -122,6 +127,7 @@ describe('completed-session queue', () => {
       loadSessions: async () => [],
       upsertSessions,
       deleteSessions: async () => undefined,
+      deleteSession: unusedDeleteSession,
     }
 
     await startSessionSyncWithGateway(gateway, (status) => {
@@ -179,6 +185,7 @@ describe('flushPendingSessionSync', () => {
       loadSessions: async () => [],
       upsertSessions,
       deleteSessions: async () => undefined,
+      deleteSession: unusedDeleteSession,
     }
 
     await startSessionSyncWithGateway(gateway, () => undefined)
@@ -190,6 +197,114 @@ describe('flushPendingSessionSync', () => {
     clearSyncedLocalSessionData()
 
     expect(upsertSessions).toHaveBeenCalledWith([completed])
+    expect(loadStoredSessions()).toEqual([])
+  })
+})
+
+describe('deleteSyncedSessionAndRefresh', () => {
+  it('removes a pending upload before refetching after a successful delete', async () => {
+    const completed = session()
+    const deleteSession = vi.fn(async () => true)
+    const loadSessions = vi.fn(async () => [] as GameSession[])
+    const gateway: SessionSyncGateway = {
+      loadSessions,
+      upsertSessions: async () => undefined,
+      deleteSessions: async () => undefined,
+      deleteSession,
+    }
+
+    await startSessionSyncWithGateway(gateway, () => undefined)
+    saveStoredSession(completed)
+    localStorage.setItem(StorageKey.SyncQueue, JSON.stringify([completed.id]))
+
+    const result = await deleteSyncedSessionAndRefresh(completed.id)
+
+    expect(result).toEqual({ ok: true, sessions: [] })
+    expect(deleteSession).toHaveBeenCalledWith(completed.id)
+    expect(loadSessions).toHaveBeenCalled()
+    expect(loadStoredSessions()).toEqual([])
+    expect(localStorage.getItem(StorageKey.SyncQueue)).toBeNull()
+  })
+
+  it('removes a never-uploaded session when the rpc returns false', async () => {
+    const completed = session()
+    const gateway: SessionSyncGateway = {
+      loadSessions: async () => [],
+      upsertSessions: async () => undefined,
+      deleteSessions: async () => undefined,
+      deleteSession: async () => false,
+    }
+
+    await startSessionSyncWithGateway(gateway, () => undefined)
+    saveStoredSession(completed)
+
+    const result = await deleteSyncedSessionAndRefresh(completed.id)
+
+    expect(result).toEqual({ ok: true, sessions: [] })
+    expect(loadStoredSessions()).toEqual([])
+  })
+
+  it('leaves storage unchanged when the rpc fails', async () => {
+    const completed = session()
+    const gateway: SessionSyncGateway = {
+      loadSessions: async () => [],
+      upsertSessions: async () => undefined,
+      deleteSessions: async () => undefined,
+      deleteSession: async () => {
+        throw new Error('network')
+      },
+    }
+
+    await startSessionSyncWithGateway(gateway, () => undefined)
+    saveStoredSession(completed)
+
+    const result = await deleteSyncedSessionAndRefresh(completed.id)
+
+    expect(result).toEqual({ ok: false, error: 'Could not delete this game' })
+    expect(loadStoredSessions()).toEqual([completed])
+    expect(localStorage.getItem(StorageKey.SyncDeleteQueue)).toBeNull()
+  })
+
+  it('keeps the local deletion when refetch fails after a committed delete', async () => {
+    const completed = session()
+    const other = session({ id: 'session-2' })
+    const gateway: SessionSyncGateway = {
+      loadSessions: async () => {
+        throw new Error('offline')
+      },
+      upsertSessions: async () => undefined,
+      deleteSessions: async () => undefined,
+      deleteSession: async () => true,
+    }
+
+    await startSessionSyncWithGateway(gateway, () => undefined)
+    saveStoredSession(completed)
+    saveStoredSession(other)
+
+    const result = await deleteSyncedSessionAndRefresh(completed.id)
+
+    expect(result).toEqual({ ok: true, sessions: [other] })
+    expect(loadStoredSessions()).toEqual([other])
+    expect(JSON.parse(localStorage.getItem(StorageKey.SyncQueue) ?? '[]')).not.toContain(
+      completed.id,
+    )
+  })
+
+  it('excludes a deleted id so a stale remote payload cannot restore it', async () => {
+    const completed = session()
+    const gateway: SessionSyncGateway = {
+      loadSessions: async () => [completed],
+      upsertSessions: async () => undefined,
+      deleteSessions: async () => undefined,
+      deleteSession: async () => true,
+    }
+
+    await startSessionSyncWithGateway(gateway, () => undefined)
+    saveStoredSession(completed)
+
+    const result = await deleteSyncedSessionAndRefresh(completed.id)
+
+    expect(result).toEqual({ ok: true, sessions: [] })
     expect(loadStoredSessions()).toEqual([])
   })
 })
@@ -245,5 +360,21 @@ describe('Supabase ownership boundary', () => {
     ).resolves.toBeUndefined()
 
     expect(rpc).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not send a client-provided user id when deleting', async () => {
+    const rpc = vi.fn(async (_name: string, _arguments: Record<string, unknown>) => ({
+      data: true,
+      error: null,
+    }))
+    const client = { rpc } as unknown as SupabaseClient
+    const gateway = createSupabaseSessionGateway(client)
+
+    await expect(gateway.deleteSession('session-1')).resolves.toBe(true)
+
+    expect(rpc).toHaveBeenCalledOnce()
+    expect(rpc.mock.calls[0]?.[0]).toBe('delete_local_game_session')
+    expect(rpc.mock.calls[0]?.[1]).toEqual({ session_id: 'session-1' })
+    expect(rpc.mock.calls[0]?.[1]).not.toHaveProperty('user_id')
   })
 })
