@@ -95,4 +95,109 @@ describe('legVisitRows', () => {
     expect(rows[0]?.getCellValue('player-1')).toBe('180')
     expect(rows[1]?.getCellValue('player-1')).toBe('140')
   })
+
+  it('shows recorded darts under the visit score for per-dart visits', () => {
+    const rows = buildLegVisitRows(
+      [
+        visit({
+          visitIndex: 0,
+          playerId: 'player-1',
+          visitScore: 180,
+          darts: [
+            numberDart(20, DartMultiplier.Triple),
+            numberDart(20, DartMultiplier.Triple),
+            numberDart(20, DartMultiplier.Triple),
+          ],
+        }),
+        visit({
+          visitIndex: 1,
+          playerId: 'player-2',
+          visitScore: 100,
+          darts: [numberDart(20, DartMultiplier.Triple), numberDart(20, DartMultiplier.Double)],
+        }),
+      ],
+      ['player-1', 'player-2'],
+    )
+
+    expect(rows[0]?.getCellDetail?.('player-1')).toBe('T20 · T20 · T20')
+    expect(rows[0]?.getCellDetail?.('player-2')).toBe('T20 · D20')
+  })
+
+  it('omits dart detail for visit-score input with empty darts', () => {
+    const rows = buildLegVisitRows(
+      [visit({ visitIndex: 0, playerId: 'player-1', visitScore: 100, darts: [] })],
+      ['player-1'],
+    )
+
+    expect(rows[0]?.getCellValue('player-1')).toBe('100')
+    expect(rows[0]?.getCellDetail?.('player-1')).toBeUndefined()
+  })
+
+  it('omits dart detail for the other player dash cell', () => {
+    const rows = buildLegVisitRows(
+      [
+        visit({
+          visitIndex: 0,
+          playerId: 'player-1',
+          visitScore: 180,
+          darts: [
+            numberDart(20, DartMultiplier.Triple),
+            numberDart(20, DartMultiplier.Triple),
+            numberDart(20, DartMultiplier.Triple),
+          ],
+        }),
+        visit({
+          visitIndex: 1,
+          playerId: 'player-2',
+          visitScore: 140,
+          darts: [
+            numberDart(20, DartMultiplier.Triple),
+            numberDart(20, DartMultiplier.Double),
+            numberDart(20, DartMultiplier.Single),
+          ],
+        }),
+        visit({
+          visitIndex: 2,
+          playerId: 'player-1',
+          visitScore: 121,
+          checkout: true,
+          scoreBefore: 121,
+          scoreAfter: 0,
+          darts: [
+            numberDart(20, DartMultiplier.Triple),
+            numberDart(19, DartMultiplier.Triple),
+            numberDart(16, DartMultiplier.Double),
+          ],
+        }),
+      ],
+      ['player-1', 'player-2'],
+    )
+
+    expect(rows[1]?.getCellValue('player-2')).toBe('—')
+    expect(rows[1]?.getCellDetail?.('player-2')).toBeUndefined()
+    expect(rows[1]?.getCellDetail?.('player-1')).toBe('T20 · T19 · D16')
+  })
+
+  it('keeps bust color and lists darts for bust visits', () => {
+    const rows = buildLegVisitRows(
+      [
+        visit({
+          visitIndex: 0,
+          playerId: 'player-1',
+          visitScore: 0,
+          bust: true,
+          darts: [
+            numberDart(20, DartMultiplier.Triple),
+            numberDart(20, DartMultiplier.Triple),
+            numberDart(20, DartMultiplier.Single),
+          ],
+        }),
+      ],
+      ['player-1'],
+    )
+
+    expect(rows[0]?.getCellValue('player-1')).toBe('Bust')
+    expect(rows[0]?.getCellColor?.('player-1')).toBe('red.300')
+    expect(rows[0]?.getCellDetail?.('player-1')).toBe('T20 · T20 · 20')
+  })
 })

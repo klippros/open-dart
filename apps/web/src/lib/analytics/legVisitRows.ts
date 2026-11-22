@@ -1,3 +1,4 @@
+import { formatDart } from '@open-dart/game/formatDart'
 import type { Visit } from '@open-dart/game/types/visit'
 
 export interface LegVisitTableRow {
@@ -5,6 +6,7 @@ export interface LegVisitTableRow {
   label: string
   getCellValue: (playerId: string) => string
   getCellColor?: (playerId: string) => string | undefined
+  getCellDetail?: (playerId: string) => string | undefined
 }
 
 export const formatLegVisitScore = (visit: Visit): string => {
@@ -15,11 +17,22 @@ export const formatLegVisitScore = (visit: Visit): string => {
   return String(visit.visitScore)
 }
 
+export const formatLegVisitDarts = (visit: Visit): string | undefined => {
+  if (visit.darts.length === 0) {
+    return undefined
+  }
+
+  return visit.darts.map((dart) => formatDart(dart)).join(' · ')
+}
+
 const getVisitCellValue = (visit: Visit | undefined): string =>
   visit === undefined ? '—' : formatLegVisitScore(visit)
 
 const getVisitCellColor = (visit: Visit | undefined): string | undefined =>
   visit?.bust === true ? 'red.300' : undefined
+
+const getVisitCellDetail = (visit: Visit | undefined): string | undefined =>
+  visit === undefined ? undefined : formatLegVisitDarts(visit)
 
 const buildChronologicalLegVisitRows = (legVisits: Visit[]): LegVisitTableRow[] =>
   legVisits.map((visit, index) => ({
@@ -27,6 +40,8 @@ const buildChronologicalLegVisitRows = (legVisits: Visit[]): LegVisitTableRow[] 
     label: `Visit ${index + 1}`,
     getCellValue: (playerId) => (visit.playerId === playerId ? formatLegVisitScore(visit) : '—'),
     getCellColor: (playerId) => (visit.playerId === playerId && visit.bust ? 'red.300' : undefined),
+    getCellDetail: (playerId) =>
+      visit.playerId === playerId ? formatLegVisitDarts(visit) : undefined,
   }))
 
 const buildPairedLegVisitRows = (legVisits: Visit[], playerIds: string[]): LegVisitTableRow[] => {
@@ -47,6 +62,7 @@ const buildPairedLegVisitRows = (legVisits: Visit[], playerIds: string[]): LegVi
     label: `Visit ${index + 1}`,
     getCellValue: (playerId) => getVisitCellValue(visitsByPlayer[playerId]?.[index]),
     getCellColor: (playerId) => getVisitCellColor(visitsByPlayer[playerId]?.[index]),
+    getCellDetail: (playerId) => getVisitCellDetail(visitsByPlayer[playerId]?.[index]),
   }))
 }
 

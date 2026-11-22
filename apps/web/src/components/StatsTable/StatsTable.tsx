@@ -175,17 +175,37 @@ export const StatsTable = ({
               <Text fontSize="sm" color="whiteAlpha.700" alignSelf="center">
                 {row.label}
               </Text>
-              {players.map((player) => (
-                <Text
-                  key={`${row.id}-${player.id}`}
-                  fontSize="sm"
-                  color={row.getCellColor?.(player.id) ?? 'whiteAlpha.900'}
-                  textAlign="right"
-                  alignSelf="center"
-                >
-                  {row.getCellValue(player.id)}
-                </Text>
-              ))}
+              {players.map((player) => {
+                const detail = row.getCellDetail?.(player.id)
+
+                return (
+                  <Stack
+                    key={`${row.id}-${player.id}`}
+                    gap={0.5}
+                    align="flex-end"
+                    alignSelf="center"
+                  >
+                    <Text
+                      fontSize="sm"
+                      color={row.getCellColor?.(player.id) ?? 'whiteAlpha.900'}
+                      textAlign="right"
+                    >
+                      {row.getCellValue(player.id)}
+                    </Text>
+                    {detail !== undefined && (
+                      <Text
+                        fontSize="xs"
+                        color="whiteAlpha.600"
+                        textAlign="right"
+                        lineHeight="short"
+                        whiteSpace="normal"
+                      >
+                        {detail}
+                      </Text>
+                    )}
+                  </Stack>
+                )
+              })}
             </Grid>
           )
         })}
