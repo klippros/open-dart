@@ -1,16 +1,9 @@
 import type { CheckoutRules } from '@open-dart/game/types/checkout.ts'
-import { DartMultiplier, DartSegmentType } from '@open-dart/game/types/dart.ts'
 import type { DartThrow } from '@open-dart/game/types/dart.ts'
 import type { Visit } from '@open-dart/game/types/visit.ts'
 import { visitUsesVisitScoreInput } from '@open-dart/game/types/visit.ts'
 import { isDoubleDart } from '@open-dart/game/dartScoring.ts'
-import { formatDart } from '@open-dart/game/formatDart.ts'
-import type { CheckoutDart } from '@open-dart/game/checkout/checkoutSuggestions.ts'
-import {
-  isCheckoutPossible,
-  MAX_CHECKOUT_SCORE,
-  suggestCheckoutPath,
-} from '@open-dart/game/checkout/checkoutSuggestions.ts'
+import { MAX_CHECKOUT_SCORE } from '@open-dart/game/checkout/checkoutSuggestions.ts'
 import { isSingleDartDoubleFinish } from '@open-dart/game/checkout/checkoutFallback.ts'
 import { DOUBLE_OUT_BOGEY_SCORES } from '@open-dart/game/checkout/pdcCheckoutTable.ts'
 
@@ -37,18 +30,6 @@ export const mergeDoubleCheckoutStats = (
   successes: left.successes + right.successes,
 })
 
-const isFinishingCheckoutPath = (path: CheckoutDart[]): boolean => {
-  const first = path[0]
-
-  if (path.length !== 1 || first === undefined) {
-    return false
-  }
-
-  const { label } = first
-
-  return label.startsWith('D') || label === 'Bull'
-}
-
 const countsTowardScore = (dart: DartThrow, doubleIn: boolean, hasOpened: boolean): boolean => {
   if (dart.points === 0) {
     return false
@@ -59,51 +40,6 @@ const countsTowardScore = (dart: DartThrow, doubleIn: boolean, hasOpened: boolea
   }
 
   return isDoubleDart(dart)
-}
-
-const isDoubleAttemptOnFinish = (dart: DartThrow, target: CheckoutDart): boolean => {
-  if (dart.multiplier === DartMultiplier.Miss) {
-    return true
-  }
-
-  const { label } = target
-
-  if (label === 'Bull') {
-    return (
-      dart.segment.type === DartSegmentType.Bull || dart.segment.type === DartSegmentType.OuterBull
-    )
-  }
-
-  if (label.startsWith('D')) {
-    const segmentValue = Number(label.slice(1))
-
-    if (dart.segment.type === DartSegmentType.Number && dart.segment.value === segmentValue) {
-      return true
-    }
-  }
-
-  return dart.multiplier === DartMultiplier.Double
-}
-
-const isSuccessfulFinish = (
-  dart: DartThrow,
-  target: CheckoutDart,
-  remaining: number,
-  rules: CheckoutRules,
-): boolean => {
-  if (formatDart(dart) !== target.label) {
-    return false
-  }
-
-  if (remaining - dart.points !== 0) {
-    return false
-  }
-
-  if (rules.doubleOut && !isDoubleDart(dart)) {
-    return false
-  }
-
-  return true
 }
 
 const applyDartToRemaining = (
@@ -204,35 +140,18 @@ export const countDoubleCheckoutStatsForVisit = (
   let opened = hasOpenedBefore
   const stats = emptyDoubleCheckoutStats()
 
-  for (let dartIndex = 0; dartIndex < visit.darts.length; dartIndex += 1) {
-    const dart = visit.darts[dartIndex]
-
-    if (dart === undefined) {
-      break
-    }
-
+  for (const dart of visit.darts) {
     if (remaining <= 0) {
       break
     }
 
-    const dartsRemaining = 3 - dartIndex
-    const scoringDart = countsTowardScore(dart, doubleIn, opened)
+    const onFinishingDouble = rules.doubleOut && isSingleDartDoubleFinish(remaining)
 
-    if (isCheckoutPossible(remaining, rules)) {
-      const path = suggestCheckoutPath(remaining, dartsRemaining, rules)
-
-      if (path !== null && isFinishingCheckoutPath(path)) {
-        const target = path[0]
-
-        if (target !== undefined && isDoubleAttemptOnFinish(dart, target)) {
-          stats.attempts += 1
-
-          if (scoringDart && isSuccessfulFinish(dart, target, remaining, rules)) {
-            stats.successes += 1
-          }
-        }
-      }
+    if (onFinishingDouble) {
+      stats.attempts += 1
     }
+
+    const scoringDart = countsTowardScore(dart, doubleIn, opened)
 
     if (!scoringDart) {
       continue
@@ -243,6 +162,10 @@ export const countDoubleCheckoutStatsForVisit = (
     }
 
     const outcome = applyDartToRemaining(remaining, dart, rules)
+
+    if (onFinishingDouble && outcome.checkout) {
+      stats.successes += 1
+    }
 
     if (outcome.bust || outcome.checkout) {
       break

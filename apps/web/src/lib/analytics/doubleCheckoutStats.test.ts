@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { DartMultiplier } from '@open-dart/game/types/dart'
+import type { DartThrow } from '@open-dart/game/types/dart'
 import type { Visit } from '@open-dart/game/types/visit'
 import { VisitInputMode } from '@open-dart/game/types/visit'
-import { numberDart } from '@open-dart/game/testHelpers'
+import { bullDart, missDart, numberDart, outerBullDart } from '@open-dart/game/testHelpers'
 import {
   countDoubleCheckoutStats,
   countDoubleCheckoutStatsForVisit,
@@ -27,124 +28,211 @@ const visit = (overrides: Partial<Visit>): Visit => ({
   ...overrides,
 })
 
+const visitFromDarts = (scoreBefore: number, darts: DartThrow[]): Visit =>
+  visit({
+    scoreBefore,
+    darts,
+    visitScore: 0,
+    scoreAfter: scoreBefore,
+  })
+
 describe('countDoubleCheckoutStatsForVisit', () => {
-  it('counts a missed double when S16 is thrown instead of D16', () => {
+  it.each([
+    {
+      name: 'counts a D8 checkout from 16',
+      scoreBefore: 16,
+      darts: [numberDart(8, DartMultiplier.Double)],
+      expected: { attempts: 1, successes: 1 },
+    },
+    {
+      name: 'counts S8 from 16 as a missed checkout',
+      scoreBefore: 16,
+      darts: [numberDart(8, DartMultiplier.Single)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts S11 from 16 as a missed checkout',
+      scoreBefore: 16,
+      darts: [numberDart(11, DartMultiplier.Single)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts S16 from 16 as a missed checkout',
+      scoreBefore: 16,
+      darts: [numberDart(16, DartMultiplier.Single)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts a complete miss from 16 as a missed checkout',
+      scoreBefore: 16,
+      darts: [missDart()],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts T20 from 16 as a missed checkout',
+      scoreBefore: 16,
+      darts: [numberDart(20, DartMultiplier.Triple)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts T8 from 16 as a missed checkout',
+      scoreBefore: 16,
+      darts: [numberDart(8, DartMultiplier.Triple)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts D16 from 16 as a missed checkout',
+      scoreBefore: 16,
+      darts: [numberDart(16, DartMultiplier.Double)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts 25 from 16 as a missed checkout',
+      scoreBefore: 16,
+      darts: [outerBullDart(DartMultiplier.Single)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts each dart while remaining on finishing doubles from 16',
+      scoreBefore: 16,
+      darts: [
+        numberDart(4, DartMultiplier.Single),
+        numberDart(4, DartMultiplier.Single),
+        numberDart(4, DartMultiplier.Single),
+      ],
+      expected: { attempts: 3, successes: 0 },
+    },
+    {
+      name: 'counts only the dart at 16 when later remaining is not a finish',
+      scoreBefore: 16,
+      darts: [
+        numberDart(11, DartMultiplier.Single),
+        numberDart(20, DartMultiplier.Single),
+        numberDart(5, DartMultiplier.Single),
+      ],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts S16 from 32 as a missed checkout',
+      scoreBefore: 32,
+      darts: [numberDart(16, DartMultiplier.Single)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts a successful D16 checkout',
+      scoreBefore: 32,
+      darts: [numberDart(16, DartMultiplier.Double)],
+      expected: { attempts: 1, successes: 1 },
+    },
+    {
+      name: 'counts S8 from 32 as a missed checkout',
+      scoreBefore: 32,
+      darts: [numberDart(8, DartMultiplier.Single)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts S6 from 38 as a missed checkout',
+      scoreBefore: 38,
+      darts: [numberDart(6, DartMultiplier.Single)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts a successful D9 checkout',
+      scoreBefore: 18,
+      darts: [numberDart(9, DartMultiplier.Double)],
+      expected: { attempts: 1, successes: 1 },
+    },
+    {
+      name: 'counts S2 from 18 as a missed checkout',
+      scoreBefore: 18,
+      darts: [numberDart(2, DartMultiplier.Single)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts a successful D20 checkout',
+      scoreBefore: 40,
+      darts: [numberDart(20, DartMultiplier.Double)],
+      expected: { attempts: 1, successes: 1 },
+    },
+    {
+      name: 'counts S10 from 40 as a missed checkout',
+      scoreBefore: 40,
+      darts: [numberDart(10, DartMultiplier.Single)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts S10 then D15 from 40 as a miss and a hit',
+      scoreBefore: 40,
+      darts: [numberDart(10, DartMultiplier.Single), numberDart(15, DartMultiplier.Double)],
+      expected: { attempts: 2, successes: 1 },
+    },
+    {
+      name: 'counts D10 from 40 as a missed checkout',
+      scoreBefore: 40,
+      darts: [numberDart(10, DartMultiplier.Double)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts a successful bull checkout',
+      scoreBefore: 50,
+      darts: [bullDart()],
+      expected: { attempts: 1, successes: 1 },
+    },
+    {
+      name: 'counts 25 from 50 as a missed checkout',
+      scoreBefore: 50,
+      darts: [outerBullDart(DartMultiplier.Single)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts S18 from 50 as a missed checkout',
+      scoreBefore: 50,
+      darts: [numberDart(18, DartMultiplier.Single)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts S10 from 50 as a missed checkout',
+      scoreBefore: 50,
+      darts: [numberDart(10, DartMultiplier.Single)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'counts S20 from 50 as a missed checkout',
+      scoreBefore: 50,
+      darts: [numberDart(20, DartMultiplier.Single)],
+      expected: { attempts: 1, successes: 0 },
+    },
+    {
+      name: 'does not count setup when S9 is thrown from 41',
+      scoreBefore: 41,
+      darts: [numberDart(9, DartMultiplier.Single)],
+      expected: { attempts: 0, successes: 0 },
+    },
+    {
+      name: 'only evaluates the finishing dart on a two-dart PDC path',
+      scoreBefore: 60,
+      darts: [numberDart(20, DartMultiplier.Single), numberDart(20, DartMultiplier.Double)],
+      expected: { attempts: 1, successes: 1 },
+    },
+    {
+      name: 'counts only the dart thrown at a double in a visit from 120',
+      scoreBefore: 120,
+      darts: [
+        numberDart(20, DartMultiplier.Triple),
+        numberDart(20, DartMultiplier.Single),
+        numberDart(20, DartMultiplier.Single),
+      ],
+      expected: { attempts: 1, successes: 0 },
+    },
+  ])('$name', ({ scoreBefore, darts, expected }) => {
     const { stats } = countDoubleCheckoutStatsForVisit(
-      visit({
-        scoreBefore: 32,
-        darts: [numberDart(16, DartMultiplier.Single)],
-        visitScore: 16,
-        scoreAfter: 16,
-      }),
+      visitFromDarts(scoreBefore, darts),
       doubleOutRules,
       false,
       true,
     )
 
-    expect(stats).toEqual({ attempts: 1, successes: 0 })
-  })
-
-  it('does not count setup when S6 is thrown with D19 available', () => {
-    const { stats } = countDoubleCheckoutStatsForVisit(
-      visit({
-        scoreBefore: 38,
-        darts: [numberDart(6, DartMultiplier.Single)],
-        visitScore: 6,
-        scoreAfter: 32,
-      }),
-      doubleOutRules,
-      false,
-      true,
-    )
-
-    expect(stats).toEqual({ attempts: 0, successes: 0 })
-  })
-
-  it('counts a successful D16 checkout', () => {
-    const { stats } = countDoubleCheckoutStatsForVisit(
-      visit({
-        scoreBefore: 32,
-        darts: [numberDart(16, DartMultiplier.Double)],
-        visitScore: 32,
-        scoreAfter: 0,
-        checkout: true,
-      }),
-      doubleOutRules,
-      false,
-      true,
-    )
-
-    expect(stats).toEqual({ attempts: 1, successes: 1 })
-  })
-
-  it('counts a bust on a double attempt as a miss', () => {
-    const { stats } = countDoubleCheckoutStatsForVisit(
-      visit({
-        scoreBefore: 32,
-        darts: [numberDart(16, DartMultiplier.Triple)],
-        visitScore: 48,
-        scoreAfter: 32,
-        bust: true,
-      }),
-      doubleOutRules,
-      false,
-      true,
-    )
-
-    expect(stats).toEqual({ attempts: 1, successes: 0 })
-  })
-
-  it('only evaluates the finishing dart on a two-dart PDC path', () => {
-    const { stats } = countDoubleCheckoutStatsForVisit(
-      visit({
-        scoreBefore: 60,
-        darts: [numberDart(20, DartMultiplier.Single), numberDart(20, DartMultiplier.Double)],
-        visitScore: 60,
-        scoreAfter: 0,
-        checkout: true,
-      }),
-      doubleOutRules,
-      false,
-      true,
-    )
-
-    expect(stats).toEqual({ attempts: 1, successes: 1 })
-  })
-
-  it('counts a complete miss on a finishing double as an attempt', () => {
-    const { stats } = countDoubleCheckoutStatsForVisit(
-      visit({
-        scoreBefore: 32,
-        darts: [{ ...numberDart(20, DartMultiplier.Miss), points: 0 }],
-        visitScore: 0,
-        scoreAfter: 32,
-      }),
-      doubleOutRules,
-      false,
-      true,
-    )
-
-    expect(stats).toEqual({ attempts: 1, successes: 0 })
-  })
-
-  it('counts only the dart thrown at a double in a visit from 120', () => {
-    const { stats } = countDoubleCheckoutStatsForVisit(
-      visit({
-        scoreBefore: 120,
-        darts: [
-          numberDart(20, DartMultiplier.Triple),
-          numberDart(20, DartMultiplier.Single),
-          numberDart(20, DartMultiplier.Single),
-        ],
-        visitScore: 100,
-        scoreAfter: 20,
-      }),
-      doubleOutRules,
-      false,
-      true,
-    )
-
-    expect(stats).toEqual({ attempts: 1, successes: 0 })
+    expect(stats).toEqual(expected)
   })
 })
 
