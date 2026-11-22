@@ -7,6 +7,7 @@ import { DartMultiplier } from '@open-dart/game/types/dart'
 import { resolveBoardHoverTarget } from './boardHover'
 import type { CenterZone, CornerZone } from './dartboardLayout'
 import { resolveCenterDragRelease } from './centerDragGesture'
+import type { SwipeTrailPoint } from './visitOutcomeSwipe/buildVisitOutcomeSwipeTrail'
 
 export interface UseDartBoardPointerOptions {
   onUndo: () => void
@@ -54,6 +55,8 @@ export const useDartBoardPointer = ({
   const [hoveredCorner, setHoveredCorner] = useState<CornerZone | null>(null)
   const [hoveredCenterZone, setHoveredCenterZone] = useState<CenterZone | null>(null)
   const [activeCenterZone, setActiveCenterZone] = useState<CenterZone | null>(null)
+  const [swipeTrailStart, setSwipeTrailStart] = useState<SwipeTrailPoint | null>(null)
+  const [swipeTrailFinger, setSwipeTrailFinger] = useState<SwipeTrailPoint | null>(null)
   const centerDragRef = useRef<{ zone: CenterZone; armedBefore: ArmedMultiplier } | null>(null)
 
   const getSvgPoint = useCallback((clientX: number, clientY: number) => {
@@ -88,6 +91,8 @@ export const useDartBoardPointer = ({
     setHoveredNumber(null)
     setHoveredCorner(null)
     setHoveredCenterZone(null)
+    setSwipeTrailStart(null)
+    setSwipeTrailFinger(null)
   }, [])
 
   const handleCornerClick = useCallback(
@@ -189,8 +194,16 @@ export const useDartBoardPointer = ({
       setActiveCenterZone(zone)
       setHoveredNumber(null)
       setHoveredCorner(null)
+
+      if (enableInputSwiping) {
+        const point = getSvgPoint(event.clientX, event.clientY)
+        if (point !== null) {
+          setSwipeTrailStart(point)
+          setSwipeTrailFinger(point)
+        }
+      }
     },
-    [armedMultiplier, inputDisabled],
+    [armedMultiplier, enableInputSwiping, getSvgPoint, inputDisabled],
   )
 
   const handlePointerMove = useCallback(
@@ -205,6 +218,7 @@ export const useDartBoardPointer = ({
         return
       }
 
+      setSwipeTrailFinger(point)
       const target = resolveBoardHoverTarget(point.x, point.y)
       setHoveredNumber(target.number)
       setActiveCenterZone(target.centerZone ?? centerDragRef.current.zone)
@@ -261,6 +275,8 @@ export const useDartBoardPointer = ({
     hoveredCorner,
     hoveredCenterZone,
     activeCenterZone,
+    swipeTrailStart,
+    swipeTrailFinger,
     handleCornerClick,
     handleNumberClick,
     handleCenterPointerDown,

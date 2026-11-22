@@ -8,6 +8,7 @@ import { DartMultiplier, DartSegmentType } from '@open-dart/game/types/dart'
 import type { DartThrow } from '@open-dart/game/types/dart'
 import { DartBoardGraphic } from './DartBoardGraphic'
 import { DARTBOARD_VIEWBOX_SIZE } from './dartboardLayout'
+import { SwipeTrailGraphic } from './SwipeTrailGraphic'
 import { useDartBoardPointer } from './useDartBoardPointer'
 
 export interface DartPickerProps {
@@ -68,6 +69,8 @@ export const DartPicker = ({
     hoveredCorner: pointerHoveredCorner,
     hoveredCenterZone,
     activeCenterZone,
+    swipeTrailStart,
+    swipeTrailFinger,
     handleCornerClick,
     handleNumberClick,
     handleCenterPointerDown,
@@ -131,6 +134,9 @@ export const DartPicker = ({
             onNumberHover={handleNumberHover}
             onCenterHover={handleCenterHover}
           />
+          {swipeTrailStart === null ? null : (
+            <SwipeTrailGraphic nodes={[swipeTrailStart]} finger={swipeTrailFinger} />
+          )}
         </svg>
       </Box>
     </Stack>
