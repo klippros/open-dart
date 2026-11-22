@@ -113,10 +113,7 @@ describe('legVisitRows', () => {
           visitIndex: 1,
           playerId: 'player-2',
           visitScore: 100,
-          darts: [
-            numberDart(20, DartMultiplier.Triple),
-            numberDart(20, DartMultiplier.Double),
-          ],
+          darts: [numberDart(20, DartMultiplier.Triple), numberDart(20, DartMultiplier.Double)],
         }),
       ],
       ['player-1', 'player-2'],
