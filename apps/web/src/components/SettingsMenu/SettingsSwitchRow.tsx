@@ -1,4 +1,4 @@
-import { Box, Flex, Switch, Text } from '@chakra-ui/react'
+import { Box, Switch, Text } from '@chakra-ui/react'
 import { useId } from 'react'
 
 export interface SettingsSwitchRowProps {
@@ -16,34 +16,34 @@ export const SettingsSwitchRow = ({
   disabled = false,
   onCheckedChange,
 }: SettingsSwitchRowProps) => {
-  const inputId = useId()
   const descriptionId = useId()
 
   return (
-    <Flex align="center" justify="space-between" gap={4}>
+    <Switch.Root
+      checked={checked}
+      disabled={disabled}
+      colorPalette="orange"
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      gap={4}
+      w="full"
+      onCheckedChange={(details) => {
+        onCheckedChange(details.checked)
+      }}
+    >
       <Box flex="1" minW={0}>
-        <label htmlFor={inputId}>
-          <Text fontSize="sm" fontWeight="medium" color="white">
-            {label}
-          </Text>
-        </label>
+        <Switch.Label fontSize="sm" fontWeight="medium" color="white">
+          {label}
+        </Switch.Label>
         <Text id={descriptionId} fontSize="xs" color="whiteAlpha.600" lineHeight="1.4">
           {description}
         </Text>
       </Box>
-      <Switch.Root
-        checked={checked}
-        disabled={disabled}
-        colorPalette="orange"
-        onCheckedChange={(details) => {
-          onCheckedChange(details.checked)
-        }}
-      >
-        <Switch.HiddenInput id={inputId} aria-describedby={descriptionId} />
-        <Switch.Control>
-          <Switch.Thumb />
-        </Switch.Control>
-      </Switch.Root>
-    </Flex>
+      <Switch.HiddenInput aria-describedby={descriptionId} />
+      <Switch.Control flexShrink={0}>
+        <Switch.Thumb />
+      </Switch.Control>
+    </Switch.Root>
   )
 }
