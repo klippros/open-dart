@@ -1,4 +1,5 @@
 import { Box, Flex, Link, Text } from '@chakra-ui/react'
+import { Link as RouterLink } from 'react-router-dom'
 import { ContentContainer } from './ContentContainer'
 
 export const Footer = () => (
@@ -14,14 +15,14 @@ export const Footer = () => (
       >
         <Text>© 2026 Klippros Studios AB</Text>
         <Link
-          href="https://klippros.com/impressum.html"
+          asChild
           color="whiteAlpha.700"
           fontSize="xs"
           textDecoration="underline"
           textUnderlineOffset="2px"
           _hover={{ color: 'white' }}
         >
-          Impressum
+          <RouterLink to="/impressum">Impressum</RouterLink>
         </Link>
         <Link
           href="https://github.com/klippros/open-dart"
