@@ -413,4 +413,28 @@ describe('statTimelines', () => {
     expect(timeline.format).toBe('integer')
     expect(timeline.points.map((point) => point.value)).toEqual([1, 2])
   })
+
+  it('limits the online 501 scope to games with a remote opponent', () => {
+    const timeline = buildStatTimeline(
+      [
+        sampleSession({ id: 'local' }),
+        sampleSession({
+          id: 'online',
+          players: [
+            { id: 'player-1', name: 'You', kind: PlayerKind.Human },
+            { id: 'player-2', name: 'Them', kind: PlayerKind.Remote },
+          ],
+        }),
+      ],
+      {
+        scope: { type: 'x01-501-online' },
+        metric: 'bestLegAverage',
+        metricLabel: 'Best leg average',
+        scopeLabel: '501 online',
+      },
+    )
+
+    expect(timeline.points.map((point) => point.sessionId)).toEqual(['online:leg:1'])
+    expect(timeline.points[0]?.value).toBe(60)
+  })
 })

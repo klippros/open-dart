@@ -18,7 +18,8 @@ export type {
   ProfileStatWindow,
 } from './buildProfileStats.ts'
 export { computeX01Stats } from './x01Stats.ts'
-export { computePracticeStats } from './practiceStats.ts'
+export { computeBigNumbersSummary, computePracticeStats } from './practiceStats.ts'
+export type { BigNumbersSummaryStats } from './practiceStats.ts'
 export { getDateRangeCutoff, filterSessions } from './sessionFilters.ts'
 export type { AnalyticsFilter, DateRangePreset } from './sessionFilters.ts'
 export {

@@ -40,6 +40,7 @@ import {
   filterJdcChallengeSessions,
   filterNinetyNineDartsSessions,
   filterOneSeventySessions,
+  filterOnlineFiveOhOneSessions,
 } from '@open-dart/analytics/sessionScope'
 import {
   countDartsInSession,
@@ -98,6 +99,7 @@ export type StatMetricId =
   | 'avgShanghaiHighScore'
 
 export type StatTimelineScope =
+  | { type: 'x01-501-online' }
   | { type: 'x01-501' }
   | { type: 'x01-170' }
   | { type: 'x01-all' }
@@ -718,6 +720,8 @@ const filterSessionsForScope = (
   scope: StatTimelineScope,
 ): GameSession[] => {
   switch (scope.type) {
+    case 'x01-501-online':
+      return filterOnlineFiveOhOneSessions(sessions)
     case 'x01-501':
       return filterFiveOhOneSessions(sessions)
     case 'x01-170':
@@ -746,7 +750,10 @@ const filterSessionsForScope = (
 }
 
 const isX01TimelineScope = (scope: StatTimelineScope): boolean =>
-  scope.type === 'x01-501' || scope.type === 'x01-170' || scope.type === 'x01-all'
+  scope.type === 'x01-501-online' ||
+  scope.type === 'x01-501' ||
+  scope.type === 'x01-170' ||
+  scope.type === 'x01-all'
 
 const buildX01TimelinePoints = (
   sessions: GameSession[],

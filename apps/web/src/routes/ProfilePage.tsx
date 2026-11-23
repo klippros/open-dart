@@ -1,45 +1,63 @@
 import { Box, Button, Stack } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { getCurrentMonthJdcChallengeBadge } from '@open-dart/analytics'
 import type { DateRangePreset } from '@open-dart/analytics/sessionFilters'
+import {
+  getLegNumberFromTimelinePointId,
+  getSessionIdFromTimelinePointId,
+} from '@open-dart/analytics/x01LegSlices'
+import type { GameSession } from '@open-dart/game/types/gameSession'
 import { ContentContainer } from '../components/ContentContainer'
 import { DisplayNameEditor } from '../components/DisplayNameEditor/DisplayNameEditor'
+import { SessionSummaryDialog } from '../components/MatchSummaryDialog/SessionSummaryDialog'
+import { OwnProfileStats } from '../components/OwnProfileStats/OwnProfileStats'
 import { ProfileFollowCounts } from '../components/ProfileFollowCounts/ProfileFollowCounts'
 import { ProfileDateRangeSelect } from '../components/ProfilePageHeader/ProfileDateRangeSelect'
 import { ProfileDisplayName } from '../components/ProfilePageHeader/ProfileDisplayName'
 import { ProfilePageHeader } from '../components/ProfilePageHeader/ProfilePageHeader'
 import { SignInDialog } from '../components/SignInDialog/SignInDialog'
+import { StatTimelineDialog } from '../components/StatTimelineDialog/StatTimelineDialog'
 import { useAuth } from '../hooks/authContext'
+import { useOwnProfileSessions } from '../hooks/useOwnProfileSessions'
+import { buildStatTimeline } from '../lib/analytics/statTimelines'
+import type { StatTimelinePoint, StatTimelineSelection } from '../lib/analytics/statTimelines'
 import { isSignInEnabled } from '../lib/klipprosHost'
 import { DEFAULT_PROFILE_DATE_RANGE } from '../lib/profile/profileDateRange'
-import { loadStoredSessions } from '../lib/storage/gameStore'
-import { AuthStatus, SyncStatus } from '../types/auth'
+import { AuthStatus } from '../types/auth'
 import { HistoryPage } from './HistoryPage'
-import { StatsPage } from './StatsPage'
 
 export const ProfilePage = () => {
-  const { authStatus, syncStatus, user, profile, isConfigured, setDisplayName } = useAuth()
+  const { authStatus, user, profile, isConfigured, setDisplayName } = useAuth()
   const [dateRange, setDateRange] = useState<DateRangePreset>(DEFAULT_PROFILE_DATE_RANGE)
   const [signInDialogOpen, setSignInDialogOpen] = useState(false)
   const [displayNameDialogOpen, setDisplayNameDialogOpen] = useState(false)
-  const [storedSessions, setStoredSessions] = useState(() => loadStoredSessions())
+  const [timelineSelection, setTimelineSelection] = useState<StatTimelineSelection | null>(null)
+  const [selectedSession, setSelectedSession] = useState<GameSession | null>(null)
+  const [selectedLegNumber, setSelectedLegNumber] = useState<number | null>(null)
+  const { allSessions, filteredSessions, analytics } = useOwnProfileSessions(dateRange)
 
   const isSignedIn = authStatus === AuthStatus.Authenticated && user !== null
-
-  useEffect(() => {
-    if (authStatus === AuthStatus.Anonymous || authStatus === AuthStatus.Authenticated) {
-      setStoredSessions(loadStoredSessions())
-    }
-  }, [authStatus])
-
-  useEffect(() => {
-    if (syncStatus === SyncStatus.Synced) {
-      setStoredSessions(loadStoredSessions())
-    }
-  }, [syncStatus])
-
-  const jersey = useMemo(() => getCurrentMonthJdcChallengeBadge(storedSessions), [storedSessions])
+  const jersey = useMemo(() => getCurrentMonthJdcChallengeBadge(allSessions), [allSessions])
   const displayName = profile?.displayName ?? 'Player'
+
+  const activeTimeline = useMemo(
+    () =>
+      timelineSelection === null ? null : buildStatTimeline(filteredSessions, timelineSelection),
+    [filteredSessions, timelineSelection],
+  )
+
+  const handleTimelinePointClick = useCallback(
+    (point: StatTimelinePoint) => {
+      const sessionId = getSessionIdFromTimelinePointId(point.sessionId)
+      const session = allSessions.find((candidate) => candidate.id === sessionId) ?? null
+
+      if (session !== null) {
+        setSelectedSession(session)
+        setSelectedLegNumber(getLegNumberFromTimelinePointId(point.sessionId))
+      }
+    },
+    [allSessions],
+  )
 
   const identity = isSignedIn ? (
     <ProfileDisplayName
@@ -69,10 +87,31 @@ export const ProfilePage = () => {
             social={isSignedIn ? <ProfileFollowCounts /> : null}
             dateControl={<ProfileDateRangeSelect value={dateRange} onChange={setDateRange} />}
           />
-          <StatsPage dateRange={dateRange} />
+          <OwnProfileStats
+            sessions={filteredSessions}
+            analytics={analytics}
+            onStatSelect={setTimelineSelection}
+          />
           <HistoryPage embedded />
         </Stack>
       </Box>
+      <StatTimelineDialog
+        open={timelineSelection !== null}
+        timeline={activeTimeline}
+        onClose={() => {
+          setTimelineSelection(null)
+        }}
+        onPointClick={handleTimelinePointClick}
+      />
+      <SessionSummaryDialog
+        open={selectedSession !== null}
+        session={selectedSession}
+        initialLegNumber={selectedLegNumber}
+        onClose={() => {
+          setSelectedSession(null)
+          setSelectedLegNumber(null)
+        }}
+      />
       {isSignedIn ? (
         <DisplayNameEditor
           open={displayNameDialogOpen}

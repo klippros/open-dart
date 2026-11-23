@@ -78,8 +78,16 @@ export interface Bob27PracticeStats {
   bestFinalScore: number | null
   hitRate: number | null
   avgHitsPerVisit: number | null
+  bestHitsPerVisit: number | null
   avgDoublesPerGame: number | null
   bestDoublesPerGame: number | null
+}
+
+/** Big Numbers pooled across every required-hits variant. */
+export interface BigNumbersSummaryStats {
+  gameCount: number
+  hitRate: number | null
+  bestHitRate: number | null
 }
 
 export interface ClaimTheBoardPracticeStats {
@@ -280,6 +288,9 @@ const computeBob27Stats = (sessions: GameSession[]): Bob27PracticeStats | null =
     .map((session) => getSessionFinalScore(session))
     .filter((score): score is number => score !== null)
   const doublesPerGame = completedSessions.map((session) => getBob27SessionDoublesHit(session))
+  const hitsPerVisitBySession = modeSessions
+    .map((session) => getBob27AvgHitsPerVisit(getPrimaryPlayerVisits(session)))
+    .filter((value): value is number => value !== null)
 
   return {
     mode: GameModeId.Bob27,
@@ -293,6 +304,8 @@ const computeBob27Stats = (sessions: GameSession[]): Bob27PracticeStats | null =
     bestFinalScore: finalScores.length === 0 ? null : Math.max(...finalScores),
     hitRate: getBob27VisitHitRate(visits),
     avgHitsPerVisit: getBob27AvgHitsPerVisit(visits),
+    bestHitsPerVisit:
+      hitsPerVisitBySession.length === 0 ? null : Math.max(...hitsPerVisitBySession),
     avgDoublesPerGame:
       doublesPerGame.length === 0
         ? null
@@ -490,6 +503,18 @@ const computeBigNumbersStatsForRequiredHits = (
     bestVisitsToComplete:
       completedVisitCounts.length === 0 ? null : Math.min(...completedVisitCounts),
     lastPlayedAt,
+  }
+}
+
+export const computeBigNumbersSummary = (sessions: GameSession[]): BigNumbersSummaryStats => {
+  const modeSessions = filterBigNumbersSessions(sessions)
+
+  return {
+    gameCount: modeSessions.length,
+    hitRate: getBigNumbersHitRate(
+      modeSessions.flatMap((session) => getPrimaryPlayerVisits(session)),
+    ),
+    bestHitRate: getBigNumbersBestSessionHitRate(modeSessions),
   }
 }
 

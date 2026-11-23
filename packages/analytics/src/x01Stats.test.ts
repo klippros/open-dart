@@ -153,3 +153,50 @@ describe('computeX01Stats best leg pairing', () => {
     expect(stats.fiveOhOne.bestLegDarts).toBe(4)
   })
 })
+
+describe('computeX01Stats online 501 and detail stats', () => {
+  const onlinePlayers = [
+    { id: 'player-1', name: 'You', kind: PlayerKind.Human },
+    { id: 'player-2', name: 'Them', kind: PlayerKind.Remote },
+  ]
+
+  it('keeps online 501 separate from local 501', () => {
+    const stats = computeX01Stats([
+      sampleSession({ id: 'local' }),
+      sampleSession({ id: 'online', players: onlinePlayers }),
+    ])
+
+    expect(stats.fiveOhOne.legCount).toBe(2)
+    expect(stats.fiveOhOneOnline.legCount).toBe(1)
+  })
+
+  it('counts darts thrown and leg win rate only for contested legs', () => {
+    const stats = computeX01Stats([
+      sampleSession({ id: 'solo' }),
+      sampleSession({
+        id: 'won',
+        players: onlinePlayers,
+        visits: [
+          sampleVisit({
+            checkout: true,
+            visitScore: 60,
+            scoreBefore: 60,
+            scoreAfter: 0,
+          }),
+        ],
+      }),
+      sampleSession({ id: 'lost', players: onlinePlayers }),
+    ])
+
+    expect(stats.fiveOhOne.dartsThrown).toBe(3)
+    expect(stats.fiveOhOne.legWinRate).toBe(50)
+    expect(computeX01Stats([sampleSession()]).fiveOhOne.legWinRate).toBeNull()
+  })
+
+  it('returns empty online stats without online games', () => {
+    const stats = computeX01Stats([sampleSession()])
+
+    expect(stats.fiveOhOneOnline.legCount).toBe(0)
+    expect(stats.fiveOhOneOnline.dartsThrown).toBe(0)
+  })
+})

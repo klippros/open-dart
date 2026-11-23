@@ -15,6 +15,7 @@ import {
   getBigNumbersVisitHitCount,
   isBigNumbersStepBackVisit,
 } from './bigNumbersVisitStats'
+import { computeBigNumbersSummary } from './practiceStats'
 
 const visit = ({
   hitCount,
@@ -158,5 +159,33 @@ describe('bigNumbersVisitStats', () => {
     stronger.id = 's2'
 
     expect(getBigNumbersBestSessionHitRate([weaker, stronger])).toBe(100)
+  })
+})
+
+describe('computeBigNumbersSummary', () => {
+  it('pools every required-hits variant into one hit rate', () => {
+    const twoHits = {
+      ...session([visit({ hitCount: 3, scoreBefore: 1, scoreAfter: 2, advanced: true })]),
+      id: 'two',
+    }
+    const oneHit = {
+      ...session([visit({ hitCount: 0, scoreBefore: 1, scoreAfter: 1, advanced: false })]),
+      id: 'one',
+      config: { requiredHits: BigNumbersRequiredHits.One },
+    }
+
+    const summary = computeBigNumbersSummary([twoHits, oneHit])
+
+    expect(summary.gameCount).toBe(2)
+    expect(summary.hitRate).toBe(50)
+    expect(summary.bestHitRate).toBe(100)
+  })
+
+  it('returns empty values without games', () => {
+    expect(computeBigNumbersSummary([])).toEqual({
+      gameCount: 0,
+      hitRate: null,
+      bestHitRate: null,
+    })
   })
 })

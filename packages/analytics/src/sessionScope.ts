@@ -2,6 +2,7 @@ import type { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock
 import type { BigNumbersRequiredHits } from '@open-dart/game/types/bigNumbers.ts'
 import { GameModeId } from '@open-dart/game/types/gameMode.ts'
 import type { GameSession } from '@open-dart/game/types/gameSession.ts'
+import { PlayerKind } from '@open-dart/game/types/player.ts'
 import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig.ts'
 import { getBigNumbersConfig } from '@open-dart/game/bigNumbers/bigNumbersConfig.ts'
 import { getNinetyNineDartsConfig } from '@open-dart/game/ninetyNineDarts/ninetyNineDartsConfig.ts'
@@ -40,6 +41,13 @@ export const filterFiveOhOneSessions = (sessions: GameSession[]): GameSession[] 
 
 export const filterOneSeventySessions = (sessions: GameSession[]): GameSession[] =>
   filterX01SessionsByStartScore(sessions, ONE_SEVENTY_START_SCORE)
+
+/** Online match sessions are the only ones with a remote opponent. */
+export const isOnlineSession = (session: GameSession): boolean =>
+  session.players.some((player) => player.kind === PlayerKind.Remote)
+
+export const filterOnlineFiveOhOneSessions = (sessions: GameSession[]): GameSession[] =>
+  filterFiveOhOneSessions(sessions).filter(isOnlineSession)
 
 export const filterCheckoutPracticeSessions = (
   sessions: GameSession[],

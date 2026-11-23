@@ -5,10 +5,9 @@ import {
   isBob27PracticeStats,
   isJdcChallengePracticeStats,
   isNinetyNineDartsPracticeStats,
+  computeBigNumbersSummary,
   computePracticeStats,
 } from './practiceStats.ts'
-import { getBigNumbersBestSessionHitRate, getBigNumbersHitRate } from './bigNumbersVisitStats.ts'
-import { getBob27AvgHitsPerVisit } from './bob27VisitStats.ts'
 import { computeJdcChallengeSingleSessionStats } from './jdcChallengeVisitStats.ts'
 import {
   filterBigNumbersSessions,
@@ -20,7 +19,6 @@ import type { JdcChallengeGrade } from '@open-dart/game/types/jdcChallenge.ts'
 import { getSessionCompletedAt } from './sessionLabels.ts'
 import { expandX01SessionsLegs } from './x01LegSlices.ts'
 import { computeX01Stats } from './x01Stats.ts'
-import { getPrimaryPlayerVisits } from './visitStats.ts'
 import { NinetyNineDartsStatGroup } from './ninetyNineVisitStats.ts'
 import { getDateRangeCutoff } from './sessionFilters.ts'
 
@@ -227,10 +225,6 @@ const buildBob27Stats = (
     return null
   }
 
-  const sessionHits = windowSessions
-    .map((session) => getBob27AvgHitsPerVisit(getPrimaryPlayerVisits(session)))
-    .filter((value): value is number => value !== null)
-
   return {
     sessionsPlayed: practice.gameCount,
     avgFinalScore: practice.avgFinalScore,
@@ -238,7 +232,7 @@ const buildBob27Stats = (
     bestFinalScore: practice.bestFinalScore,
     avgHitsPerVisit: practice.avgHitsPerVisit,
     avgDoublesPerGame: practice.avgDoublesPerGame,
-    bestHitsPerVisit: sessionHits.length === 0 ? null : Math.max(...sessionHits),
+    bestHitsPerVisit: practice.bestHitsPerVisit,
     bestDoublesPerGame: practice.bestDoublesPerGame,
   }
 }
@@ -346,12 +340,12 @@ const buildBigNumbersStats = (
     return null
   }
 
-  const allVisits = windowSessions.flatMap((session) => getPrimaryPlayerVisits(session))
+  const summary = computeBigNumbersSummary(windowSessions)
 
   return {
-    sessionsPlayed: windowSessions.length,
-    hitRate: getBigNumbersHitRate(allVisits),
-    bestHitRate: getBigNumbersBestSessionHitRate(windowSessions),
+    sessionsPlayed: summary.gameCount,
+    hitRate: summary.hitRate,
+    bestHitRate: summary.bestHitRate,
   }
 }
 
