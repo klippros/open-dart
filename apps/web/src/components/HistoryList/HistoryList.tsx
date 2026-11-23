@@ -7,6 +7,7 @@ import {
   HistoryEntrySource,
 } from '../../lib/history/onlineHistorySummary'
 import { isDeletableHistoryEntry } from '../../lib/history/isDeletableHistoryEntry'
+import { getPlayerProfilePath } from '../../lib/profile/profileRoutes'
 import { HistoryListItem } from './HistoryListItem'
 
 export type HistoryListEntry =
@@ -90,7 +91,9 @@ export const HistoryList = ({
             key={`online:${entry.id}`}
             header={getOnlineMatchSummaryHeader(entry.match)}
             badgeLabel="Online"
-            opponentProfileTo={opponentUserId === null ? undefined : `/players/${opponentUserId}`}
+            opponentProfileTo={
+              opponentUserId === null ? undefined : getPlayerProfilePath(opponentUserId)
+            }
             opponentName={opponentName}
             onClick={
               entry.canOpenDetail

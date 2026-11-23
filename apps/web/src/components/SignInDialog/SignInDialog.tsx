@@ -20,7 +20,7 @@ export const SignInDialog = ({
   onOpenChange,
   returnTo,
   title = 'Save progress across devices',
-  description = 'Sign in optionally to back up completed games and use your History and Stats on another device.',
+  description = 'Sign in optionally to back up completed games and see your profile on another device.',
 }: SignInDialogProps) => {
   const { signInWithGoogle, signInWithEmail } = useAuth()
   const location = useLocation()
