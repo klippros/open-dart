@@ -13,6 +13,14 @@ export interface HistoryPageSlice<T extends HistorySortableEntry> {
   hasMore: boolean
 }
 
+export const takeHistoryPage = <T extends HistorySortableEntry>(
+  entries: readonly T[],
+  limit: number = HISTORY_PAGE_SIZE,
+): HistoryPageSlice<T> => ({
+  entries: entries.slice(0, Math.max(limit, 0)),
+  hasMore: entries.length > Math.max(limit, 0),
+})
+
 /**
  * Merge already-sorted local and online streams (newest first) into one
  * chronological page without requiring every online payload up front.

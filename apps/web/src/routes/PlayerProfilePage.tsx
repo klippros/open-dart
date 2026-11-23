@@ -298,6 +298,7 @@ export const PlayerProfilePage = () => {
               onSelectOnlineMatch={(match) => {
                 void handleSelectOnlineMatch(match)
               }}
+              emptyMessage="No online matches yet."
             />
           </Stack>
         </Stack>

@@ -10,6 +10,7 @@ import type { GameSession } from '@open-dart/game/types/gameSession'
 import { ContentContainer } from '../components/ContentContainer'
 import { DisplayNameEditor } from '../components/DisplayNameEditor/DisplayNameEditor'
 import { SessionSummaryDialog } from '../components/MatchSummaryDialog/SessionSummaryDialog'
+import { OwnProfileHistory } from '../components/OwnProfileHistory/OwnProfileHistory'
 import { OwnProfileStats } from '../components/OwnProfileStats/OwnProfileStats'
 import { ProfileFollowCounts } from '../components/ProfileFollowCounts/ProfileFollowCounts'
 import { ProfileDateRangeSelect } from '../components/ProfilePageHeader/ProfileDateRangeSelect'
@@ -24,7 +25,6 @@ import type { StatTimelinePoint, StatTimelineSelection } from '../lib/analytics/
 import { isSignInEnabled } from '../lib/klipprosHost'
 import { DEFAULT_PROFILE_DATE_RANGE } from '../lib/profile/profileDateRange'
 import { AuthStatus } from '../types/auth'
-import { HistoryPage } from './HistoryPage'
 
 export const ProfilePage = () => {
   const { authStatus, user, profile, isConfigured, setDisplayName } = useAuth()
@@ -34,7 +34,8 @@ export const ProfilePage = () => {
   const [timelineSelection, setTimelineSelection] = useState<StatTimelineSelection | null>(null)
   const [selectedSession, setSelectedSession] = useState<GameSession | null>(null)
   const [selectedLegNumber, setSelectedLegNumber] = useState<number | null>(null)
-  const { allSessions, filteredSessions, analytics } = useOwnProfileSessions(dateRange)
+  const { storedSessions, allSessions, filteredSessions, analytics, reloadStoredSessions } =
+    useOwnProfileSessions(dateRange)
 
   const isSignedIn = authStatus === AuthStatus.Authenticated && user !== null
   const jersey = useMemo(() => getCurrentMonthJdcChallengeBadge(allSessions), [allSessions])
@@ -92,7 +93,10 @@ export const ProfilePage = () => {
             analytics={analytics}
             onStatSelect={setTimelineSelection}
           />
-          <HistoryPage embedded />
+          <OwnProfileHistory
+            storedSessions={storedSessions}
+            onStoredSessionsChange={reloadStoredSessions}
+          />
         </Stack>
       </Box>
       <StatTimelineDialog
