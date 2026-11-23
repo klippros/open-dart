@@ -1,4 +1,4 @@
-import { Stack, Text } from '@chakra-ui/react'
+import { HStack, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 import { NinetyNineDartsStatGroup } from '@open-dart/analytics/ninetyNineVisitStats'
 import type { StatTimelineSelection } from '../../lib/analytics/statTimelines'
@@ -9,6 +9,7 @@ import {
   getNinetyNineDartsGroupLabel,
 } from '../../lib/profile/profileCards'
 import type { NinetyNineDartsGroupInput } from '../../lib/profile/profileCards'
+import { StatsCountLabel } from '../StatsPageSections/StatsCountLabel'
 import { StatsVariantToggle } from '../StatsPageSections/StatsVariantToggle'
 import { ProfileModeSection } from './ProfileModeSection'
 import { ProfileStatCardGrid } from './ProfileStatCardGrid'
@@ -63,19 +64,20 @@ export const NinetyNineDartsProfileSection = ({
               }
             }}
           />
-        ) : undefined
+        ) : (
+          <HStack gap={3}>
+            <Text fontSize="sm" color="whiteAlpha.700">
+              On 20
+            </Text>
+            <StatsCountLabel count={selected.sessionCount} />
+          </HStack>
+        )
       }
     >
       <Stack gap={3}>
-        {selectable ? null : (
-          <Text fontSize="sm" color="whiteAlpha.700">
-            On 20
-          </Text>
-        )}
         <ProfileStatCardGrid
           cards={buildNinetyNineDartsSummaryCards(selected)}
           empty={selected.sessionCount === 0}
-          maxColumns={5}
           onStatSelect={onStatSelect}
         />
         <ProfileStatCardGrid

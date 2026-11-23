@@ -101,7 +101,7 @@ describe('buildPublicProfileStatsModel', () => {
       '250',
       '400',
     ])
-    expect(buildBob27SummaryCards(model.bob27)[3]?.details.map((detail) => detail.text)).toEqual([
+    expect(buildBob27SummaryCards(model.bob27)[2]?.details.map((detail) => detail.text)).toEqual([
       '1.50 best / visit',
       '10 best doubles / game',
     ])

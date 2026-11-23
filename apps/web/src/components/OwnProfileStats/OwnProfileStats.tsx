@@ -54,6 +54,7 @@ const renderSection = (
           title="Big Numbers"
           cards={buildBigNumbersSummaryCards(model.bigNumbers)}
           empty={model.bigNumbers.sessionCount === 0}
+          sessionCount={model.bigNumbers.sessionCount}
           onStatSelect={onStatSelect}
         />
       )
@@ -63,6 +64,7 @@ const renderSection = (
           title="Bob's 27"
           cards={buildBob27SummaryCards(model.bob27)}
           empty={model.bob27.sessionCount === 0}
+          sessionCount={model.bob27.sessionCount}
           onStatSelect={onStatSelect}
         />
       )
@@ -71,6 +73,7 @@ const renderSection = (
         <ProfileCardsSection
           title="121"
           cards={buildOneTwentyOneCards(model.oneTwentyOne)}
+          sessionCount={model.oneTwentyOne.gameCount}
           onStatSelect={onStatSelect}
         />
       )
@@ -79,6 +82,7 @@ const renderSection = (
         <ProfileCardsSection
           title="10 Up 1 Down"
           cards={buildTenUpOneDownCards(model.tenUpOneDown)}
+          sessionCount={model.tenUpOneDown.gameCount}
           onStatSelect={onStatSelect}
         />
       )
@@ -87,6 +91,7 @@ const renderSection = (
         <ProfileCardsSection
           title="Claim the Board"
           cards={buildClaimTheBoardCards(model.claimTheBoard)}
+          sessionCount={model.claimTheBoard.gameCount}
         />
       )
     case ProfileSectionId.AroundTheClock:
@@ -98,6 +103,7 @@ const renderSection = (
         <ProfileCardsSection
           title="Bull Run"
           cards={buildBullRunCards(model.bullRun)}
+          sessionCount={model.bullRun.gameCount}
           onStatSelect={onStatSelect}
         />
       )
@@ -107,6 +113,7 @@ const renderSection = (
           title="Hunter"
           cards={buildHunterSummaryCards(model.hunter)}
           empty={model.hunter.sessionCount === 0}
+          sessionCount={model.hunter.sessionCount}
           onStatSelect={onStatSelect}
         />
       )

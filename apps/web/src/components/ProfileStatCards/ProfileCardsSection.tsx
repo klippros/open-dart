@@ -1,5 +1,6 @@
 import type { StatTimelineSelection } from '../../lib/analytics/statTimelines'
 import type { ProfileStatCardModel } from '../../lib/profile/profileCards'
+import { StatsCountLabel } from '../StatsPageSections/StatsCountLabel'
 import { ProfileModeSection } from './ProfileModeSection'
 import { ProfileStatCardGrid } from './ProfileStatCardGrid'
 
@@ -7,6 +8,8 @@ export interface ProfileCardsSectionProps {
   title: string
   cards: ProfileStatCardModel[]
   empty?: boolean
+  /** Shown in the header when the section has no variant selector. */
+  sessionCount?: number
   onStatSelect?: (selection: StatTimelineSelection) => void
 }
 
@@ -14,9 +17,13 @@ export const ProfileCardsSection = ({
   title,
   cards,
   empty = false,
+  sessionCount,
   onStatSelect,
 }: ProfileCardsSectionProps) => (
-  <ProfileModeSection title={title}>
+  <ProfileModeSection
+    title={title}
+    trailing={sessionCount === undefined ? undefined : <StatsCountLabel count={sessionCount} />}
+  >
     <ProfileStatCardGrid cards={cards} empty={empty} onStatSelect={onStatSelect} />
   </ProfileModeSection>
 )

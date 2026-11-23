@@ -30,14 +30,13 @@ describe('profileCards', () => {
       { scope: { type: 'x01-501-online' }, scopeLabel: '501 online' },
     )
 
-    expect(labels(cards)).toEqual(['Legs', 'Average', 'To 170', 'Checkouts', 'Best Leg'])
-    expect(cards[0]?.value).toBe('12')
-    expect(cards[1]?.value).toBe('61.23')
-    expect(cards[1]?.details[0]?.text).toBe('21.5 darts')
-    expect(cards[1]?.details[0]?.timeline?.metric).toBe('avgDarts')
-    expect(cards[3]?.value).toBe('33%')
-    expect(cards[4]?.details[0]?.text).toBe('18 darts')
-    expect(cards[4]?.timeline?.scope).toEqual({ type: 'x01-501-online' })
+    expect(labels(cards)).toEqual(['Average', 'To 170', 'Checkouts', 'Best Leg'])
+    expect(cards[0]?.value).toBe('61.23')
+    expect(cards[0]?.details[0]?.text).toBe('21.5 darts')
+    expect(cards[0]?.details[0]?.timeline?.metric).toBe('avgDarts')
+    expect(cards[2]?.value).toBe('33%')
+    expect(cards[3]?.details[0]?.text).toBe('18 darts')
+    expect(cards[3]?.timeline?.scope).toEqual({ type: 'x01-501-online' })
   })
 
   it('shows dashes for an empty x01 section', () => {
@@ -54,7 +53,7 @@ describe('profileCards', () => {
       { scope: { type: 'x01-501' }, scopeLabel: '501' },
     )
 
-    expect(cards.map((card) => card.value)).toEqual(['—', '—', '—', '—', '—'])
+    expect(cards.map((card) => card.value)).toEqual(['—', '—', '—', '—'])
     expect(cards.flatMap((card) => card.details)).toEqual([])
   })
 
@@ -70,9 +69,9 @@ describe('profileCards', () => {
     }
     const cards = buildJdcChallengeSummaryCards(input)
 
-    expect(labels(cards)).toEqual(['Sessions', 'Score', 'Shanghais', 'High Score'])
-    expect(cards[1]?.grade).not.toBeNull()
-    expect(Object.values(JdcChallengeGrade)).toContain(cards[3]?.grade)
+    expect(labels(cards)).toEqual(['Score', 'Shanghais', 'High Score'])
+    expect(cards[0]?.grade).not.toBeNull()
+    expect(Object.values(JdcChallengeGrade)).toContain(cards[2]?.grade)
     expect(labels(buildJdcChallengeSegmentCards(input))).toEqual([
       'Shanghai 10–15',
       'Doubles',
@@ -87,7 +86,6 @@ describe('profileCards', () => {
       avgTrebles: 4,
     }
     expect(labels(buildNinetyNineDartsSummaryCards(twenty))).toEqual([
-      'Sessions',
       'Score',
       'Hit Rate',
       'Trebles',
@@ -102,12 +100,11 @@ describe('profileCards', () => {
       avgTrebles: 3,
     }
     expect(labels(buildNinetyNineDartsSummaryCards(bull))).toEqual([
-      'Sessions',
       'Score',
       'Hit Rate',
       'High Score',
     ])
-    expect(buildNinetyNineDartsSummaryCards(bull)[1]?.timeline?.scope).toEqual({
+    expect(buildNinetyNineDartsSummaryCards(bull)[0]?.timeline?.scope).toEqual({
       type: 'practice-99-darts',
       group: NinetyNineDartsStatGroup.Bull,
     })
@@ -117,16 +114,16 @@ describe('profileCards', () => {
   it('pools Big Numbers and keeps Hunter labels', () => {
     expect(
       labels(buildBigNumbersSummaryCards({ sessionCount: 1, hitRate: 50, bestHitRate: 75 })),
-    ).toEqual(['Sessions', 'Hit Rate', 'Best Hit Rate'])
+    ).toEqual(['Hit Rate', 'Best Hit Rate'])
     expect(
-      buildBigNumbersSummaryCards({ sessionCount: 1, hitRate: 50, bestHitRate: 75 })[1]?.timeline
+      buildBigNumbersSummaryCards({ sessionCount: 1, hitRate: 50, bestHitRate: 75 })[0]?.timeline
         ?.scope,
     ).toEqual({ type: 'practice-big-numbers' })
     expect(
       labels(
         buildHunterSummaryCards({ sessionCount: 0, avgAdvancesPerVisit: null, hitRate: null }),
       ),
-    ).toEqual(['Sessions', 'Advances/Visit', 'Hit Rate'])
+    ).toEqual(['Advances/Visit', 'Hit Rate'])
   })
 
   it("gives Bob's 27 detail lines their own graphs", () => {
@@ -141,12 +138,12 @@ describe('profileCards', () => {
       bestDoublesPerGame: 12,
     })
 
-    expect(labels(cards)).toEqual(['Sessions', 'Score', 'Hit Rate', 'High Score'])
-    expect(cards[2]?.details.map((detail) => detail.timeline?.metric)).toEqual([
+    expect(labels(cards)).toEqual(['Score', 'Hit Rate', 'High Score'])
+    expect(cards[1]?.details.map((detail) => detail.timeline?.metric)).toEqual([
       'avgHitsPerVisit',
       'avgDoublesPerGame',
     ])
-    expect(cards[3]?.details.map((detail) => detail.text)).toEqual([
+    expect(cards[2]?.details.map((detail) => detail.text)).toEqual([
       '1.80 best / visit',
       '12 best doubles / game',
     ])

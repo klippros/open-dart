@@ -5,6 +5,7 @@ import {
   buildJdcChallengeSummaryCards,
 } from '../../lib/profile/profileCards'
 import type { JdcChallengeSummaryInput } from '../../lib/profile/profileCards'
+import { StatsCountLabel } from '../StatsPageSections/StatsCountLabel'
 import { ProfileModeSection } from './ProfileModeSection'
 import { ProfileStatCardGrid } from './ProfileStatCardGrid'
 
@@ -20,7 +21,10 @@ export const JdcChallengeProfileSection = ({
   const empty = stats.sessionCount === 0
 
   return (
-    <ProfileModeSection title="JDC Challenge">
+    <ProfileModeSection
+      title="JDC Challenge"
+      trailing={<StatsCountLabel count={stats.sessionCount} />}
+    >
       <Stack gap={3}>
         <ProfileStatCardGrid
           cards={buildJdcChallengeSummaryCards(stats)}

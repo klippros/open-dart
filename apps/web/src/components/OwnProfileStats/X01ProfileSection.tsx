@@ -73,7 +73,7 @@ export const X01ProfileSection = ({ sessions, onStatSelect }: X01ProfileSectionP
             items={X01_PROFILE_VARIANTS.map((candidate) => ({
               value: candidate.id,
               label: candidate.label,
-              count: getX01VariantStats(allX01, candidate.id).legCount,
+              count: getX01VariantStats(x01, candidate.id).legCount,
             }))}
             value={variant.id}
             onChange={(value) => {

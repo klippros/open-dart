@@ -1,4 +1,4 @@
-import { Stack, Text } from '@chakra-ui/react'
+import { HStack, Stack, Text } from '@chakra-ui/react'
 import { Fragment, useMemo } from 'react'
 import type { ReactNode } from 'react'
 import type { PlayerProfileStats } from '@open-dart/analytics'
@@ -13,6 +13,7 @@ import { PUBLIC_PROFILE_SECTION_ORDER, ProfileSectionId } from '../../lib/profil
 import { JdcChallengeProfileSection } from '../ProfileStatCards/JdcChallengeProfileSection'
 import { NinetyNineDartsProfileSection } from '../ProfileStatCards/NinetyNineDartsProfileSection'
 import { ProfileCardsSection } from '../ProfileStatCards/ProfileCardsSection'
+import { StatsCountLabel } from '../StatsPageSections/StatsCountLabel'
 import { ProfileModeSection } from '../ProfileStatCards/ProfileModeSection'
 import { ProfileStatCardGrid } from '../ProfileStatCards/ProfileStatCardGrid'
 
@@ -29,9 +30,12 @@ const renderSection = (sectionId: ProfileSectionId, model: PublicProfileStatsMod
         <ProfileModeSection
           title="x01"
           trailing={
-            <Text fontSize="sm" color="whiteAlpha.700">
-              501 online
-            </Text>
+            <HStack gap={3}>
+              <Text fontSize="sm" color="whiteAlpha.700">
+                501 online
+              </Text>
+              <StatsCountLabel count={model.x01.legCount} unit="Leg" />
+            </HStack>
           }
         >
           <ProfileStatCardGrid
@@ -50,6 +54,7 @@ const renderSection = (sectionId: ProfileSectionId, model: PublicProfileStatsMod
           title="Big Numbers"
           cards={buildBigNumbersSummaryCards(model.bigNumbers)}
           empty={model.bigNumbers.sessionCount === 0}
+          sessionCount={model.bigNumbers.sessionCount}
         />
       )
     case ProfileSectionId.Bob27:
@@ -58,6 +63,7 @@ const renderSection = (sectionId: ProfileSectionId, model: PublicProfileStatsMod
           title="Bob's 27"
           cards={buildBob27SummaryCards(model.bob27)}
           empty={model.bob27.sessionCount === 0}
+          sessionCount={model.bob27.sessionCount}
         />
       )
     case ProfileSectionId.OneTwentyOne:

@@ -72,8 +72,6 @@ const card = (
   grade: options.grade ?? null,
 })
 
-const formatSessions = (count: number): string => (count === 0 ? '—' : formatInteger(count))
-
 const formatRate = (rate: number | null): string => formatPercent(rate, 1)
 
 const formatPerGame = (value: number | null): string => formatAverage(value, 1)
@@ -109,7 +107,6 @@ export const buildX01SummaryCards = (
   input: X01SummaryInput,
   context: ProfileTimelineContext,
 ): ProfileStatCardModel[] => [
-  card('legs', 'Legs', formatSessions(input.legCount)),
   card('average', 'Average', formatAverage(input.threeDartAverage), {
     timeline: selection(context, 'threeDartAverage', 'Average'),
     details:
@@ -187,7 +184,6 @@ const JDC_CONTEXT: ProfileTimelineContext = {
 export const buildJdcChallengeSummaryCards = (
   input: JdcChallengeSummaryInput,
 ): ProfileStatCardModel[] => [
-  card('sessions', 'Sessions', formatSessions(input.sessionCount)),
   card('score', 'Score', formatInteger(input.avgScore), {
     timeline: selection(JDC_CONTEXT, 'avgFinalScore', 'Score'),
     grade: gradeFor(input.avgScore),
@@ -285,7 +281,6 @@ export const buildNinetyNineDartsSummaryCards = (
   const trebles = ninetyNineTreblesCard(input, context)
 
   return [
-    card('sessions', 'Sessions', formatSessions(input.sessionCount)),
     card('score', 'Score', formatInteger(input.avgScore), {
       timeline: selection(context, 'avgFinalScore', 'Score'),
     }),
@@ -330,7 +325,6 @@ const BIG_NUMBERS_CONTEXT: ProfileTimelineContext = {
 export const buildBigNumbersSummaryCards = (
   input: BigNumbersSummaryInput,
 ): ProfileStatCardModel[] => [
-  card('sessions', 'Sessions', formatSessions(input.sessionCount)),
   card('hit-rate', 'Hit Rate', formatRate(input.hitRate), {
     timeline: selection(BIG_NUMBERS_CONTEXT, 'hitRate', 'Hit rate'),
   }),
@@ -358,7 +352,6 @@ const BOB27_CONTEXT: ProfileTimelineContext = {
 }
 
 export const buildBob27SummaryCards = (input: Bob27SummaryInput): ProfileStatCardModel[] => [
-  card('sessions', 'Sessions', formatSessions(input.sessionCount)),
   card('score', 'Score', formatInteger(input.avgScore), {
     timeline: selection(BOB27_CONTEXT, 'avgFinalScore', 'Score'),
   }),
@@ -408,7 +401,6 @@ const HUNTER_CONTEXT: ProfileTimelineContext = {
 }
 
 export const buildHunterSummaryCards = (input: HunterSummaryInput): ProfileStatCardModel[] => [
-  card('sessions', 'Sessions', formatSessions(input.sessionCount)),
   card('advances-per-visit', 'Advances/Visit', formatAverage(input.avgAdvancesPerVisit), {
     timeline: selection(HUNTER_CONTEXT, 'avgAdvancesPerVisit', 'Advances / visit'),
   }),
