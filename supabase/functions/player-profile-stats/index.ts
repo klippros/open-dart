@@ -13,6 +13,7 @@ const PRACTICE_MODES = [
   GameModeId.Bob27,
   GameModeId.NinetyNineDarts,
   GameModeId.AroundTheClock,
+  GameModeId.BigNumbers,
   GameModeId.JdcChallenge,
 ] as const
 

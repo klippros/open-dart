@@ -125,4 +125,25 @@ describe('bigNumbersEngine', () => {
       bigNumbersEngine.shouldEndVisitEarly(state, player.id, buildBigNumbersDartsForHitCount(3, 0)),
     ).toBe(false)
   })
+
+  it('advances from 1 to 2 with 0 required hits and no hits', () => {
+    const state = bigNumbersEngine.createInitialState([player], {
+      requiredHits: BigNumbersRequiredHits.Zero,
+    })
+    const result = bigNumbersEngine.commitVisit(
+      state,
+      player.id,
+      0,
+      buildBigNumbersDartsForHitCount(0, 0),
+    )
+
+    expect(result.visit).toMatchObject({
+      visitScore: 0,
+      scoreBefore: 1,
+      scoreAfter: 2,
+      checkout: false,
+      metadata: { targetLabel: '1', hitCount: 0, advanced: true },
+    })
+    expect(result.state.players[player.id]).toEqual({ targetIndex: 1 })
+  })
 })

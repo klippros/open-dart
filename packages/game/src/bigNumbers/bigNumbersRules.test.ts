@@ -88,6 +88,42 @@ describe('bigNumbersRules', () => {
     })
   })
 
+  it('advances and finishes with 0 required hits even on misses', () => {
+    const advance = resolveBigNumbersVisit(
+      0,
+      [
+        numberDart(20, DartMultiplier.Miss),
+        numberDart(20, DartMultiplier.Miss),
+        numberDart(20, DartMultiplier.Miss),
+      ],
+      BigNumbersRequiredHits.Zero,
+    )
+
+    expect(advance).toMatchObject({
+      targetIndexAfter: 1,
+      hitCount: 0,
+      advanced: true,
+      checkout: false,
+    })
+
+    const finish = resolveBigNumbersVisit(
+      19,
+      [
+        numberDart(1, DartMultiplier.Miss),
+        numberDart(1, DartMultiplier.Miss),
+        numberDart(1, DartMultiplier.Miss),
+      ],
+      BigNumbersRequiredHits.Zero,
+    )
+
+    expect(finish).toMatchObject({
+      targetIndexAfter: 20,
+      hitCount: 0,
+      advanced: true,
+      checkout: true,
+    })
+  })
+
   it('counts hits for the visit', () => {
     expect(
       countBigNumbersTargetHits(

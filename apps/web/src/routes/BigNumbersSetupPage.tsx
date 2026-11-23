@@ -14,6 +14,7 @@ import {
 } from '@open-dart/game/bigNumbers/bigNumbersConfig'
 
 const REQUIRED_HITS_OPTIONS = [
+  BigNumbersRequiredHits.Zero,
   BigNumbersRequiredHits.One,
   BigNumbersRequiredHits.Two,
   BigNumbersRequiredHits.Three,
@@ -70,7 +71,7 @@ export const BigNumbersSetupPage = () => {
         />
 
         <SetupSection title="Hits to advance">
-          <SimpleGrid columns={3} gap={2}>
+          <SimpleGrid columns={{ base: 2, sm: 4 }} gap={2}>
             {REQUIRED_HITS_OPTIONS.map((option) => (
               <HitsButton
                 key={option}

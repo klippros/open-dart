@@ -10,8 +10,10 @@ import {
   isNinetyNineDartsPracticeStats,
   computePracticeStats,
 } from './practiceStats.ts'
+import { getBigNumbersAvgHitsPerVisit } from './bigNumbersVisitStats.ts'
 import { computeJdcChallengeSingleSessionStats } from './jdcChallengeVisitStats.ts'
 import {
+  filterBigNumbersSessions,
   filterFiveOhOneSessions,
   filterJdcChallengeSessions,
   filterNinetyNineDartsSessions,
@@ -24,7 +26,7 @@ import {
   legFinishedWithCheckout,
 } from './x01LegSlices.ts'
 import { computeX01Stats } from './x01Stats.ts'
-import { countTotalDartsThrown, countThrown180 } from './visitStats.ts'
+import { countTotalDartsThrown, countThrown180, getPrimaryPlayerVisits } from './visitStats.ts'
 import { NinetyNineDartsStatGroup } from './ninetyNineVisitStats.ts'
 
 export const PROFILE_STATS_VERSION = 1
@@ -91,6 +93,12 @@ export interface ProfileJdcChallengeStats {
   badge: ProfileJdcChallengeBadge | null
 }
 
+export interface ProfileBigNumbersStats {
+  window: ProfileStatWindow
+  sessionsPlayed: number
+  avgHitsPerVisit: number | null
+}
+
 export interface PlayerProfileStats {
   version: typeof PROFILE_STATS_VERSION
   displayName: string
@@ -98,6 +106,7 @@ export interface PlayerProfileStats {
   bob27: ProfileBob27Stats | null
   ninetyNineDarts: ProfileNinetyNineDartsStats | null
   aroundTheClock: ProfileAroundTheClockStats | null
+  bigNumbers: ProfileBigNumbersStats | null
   jdcChallenge: ProfileJdcChallengeStats | null
 }
 
@@ -399,6 +408,28 @@ const buildJdcChallengeBadge = (
   }
 }
 
+const buildBigNumbersStats = (practiceSessions: GameSession[]): ProfileBigNumbersStats | null => {
+  const modeSessions = filterBigNumbersSessions(practiceSessions).filter(isCompleted)
+  const anchor = latestCompletedAt(modeSessions)
+  if (anchor === null) {
+    return null
+  }
+
+  const window = windowFromAnchor(anchor)
+  const windowSessions = sessionsInWindow(modeSessions, window)
+  if (windowSessions.length === 0) {
+    return null
+  }
+
+  const allVisits = windowSessions.flatMap((session) => getPrimaryPlayerVisits(session))
+
+  return {
+    window,
+    sessionsPlayed: windowSessions.length,
+    avgHitsPerVisit: getBigNumbersAvgHitsPerVisit(allVisits),
+  }
+}
+
 const buildJdcChallengeStats = (
   practiceSessions: GameSession[],
 ): ProfileJdcChallengeStats | null => {
@@ -439,6 +470,7 @@ export const buildProfileStats = (input: BuildProfileStatsInput): PlayerProfileS
     bob27: buildBob27Stats(practice),
     ninetyNineDarts: buildNinetyNineDartsStats(practice),
     aroundTheClock: buildAroundTheClockStats(practice),
+    bigNumbers: buildBigNumbersStats(practice),
     jdcChallenge: buildJdcChallengeStats(practice),
   }
 }

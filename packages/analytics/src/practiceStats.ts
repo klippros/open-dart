@@ -190,6 +190,7 @@ const NINETY_NINE_DARTS_STAT_GROUPS = [
 ] as const
 
 const BIG_NUMBERS_REQUIRED_HITS = [
+  BigNumbersRequiredHits.Zero,
   BigNumbersRequiredHits.One,
   BigNumbersRequiredHits.Two,
   BigNumbersRequiredHits.Three,

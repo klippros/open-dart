@@ -11,12 +11,14 @@ export const getBigNumbersConfig = (config: BigNumbersConfig): BigNumbersConfig 
 })
 
 const REQUIRED_HITS_PARAMS: Record<BigNumbersRequiredHits, string> = {
+  [BigNumbersRequiredHits.Zero]: '0',
   [BigNumbersRequiredHits.One]: '1',
   [BigNumbersRequiredHits.Two]: '2',
   [BigNumbersRequiredHits.Three]: '3',
 }
 
 const REQUIRED_HITS_LABELS: Record<BigNumbersRequiredHits, string> = {
+  [BigNumbersRequiredHits.Zero]: '0 hits',
   [BigNumbersRequiredHits.One]: '1 hit',
   [BigNumbersRequiredHits.Two]: '2 hits',
   [BigNumbersRequiredHits.Three]: '3 hits',
@@ -65,6 +67,10 @@ export const parseBigNumbersConfigFromSearchParams = (
 export const getBigNumbersRequiredHitsDescription = (
   requiredHits: BigNumbersRequiredHits,
 ): string => {
+  if (requiredHits === BigNumbersRequiredHits.Zero) {
+    return 'Every visit advances, even with no hits'
+  }
+
   const count = requiredHitsToNumber(requiredHits)
 
   return `Hit ${count} dart${count === 1 ? '' : 's'} into the number to advance; miss and go back`

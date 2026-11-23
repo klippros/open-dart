@@ -22,6 +22,7 @@ import { decorateOnlineSessionForViewer } from '../lib/matchServer/onlinePlay'
 import type { OnlineMatchHistoryRow, OnlineMatchSummary } from '../lib/matchServer/types'
 import {
   buildAroundTheClockRows,
+  buildBigNumbersRows,
   buildBob27Rows,
   buildFiveOhOneRows,
   buildJdcChallengeRows,
@@ -342,6 +343,13 @@ export const PlayerProfilePage = () => {
                   title="Around the Clock"
                   windowLabel={formatProfileWindowLabel(stats.aroundTheClock.window)}
                   rows={buildAroundTheClockRows(stats.aroundTheClock)}
+                />
+              ) : null}
+              {stats.bigNumbers !== null ? (
+                <ProfileStatSection
+                  title="Big Numbers"
+                  windowLabel={formatProfileWindowLabel(stats.bigNumbers.window)}
+                  rows={buildBigNumbersRows(stats.bigNumbers)}
                 />
               ) : null}
               {stats.jdcChallenge !== null ? (

@@ -86,10 +86,15 @@ export const buildBigNumbersScoreMetrics = (stats: {
   requiredHits: number
   visitCount: number
   stepBackCount: number
+  avgHitsPerVisit: number | null
 }): ScoreMetric[] => [
   {
     label: 'Required',
     value: String(stats.requiredHits),
+  },
+  {
+    label: 'Hits/visit',
+    value: stats.avgHitsPerVisit === null ? '—' : stats.avgHitsPerVisit.toFixed(1),
   },
   {
     label: 'Visits',
