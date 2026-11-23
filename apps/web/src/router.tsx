@@ -10,6 +10,7 @@ import { AuthCallbackPage } from './routes/AuthCallbackPage'
 import { GamePage } from './routes/GamePage'
 import { HistoryPage } from './routes/HistoryPage'
 import { HomePage } from './routes/HomePage'
+import { ImpressumPage } from './routes/ImpressumPage'
 import { MatchSetupPage } from './routes/MatchSetupPage'
 import { NinetyNineDartsSetupPage } from './routes/NinetyNineDartsSetupPage'
 import { OnlineMatchJoinPage } from './routes/OnlineMatchJoinPage'
@@ -42,6 +43,7 @@ export const router = createBrowserRouter(
         { path: 'players/:userId', element: <PlayerProfilePage /> },
         { path: 'stats', element: <StatsPage /> },
         { path: 'about', element: <AboutPage /> },
+        { path: 'impressum', element: <ImpressumPage /> },
       ],
     },
   ],
