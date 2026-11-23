@@ -7,6 +7,8 @@ export const BIG_NUMBERS_MAX_DARTS_PER_VISIT = 3
 
 export const requiredHitsToNumber = (requiredHits: BigNumbersRequiredHits): number => {
   switch (requiredHits) {
+    case BigNumbersRequiredHits.Zero:
+      return 0
     case BigNumbersRequiredHits.One:
       return 1
     case BigNumbersRequiredHits.Two:
