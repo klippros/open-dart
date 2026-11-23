@@ -52,20 +52,6 @@ const jsonResponse = (
 const absoluteWindowStart = (now: Date): string =>
   new Date(now.getTime() - ACTIVE_DAYS_MS).toISOString()
 
-const calendarMonthStartIso = (at: Date): string =>
-  new Date(Date.UTC(at.getUTCFullYear(), at.getUTCMonth(), 1)).toISOString()
-
-/** Earliest cutoff needed for a mode (30d, or month start for JDC badge). */
-const practiceCutoffForMode = (mode: (typeof PRACTICE_MODES)[number], now: Date): string => {
-  const windowStart = absoluteWindowStart(now)
-  if (mode !== GameModeId.JdcChallenge) {
-    return windowStart
-  }
-
-  const monthStart = calendarMonthStartIso(now)
-  return monthStart < windowStart ? monthStart : windowStart
-}
-
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get('Origin')
 
@@ -189,14 +175,13 @@ Deno.serve(async (req: Request) => {
 
     const practiceSessions: GameSession[] = []
     for (const mode of PRACTICE_MODES) {
-      const cutoff = practiceCutoffForMode(mode, now)
       const sessionsResult = await admin
         .from('game_sessions')
         .select('payload, completed_at')
         .eq('user_id', profileUserId)
         .eq('mode', mode)
         .eq('status', 'completed')
-        .gte('completed_at', cutoff)
+        .gte('completed_at', windowStart)
         .order('completed_at', { ascending: false })
 
       if (sessionsResult.error !== null) {

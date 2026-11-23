@@ -1,10 +1,10 @@
 import { Box, Portal, Text, Tooltip } from '@chakra-ui/react'
 import type { ProfileJdcChallengeBadge } from '@open-dart/analytics'
-import { getJdcChallengeGradeLabel } from '@open-dart/game/jdcChallenge/jdcChallengeRules'
 import {
-  jdcChallengeGradeColor,
-  jdcChallengeGradeTextColor,
-} from '../../lib/jdcChallenge/jdcChallengeGradeColors'
+  getJdcChallengeGradeBand,
+  getJdcChallengeGradeLabel,
+} from '@open-dart/game/jdcChallenge/jdcChallengeRules'
+import { jdcChallengeGradeColor } from '../../lib/jdcChallenge/jdcChallengeGradeColors'
 
 export interface ProfileJdcJerseyProps {
   badge: ProfileJdcChallengeBadge
@@ -15,9 +15,13 @@ const JERSEY_PATH =
 
 export const ProfileJdcJersey = ({ badge }: ProfileJdcJerseyProps) => {
   const fill = jdcChallengeGradeColor(badge.grade)
-  const text = jdcChallengeGradeTextColor(badge.grade)
   const gradeLabel = getJdcChallengeGradeLabel(badge.grade)
-  const description = `${gradeLabel} · ${badge.score} — JDC Challenge result this month`
+  const gradeBand = getJdcChallengeGradeBand(badge.grade)
+  const gradeRange =
+    gradeBand.maxScore === null
+      ? `${gradeBand.minScore}+`
+      : `${gradeBand.minScore}–${gradeBand.maxScore}`
+  const description = `${gradeLabel} ${gradeRange}. Score ${badge.score}. Best last 30 days`
 
   return (
     <Tooltip.Root openDelay={150} closeDelay={50}>
@@ -27,7 +31,6 @@ export const ProfileJdcJersey = ({ badge }: ProfileJdcJerseyProps) => {
           role="img"
           aria-label={description}
           tabIndex={0}
-          position="relative"
           display="inline-flex"
           alignItems="center"
           justifyContent="center"
@@ -45,29 +48,17 @@ export const ProfileJdcJersey = ({ badge }: ProfileJdcJerseyProps) => {
               strokeWidth="0.8"
             />
           </svg>
-          <Text
-            as="span"
-            position="absolute"
-            top="52%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-            fontFamily="Archivo Black, sans-serif"
-            fontSize="9px"
-            lineHeight="1"
-            color={text}
-            pointerEvents="none"
-          >
-            {badge.score}
-          </Text>
         </Box>
       </Tooltip.Trigger>
       <Portal>
         <Tooltip.Positioner>
           <Tooltip.Content bg="gray.900" color="white" px={3} py={2} borderRadius="md">
-            <Text fontWeight="semibold">{gradeLabel}</Text>
+            <Text fontWeight="semibold">
+              {gradeLabel} {gradeRange}
+            </Text>
             <Text fontSize="sm">Score {badge.score}</Text>
             <Text fontSize="xs" color="whiteAlpha.700">
-              JDC Challenge result this month
+              Best last 30 days
             </Text>
           </Tooltip.Content>
         </Tooltip.Positioner>

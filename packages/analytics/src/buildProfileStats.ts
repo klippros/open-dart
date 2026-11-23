@@ -104,7 +104,7 @@ export interface BuildProfileStatsInput {
   onlineSessions: GameSession[]
   practiceSessions: GameSession[]
   profileUserId: string
-  /** Override "now" for absolute window / badge month (tests). */
+  /** Override "now" for the absolute 30-day window and jersey badge (tests). */
   now?: Date
 }
 
@@ -282,15 +282,16 @@ const buildNinetyNineDartsStats = (
   return { groups }
 }
 
-const calendarMonthStartIso = (at: Date): string =>
-  new Date(Date.UTC(at.getUTCFullYear(), at.getUTCMonth(), 1)).toISOString()
-
 const buildJdcChallengeBadge = (
   finishedSessions: GameSession[],
   now: Date,
 ): ProfileJdcChallengeBadge | null => {
-  const monthStart = calendarMonthStartIso(now)
-  const thisMonth = finishedSessions
+  const cutoff = getDateRangeCutoff('30d', now)
+  if (cutoff === null) {
+    return null
+  }
+
+  const recent = finishedSessions
     .map((session) => {
       const stats = computeJdcChallengeSingleSessionStats(session)
       if (stats === null || !stats.completed) {
@@ -298,7 +299,7 @@ const buildJdcChallengeBadge = (
       }
 
       const completedAt = getSessionCompletedAt(session)
-      if (completedAt < monthStart) {
+      if (completedAt < cutoff) {
         return null
       }
 
@@ -309,15 +310,15 @@ const buildJdcChallengeBadge = (
     })
     .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
 
-  if (thisMonth.length === 0) {
+  if (recent.length === 0) {
     return null
   }
 
-  return thisMonth.reduce((best, entry) => (entry.score > best.score ? entry : best))
+  return recent.reduce((best, entry) => (entry.score > best.score ? entry : best))
 }
 
-/** Best finished JDC Challenge score in the current UTC calendar month. */
-export const getCurrentMonthJdcChallengeBadge = (
+/** Best finished JDC Challenge score in the last 30 days. */
+export const getRecentJdcChallengeBadge = (
   sessions: GameSession[],
   now: Date = new Date(),
 ): ProfileJdcChallengeBadge | null =>

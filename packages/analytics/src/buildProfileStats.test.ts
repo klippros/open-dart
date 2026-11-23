@@ -11,7 +11,7 @@ import { NinetyNineDartsStatGroup } from './ninetyNineVisitStats'
 import {
   PROFILE_STATS_VERSION,
   buildProfileStats,
-  getCurrentMonthJdcChallengeBadge,
+  getRecentJdcChallengeBadge,
   orientSessionForProfileUser,
 } from './buildProfileStats'
 
@@ -306,9 +306,9 @@ describe('buildProfileStats', () => {
     expect(stats).not.toHaveProperty('aroundTheClock')
   })
 
-  it('only badges the best finished JDC score in the current calendar month', () => {
-    const thisMonth = sampleSession({
-      id: 'jdc-month',
+  it('only badges the best finished JDC score in the last 30 days', () => {
+    const recent = sampleSession({
+      id: 'jdc-recent',
       mode: GameModeId.JdcChallenge,
       config: {},
       completedAt: '2026-08-10T00:00:00.000Z',
@@ -321,11 +321,11 @@ describe('buildProfileStats', () => {
         }),
       ],
     })
-    const lastMonth = sampleSession({
+    const olderThan30Days = sampleSession({
       id: 'jdc-old',
       mode: GameModeId.JdcChallenge,
       config: {},
-      completedAt: '2026-07-31T00:00:00.000Z',
+      completedAt: '2026-07-20T00:00:00.000Z',
       finishedEarly: false,
       visits: [
         sampleVisit({
@@ -340,27 +340,36 @@ describe('buildProfileStats', () => {
       displayName: 'Alex',
       profileUserId: 'user-a',
       onlineSessions: [],
-      practiceSessions: [thisMonth, lastMonth],
+      practiceSessions: [recent, olderThan30Days],
       now: NOW,
     })
 
+    const recentOnly = buildProfileStats({
+      displayName: 'Alex',
+      profileUserId: 'user-a',
+      onlineSessions: [],
+      practiceSessions: [recent],
+      now: NOW,
+    })
+
+    expect(withBadge.jdcChallenge?.badge).toEqual(recentOnly.jdcChallenge?.badge)
     expect(withBadge.jdcChallenge?.badge).not.toBeNull()
     expect(withBadge.jdcChallenge?.badge).not.toHaveProperty('bestEverGrade')
     expect(withBadge.jdcChallenge?.badge).not.toHaveProperty('isCurrentMonth')
 
-    const withoutMonthScore = buildProfileStats({
+    const withoutRecentScore = buildProfileStats({
       displayName: 'Alex',
       profileUserId: 'user-a',
       onlineSessions: [],
-      practiceSessions: [lastMonth],
+      practiceSessions: [olderThan30Days],
       now: NOW,
     })
 
-    expect(withoutMonthScore.jdcChallenge?.badge).toBeNull()
+    expect(withoutRecentScore.jdcChallenge).toBeNull()
   })
 })
 
-describe('getCurrentMonthJdcChallengeBadge', () => {
+describe('getRecentJdcChallengeBadge', () => {
   const jdcSession = (overrides: Partial<GameSession>): GameSession =>
     sampleSession({
       mode: GameModeId.JdcChallenge,
@@ -370,32 +379,42 @@ describe('getCurrentMonthJdcChallengeBadge', () => {
       ...overrides,
     })
 
-  it('ignores unfinished and previous-month games', () => {
+  it('ignores unfinished games and games older than 30 days', () => {
     expect(
-      getCurrentMonthJdcChallengeBadge(
+      getRecentJdcChallengeBadge(
         [
           jdcSession({ id: 'early', finishedEarly: true }),
-          jdcSession({ id: 'old', completedAt: '2026-07-31T23:59:59.000Z' }),
+          jdcSession({ id: 'old', completedAt: '2026-07-20T00:00:00.000Z' }),
         ],
         NOW,
       ),
     ).toBeNull()
   })
 
-  it('picks the best finished score this month', () => {
-    const badge = getCurrentMonthJdcChallengeBadge(
+  it('includes a previous calendar month when it is still inside 30 days', () => {
+    expect(
+      getRecentJdcChallengeBadge(
+        [jdcSession({ id: 'previous-month', completedAt: '2026-07-31T00:00:00.000Z' })],
+        NOW,
+      ),
+    ).not.toBeNull()
+  })
+
+  it('picks the best finished score in the last 30 days', () => {
+    const badge = getRecentJdcChallengeBadge(
       [
         jdcSession({ id: 'low' }),
         jdcSession({
           id: 'high',
           visits: [sampleVisit({ visitScore: 120, scoreBefore: 0, scoreAfter: 120 })],
         }),
+        jdcSession({ id: 'previous-month', completedAt: '2026-07-31T00:00:00.000Z' }),
         sampleSession({ id: 'x01' }),
       ],
       NOW,
     )
 
-    const lowBadge = getCurrentMonthJdcChallengeBadge([jdcSession({ id: 'low' })], NOW)
+    const lowBadge = getRecentJdcChallengeBadge([jdcSession({ id: 'low' })], NOW)
     expect(badge).not.toBeNull()
     expect(lowBadge).not.toBeNull()
     expect(badge?.score).toBeGreaterThanOrEqual(lowBadge?.score ?? 0)

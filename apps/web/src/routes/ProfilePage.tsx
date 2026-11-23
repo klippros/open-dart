@@ -1,6 +1,6 @@
 import { Box, Button, Stack } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
-import { getCurrentMonthJdcChallengeBadge } from '@open-dart/analytics'
+import { getRecentJdcChallengeBadge } from '@open-dart/analytics'
 import type { DateRangePreset } from '@open-dart/analytics/sessionFilters'
 import {
   getLegNumberFromTimelinePointId,
@@ -38,7 +38,8 @@ export const ProfilePage = () => {
     useOwnProfileSessions(dateRange)
 
   const isSignedIn = authStatus === AuthStatus.Authenticated && user !== null
-  const jersey = useMemo(() => getCurrentMonthJdcChallengeBadge(allSessions), [allSessions])
+  const canSignIn = isSignInEnabled && isConfigured
+  const jersey = useMemo(() => getRecentJdcChallengeBadge(allSessions), [allSessions])
   const displayName = profile?.displayName ?? 'Player'
 
   const activeTimeline = useMemo(
@@ -67,7 +68,7 @@ export const ProfilePage = () => {
         setDisplayNameDialogOpen(true)
       }}
     />
-  ) : isSignInEnabled && isConfigured && authStatus === AuthStatus.Anonymous ? (
+  ) : canSignIn && authStatus === AuthStatus.Anonymous ? (
     <Button
       variant="cta"
       onClick={() => {
@@ -76,7 +77,9 @@ export const ProfilePage = () => {
     >
       Sign in to sync
     </Button>
-  ) : null
+  ) : canSignIn ? null : (
+    <ProfileDisplayName name="Stats" />
+  )
 
   return (
     <ContentContainer>
