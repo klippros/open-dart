@@ -91,6 +91,7 @@ export const buildOwnProfileStatsModel = (
         group,
         sessionCount: stats.gameCount,
         avgScore: stats.avgFinalScore,
+        bestScore: stats.bestFinalScore,
         hitRate: stats.hitRate,
         avgSingles: stats.avgSinglesPerGame,
         avgDoubles: stats.avgDoublesPerGame,

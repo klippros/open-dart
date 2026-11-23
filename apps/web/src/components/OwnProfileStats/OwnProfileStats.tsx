@@ -42,7 +42,11 @@ const renderSection = (
       return <JdcChallengeProfileSection stats={model.jdcChallenge} onStatSelect={onStatSelect} />
     case ProfileSectionId.NinetyNineDarts:
       return (
-        <NinetyNineDartsProfileSection groups={model.ninetyNineDarts} onStatSelect={onStatSelect} />
+        <NinetyNineDartsProfileSection
+          groups={model.ninetyNineDarts}
+          selectable
+          onStatSelect={onStatSelect}
+        />
       )
     case ProfileSectionId.BigNumbers:
       return (

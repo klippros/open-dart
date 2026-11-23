@@ -56,6 +56,7 @@ export interface ProfileNinetyNineDartsGroupStats {
   group: NinetyNineDartsStatGroup
   sessionsPlayed: number
   avgFinalScore: number | null
+  bestFinalScore: number | null
   hitRate: number | null
   avgTreblesPerGame: number | null
   avgSinglesPerGame: number | null
@@ -267,6 +268,7 @@ const buildNinetyNineDartsStats = (
         group,
         sessionsPlayed: practice.gameCount,
         avgFinalScore: practice.avgFinalScore,
+        bestFinalScore: practice.bestFinalScore,
         hitRate: practice.hitRate,
         avgTreblesPerGame: practice.avgTreblesPerGame,
         avgSinglesPerGame: practice.avgSinglesPerGame,

@@ -221,6 +221,7 @@ export interface NinetyNineDartsGroupInput {
   group: NinetyNineDartsStatGroup
   sessionCount: number
   avgScore: number | null
+  bestScore: number | null
   hitRate: number | null
   avgSingles: number | null
   avgDoubles: number | null
@@ -239,6 +240,7 @@ export const emptyNinetyNineDartsGroup = (
   group,
   sessionCount: 0,
   avgScore: null,
+  bestScore: null,
   hitRate: null,
   avgSingles: null,
   avgDoubles: null,
@@ -263,22 +265,36 @@ export const getNinetyNineDartsGroupLabel = (group: NinetyNineDartsStatGroup): s
   }
 }
 
-/** Summary cards are 20-target games only. */
+const ninetyNineTreblesCard = (
+  input: NinetyNineDartsGroupInput,
+  context: ProfileTimelineContext,
+): ProfileStatCardModel | null => {
+  if (input.group === NinetyNineDartsStatGroup.Bull) {
+    return null
+  }
+
+  return card('trebles', 'Trebles', formatPerGame(input.avgTrebles), {
+    timeline: selection(context, 'avgTreblesPerGame', 'Trebles / game'),
+  })
+}
+
 export const buildNinetyNineDartsSummaryCards = (
-  twenty: NinetyNineDartsGroupInput,
+  input: NinetyNineDartsGroupInput,
 ): ProfileStatCardModel[] => {
-  const context = ninetyNineContext(NinetyNineDartsStatGroup.Twenty)
+  const context = ninetyNineContext(input.group)
+  const trebles = ninetyNineTreblesCard(input, context)
 
   return [
-    card('sessions', 'Sessions', formatSessions(twenty.sessionCount)),
-    card('score', 'Score', formatInteger(twenty.avgScore), {
+    card('sessions', 'Sessions', formatSessions(input.sessionCount)),
+    card('score', 'Score', formatInteger(input.avgScore), {
       timeline: selection(context, 'avgFinalScore', 'Score'),
     }),
-    card('hit-rate', 'Hit Rate', formatRate(twenty.hitRate), {
+    card('hit-rate', 'Hit Rate', formatRate(input.hitRate), {
       timeline: selection(context, 'hitRate', 'Hit rate'),
     }),
-    card('trebles', 'Trebles', formatPerGame(twenty.avgTrebles), {
-      timeline: selection(context, 'avgTreblesPerGame', 'Trebles / game'),
+    ...(trebles === null ? [] : [trebles]),
+    card('high-score', 'High Score', formatInteger(input.bestScore), {
+      timeline: selection(context, 'bestFinalScore', 'Score'),
     }),
   ]
 }
@@ -287,7 +303,6 @@ export const buildNinetyNineDartsHitCards = (
   input: NinetyNineDartsGroupInput,
 ): ProfileStatCardModel[] => {
   const context = ninetyNineContext(input.group)
-  const isBull = input.group === NinetyNineDartsStatGroup.Bull
 
   return [
     card('singles', 'Singles', formatPerGame(input.avgSingles), {
@@ -295,9 +310,6 @@ export const buildNinetyNineDartsHitCards = (
     }),
     card('doubles', 'Doubles', formatPerGame(input.avgDoubles), {
       timeline: selection(context, 'avgDoublesPerGame', 'Doubles / game'),
-    }),
-    card('trebles', 'Trebles', isBull ? '—' : formatPerGame(input.avgTrebles), {
-      timeline: isBull ? null : selection(context, 'avgTreblesPerGame', 'Trebles / game'),
     }),
   ]
 }

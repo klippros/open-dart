@@ -57,6 +57,7 @@ describe('buildPublicProfileStatsModel', () => {
             group: NinetyNineDartsStatGroup.Bull,
             sessionsPlayed: 2,
             avgFinalScore: 40,
+            bestFinalScore: 80,
             hitRate: 20,
             avgTreblesPerGame: null,
             avgSinglesPerGame: 5,

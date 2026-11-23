@@ -54,6 +54,7 @@ export const buildPublicProfileStatsModel = (
         group,
         sessionCount: groupStats.sessionsPlayed,
         avgScore: groupStats.avgFinalScore,
+        bestScore: groupStats.bestFinalScore,
         hitRate: groupStats.hitRate,
         avgSingles: groupStats.avgSinglesPerGame,
         avgDoubles: groupStats.avgDoublesPerGame,

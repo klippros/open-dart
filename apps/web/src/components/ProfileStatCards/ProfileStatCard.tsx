@@ -35,6 +35,8 @@ export const ProfileStatCard = ({ card, empty = false, onStatSelect }: ProfileSt
 
   return (
     <Box
+      flex="1"
+      w="full"
       borderWidth="1px"
       borderColor="whiteAlpha.200"
       borderRadius="lg"

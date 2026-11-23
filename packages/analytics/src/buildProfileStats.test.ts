@@ -300,6 +300,7 @@ describe('buildProfileStats', () => {
     )
     expect(twenty?.sessionsPlayed).toBe(1)
     expect(twenty?.avgFinalScore).toBe(9)
+    expect(twenty?.bestFinalScore).toBe(9)
     expect(twenty?.avgTreblesPerGame).toBe(3)
     expect(bull?.sessionsPlayed).toBe(1)
     expect(stats.bob27?.sessionsPlayed).toBe(1)

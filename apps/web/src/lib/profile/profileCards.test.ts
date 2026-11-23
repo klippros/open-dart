@@ -80,7 +80,7 @@ describe('profileCards', () => {
     ])
   })
 
-  it('uses trebles copy for 99 Darts and blanks trebles on bull', () => {
+  it('uses trebles copy for 99 Darts and omits trebles on bull', () => {
     const twenty = {
       ...emptyNinetyNineDartsGroup(NinetyNineDartsStatGroup.Twenty),
       sessionCount: 2,
@@ -91,15 +91,27 @@ describe('profileCards', () => {
       'Score',
       'Hit Rate',
       'Trebles',
+      'High Score',
     ])
+    expect(labels(buildNinetyNineDartsHitCards(twenty))).toEqual(['Singles', 'Doubles'])
 
-    const bull = buildNinetyNineDartsHitCards({
+    const bull = {
       ...emptyNinetyNineDartsGroup(NinetyNineDartsStatGroup.Bull),
+      avgScore: 110,
+      bestScore: 110,
       avgTrebles: 3,
+    }
+    expect(labels(buildNinetyNineDartsSummaryCards(bull))).toEqual([
+      'Sessions',
+      'Score',
+      'Hit Rate',
+      'High Score',
+    ])
+    expect(buildNinetyNineDartsSummaryCards(bull)[1]?.timeline?.scope).toEqual({
+      type: 'practice-99-darts',
+      group: NinetyNineDartsStatGroup.Bull,
     })
-    expect(labels(bull)).toEqual(['Singles', 'Doubles', 'Trebles'])
-    expect(bull[2]?.value).toBe('—')
-    expect(bull[2]?.timeline).toBeNull()
+    expect(labels(buildNinetyNineDartsHitCards(bull))).toEqual(['Singles', 'Doubles'])
   })
 
   it('pools Big Numbers and keeps Hunter labels', () => {

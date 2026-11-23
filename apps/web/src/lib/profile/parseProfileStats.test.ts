@@ -29,6 +29,7 @@ describe('parsePlayerProfileStats', () => {
             group: NinetyNineDartsStatGroup.Twenty,
             sessionsPlayed: 1,
             avgFinalScore: 90,
+            bestFinalScore: 120,
             hitRate: 50,
             avgTreblesPerGame: 10,
             avgSinglesPerGame: 5,
@@ -60,6 +61,7 @@ describe('parsePlayerProfileStats', () => {
     expect(parsed?.version).toBe(2)
     expect(parsed?.fiveOhOne?.bestLegAverage).toBe(100)
     expect(parsed?.ninetyNineDarts?.groups[0]?.sessionsPlayed).toBe(1)
+    expect(parsed?.ninetyNineDarts?.groups[0]?.bestFinalScore).toBe(120)
     expect(parsed?.jdcChallenge?.badge).toEqual({
       score: 90,
       grade: JdcChallengeGrade.Blue,

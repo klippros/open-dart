@@ -76,6 +76,7 @@ const readNinetyNineGroup = (value: unknown): ProfileNinetyNineDartsGroupStats |
     group: value.group,
     sessionsPlayed: value.sessionsPlayed,
     avgFinalScore: readNumber(value.avgFinalScore),
+    bestFinalScore: readNumber(value.bestFinalScore),
     hitRate: readNumber(value.hitRate),
     avgTreblesPerGame: readNumber(value.avgTreblesPerGame),
     avgSinglesPerGame: readNumber(value.avgSinglesPerGame),
