@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { App } from './App'
 import { AboutPage } from './routes/AboutPage'
 import { AroundTheClockSetupPage } from './routes/AroundTheClockSetupPage'
@@ -8,7 +8,6 @@ import { BullRunSetupPage } from './routes/BullRunSetupPage'
 import { HunterSetupPage } from './routes/HunterSetupPage'
 import { AuthCallbackPage } from './routes/AuthCallbackPage'
 import { GamePage } from './routes/GamePage'
-import { HistoryPage } from './routes/HistoryPage'
 import { HomePage } from './routes/HomePage'
 import { ImpressumPage } from './routes/ImpressumPage'
 import { MatchSetupPage } from './routes/MatchSetupPage'
@@ -17,8 +16,9 @@ import { OnlineMatchJoinPage } from './routes/OnlineMatchJoinPage'
 import { OnlineMatchNewPage } from './routes/OnlineMatchNewPage'
 import { OnlineMatchPage } from './routes/OnlineMatchPage'
 import { PlayerProfilePage } from './routes/PlayerProfilePage'
-import { StatsPage } from './routes/StatsPage'
+import { ProfilePage } from './routes/ProfilePage'
 import { X01SetupPage } from './routes/X01SetupPage'
+import { LEGACY_PROFILE_PATHS, OWN_PROFILE_PATH } from './lib/profile/profileRoutes'
 
 export const router = createBrowserRouter(
   [
@@ -39,9 +39,12 @@ export const router = createBrowserRouter(
         { path: 'match/join/:token', element: <OnlineMatchJoinPage /> },
         { path: 'match/:id', element: <OnlineMatchPage /> },
         { path: 'auth/callback', element: <AuthCallbackPage /> },
-        { path: 'history', element: <HistoryPage /> },
+        { path: OWN_PROFILE_PATH, element: <ProfilePage /> },
+        ...LEGACY_PROFILE_PATHS.map((path) => ({
+          path,
+          element: <Navigate to={OWN_PROFILE_PATH} replace />,
+        })),
         { path: 'players/:userId', element: <PlayerProfilePage /> },
-        { path: 'stats', element: <StatsPage /> },
         { path: 'about', element: <AboutPage /> },
         { path: 'impressum', element: <ImpressumPage /> },
       ],

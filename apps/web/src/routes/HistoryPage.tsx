@@ -34,7 +34,12 @@ import { AuthStatus, SyncStatus } from '../types/auth'
 import type { GameSession } from '@open-dart/game/types/gameSession'
 import { resolveHumanPlayerName } from '@open-dart/game/game/playerFactory'
 
-export const HistoryPage = () => {
+export interface HistoryPageProps {
+  /** Render inside the profile page without the page heading. */
+  embedded?: boolean
+}
+
+export const HistoryPage = ({ embedded = false }: HistoryPageProps) => {
   const { user, profile, authStatus, syncStatus, isConfigured, signOut, clearSyncedSessions } =
     useAuth()
   const [signInDialogOpen, setSignInDialogOpen] = useState(false)
@@ -298,135 +303,142 @@ export const HistoryPage = () => {
   const syncLabel = getSyncStatusLabel(syncStatus)
   const hasMore = page.hasMore || onlineHasMore
 
-  return (
-    <ContentContainer>
-      <Box py={{ base: 6, md: 10 }} pb={10} maxW="720px" w="full" mx="auto">
-        <Stack gap={8}>
-          <Stack gap={3}>
-            <Heading as="h1" size="2xl" color="white" fontFamily="Archivo Black, sans-serif">
-              History
-            </Heading>
-            <Text color="whiteAlpha.800" fontSize="md" lineHeight="1.65">
-              Completed games are saved locally.
-              {isSignInEnabled
-                ? ' Sign in optionally to back them up and use your History and Stats across devices.'
-                : ''}
-              {isOnlineMatchesEnabled
-                ? ' Online matches appear here for both players under the same match id.'
-                : ''}
-            </Text>
-          </Stack>
-
-          {!isSignedIn ? (
-            <Box
-              borderWidth="1px"
-              borderColor="whiteAlpha.200"
-              borderRadius="lg"
-              bg="whiteAlpha.50"
-              px={5}
-              py={5}
-            >
-              <Stack gap={3} direction={{ base: 'column', sm: 'row' }} align={{ sm: 'center' }}>
-                <Stack gap={1} flex="1">
-                  <Text fontWeight="semibold" color="white">
-                    Playing anonymously
-                  </Text>
-                  <Text fontSize="sm" color="whiteAlpha.700">
-                    Your completed games are stored locally in the browser.
-                  </Text>
-                </Stack>
-                <Stack direction={{ base: 'column', sm: 'row' }} gap={2} flexShrink={0}>
-                  {hasSavedGames && (
-                    <Button
-                      variant="destructive"
-                      flexShrink={0}
-                      onClick={() => {
-                        setResetDialogOpen(true)
-                      }}
-                    >
-                      Reset history and stats
-                    </Button>
-                  )}
-                  {isSignInEnabled && isConfigured && (
-                    <Button
-                      variant="cta"
-                      flexShrink={0}
-                      onClick={() => {
-                        setSignInDialogOpen(true)
-                      }}
-                    >
-                      Sign in to sync
-                    </Button>
-                  )}
-                </Stack>
-              </Stack>
-            </Box>
-          ) : (
-            <Box
-              borderWidth="1px"
-              borderColor="whiteAlpha.200"
-              borderRadius="lg"
-              bg="whiteAlpha.50"
-              px={5}
-              py={4}
-            >
-              <Stack gap={3} direction={{ base: 'column', sm: 'row' }} align={{ sm: 'center' }}>
-                <Stack gap={1} flex="1">
-                  <Text
-                    asChild
-                    fontWeight="semibold"
-                    color="white"
-                    textDecoration="underline"
-                    textUnderlineOffset="3px"
-                  >
-                    <RouterLink to={`/players/${user.id}`}>
-                      {profile?.displayName ?? user.email ?? 'Signed in'}
-                    </RouterLink>
-                  </Text>
-                  <Text fontSize="sm" color="whiteAlpha.700">
-                    {syncLabel}
-                  </Text>
-                </Stack>
-                <Stack direction={{ base: 'column', sm: 'row' }} gap={2} flexShrink={0}>
-                  {hasSavedGames && (
-                    <Button
-                      variant="destructive"
-                      flexShrink={0}
-                      onClick={() => {
-                        setResetDialogOpen(true)
-                      }}
-                    >
-                      Reset history and stats
-                    </Button>
-                  )}
-                  <Button
-                    variant="cancel"
-                    flexShrink={0}
-                    onClick={() => {
-                      void signOut()
-                    }}
-                  >
-                    Sign out
-                  </Button>
-                </Stack>
-              </Stack>
-            </Box>
-          )}
-
-          <HistoryList
-            entries={page.entries}
-            hasMore={hasMore}
-            onLoadMore={() => {
-              void handleLoadMore()
-            }}
-            onSelectSession={handleSelectSession}
-            onSelectOnlineMatch={(match) => {
-              void handleSelectOnlineMatch(match)
-            }}
-            onDeleteSession={handleRequestDeleteSession}
-          />
+  const body = (
+    <Stack gap={embedded ? 4 : 8}>
+      {embedded ? (
+        <Heading as="h2" size="xl" color="white" fontFamily="Archivo Black, sans-serif">
+          History
+        </Heading>
+      ) : (
+        <Stack gap={3}>
+          <Heading as="h1" size="2xl" color="white" fontFamily="Archivo Black, sans-serif">
+            History
+          </Heading>
+          <Text color="whiteAlpha.800" fontSize="md" lineHeight="1.65">
+            Completed games are saved locally.
+            {isSignInEnabled
+              ? ' Sign in optionally to back them up and use your History and Stats across devices.'
+              : ''}
+            {isOnlineMatchesEnabled
+              ? ' Online matches appear here for both players under the same match id.'
+              : ''}
+          </Text>
         </Stack>
-      </Box>
+      )}
+
+      {!isSignedIn ? (
+        <Box
+          borderWidth="1px"
+          borderColor="whiteAlpha.200"
+          borderRadius="lg"
+          bg="whiteAlpha.50"
+          px={5}
+          py={5}
+        >
+          <Stack gap={3} direction={{ base: 'column', sm: 'row' }} align={{ sm: 'center' }}>
+            <Stack gap={1} flex="1">
+              <Text fontWeight="semibold" color="white">
+                Playing anonymously
+              </Text>
+              <Text fontSize="sm" color="whiteAlpha.700">
+                Your completed games are stored locally in the browser.
+              </Text>
+            </Stack>
+            <Stack direction={{ base: 'column', sm: 'row' }} gap={2} flexShrink={0}>
+              {hasSavedGames && (
+                <Button
+                  variant="destructive"
+                  flexShrink={0}
+                  onClick={() => {
+                    setResetDialogOpen(true)
+                  }}
+                >
+                  Reset history and stats
+                </Button>
+              )}
+              {isSignInEnabled && isConfigured && (
+                <Button
+                  variant="cta"
+                  flexShrink={0}
+                  onClick={() => {
+                    setSignInDialogOpen(true)
+                  }}
+                >
+                  Sign in to sync
+                </Button>
+              )}
+            </Stack>
+          </Stack>
+        </Box>
+      ) : (
+        <Box
+          borderWidth="1px"
+          borderColor="whiteAlpha.200"
+          borderRadius="lg"
+          bg="whiteAlpha.50"
+          px={5}
+          py={4}
+        >
+          <Stack gap={3} direction={{ base: 'column', sm: 'row' }} align={{ sm: 'center' }}>
+            <Stack gap={1} flex="1">
+              <Text
+                asChild
+                fontWeight="semibold"
+                color="white"
+                textDecoration="underline"
+                textUnderlineOffset="3px"
+              >
+                <RouterLink to={`/players/${user.id}`}>
+                  {profile?.displayName ?? user.email ?? 'Signed in'}
+                </RouterLink>
+              </Text>
+              <Text fontSize="sm" color="whiteAlpha.700">
+                {syncLabel}
+              </Text>
+            </Stack>
+            <Stack direction={{ base: 'column', sm: 'row' }} gap={2} flexShrink={0}>
+              {hasSavedGames && (
+                <Button
+                  variant="destructive"
+                  flexShrink={0}
+                  onClick={() => {
+                    setResetDialogOpen(true)
+                  }}
+                >
+                  Reset history and stats
+                </Button>
+              )}
+              <Button
+                variant="cancel"
+                flexShrink={0}
+                onClick={() => {
+                  void signOut()
+                }}
+              >
+                Sign out
+              </Button>
+            </Stack>
+          </Stack>
+        </Box>
+      )}
+
+      <HistoryList
+        entries={page.entries}
+        hasMore={hasMore}
+        onLoadMore={() => {
+          void handleLoadMore()
+        }}
+        onSelectSession={handleSelectSession}
+        onSelectOnlineMatch={(match) => {
+          void handleSelectOnlineMatch(match)
+        }}
+        onDeleteSession={handleRequestDeleteSession}
+      />
+    </Stack>
+  )
+
+  const dialogs = (
+    <>
       <SessionSummaryDialog
         open={selectedSession !== null}
         session={selectedSession}
@@ -464,6 +476,24 @@ export const HistoryPage = () => {
         isSignedIn={isSignedIn}
       />
       <SignInDialog open={signInDialogOpen} onOpenChange={setSignInDialogOpen} />
+    </>
+  )
+
+  if (embedded) {
+    return (
+      <>
+        {body}
+        {dialogs}
+      </>
+    )
+  }
+
+  return (
+    <ContentContainer>
+      <Box py={{ base: 6, md: 10 }} pb={10} maxW="720px" w="full" mx="auto">
+        {body}
+      </Box>
+      {dialogs}
     </ContentContainer>
   )
 }

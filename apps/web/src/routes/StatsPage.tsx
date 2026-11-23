@@ -51,9 +51,16 @@ const filterSelectStyle = {
 const isDateRangePreset = (value: string): value is DateRangePreset =>
   value === 'all' || value === '7d' || value === '30d'
 
-export const StatsPage = () => {
+export interface StatsPageProps {
+  /** When set, the page renders without its own heading and date control. */
+  dateRange?: DateRangePreset
+}
+
+export const StatsPage = ({ dateRange: controlledDateRange }: StatsPageProps) => {
   const { authStatus, syncStatus, user, profile } = useAuth()
-  const [dateRange, setDateRange] = useState<DateRangePreset>('30d')
+  const [localDateRange, setLocalDateRange] = useState<DateRangePreset>('30d')
+  const dateRange = controlledDateRange ?? localDateRange
+  const isEmbedded = controlledDateRange !== undefined
   const [timelineSelection, setTimelineSelection] = useState<StatTimelineSelection | null>(null)
   const [selectedSession, setSelectedSession] = useState<GameSession | null>(null)
   const [selectedLegNumber, setSelectedLegNumber] = useState<number | null>(null)
@@ -215,6 +222,49 @@ export const StatsPage = () => {
     analytics.practice.checkout.length > 0 ||
     analytics.practice.other.length > 0
 
+  const statsContent = hasAnyData ? (
+    <>
+      <TotalDartsHero sessions={filteredSessions} />
+      <X01LegSection sessions={filteredSessions} onStatSelect={handleStatSelect} />
+      <PracticeSection
+        checkout={analytics.practice.checkout}
+        other={analytics.practice.other}
+        onStatSelect={handleStatSelect}
+      />
+    </>
+  ) : (
+    <EmptySection message="No saved games in this period yet. Finish a game and save it to history to see stats here." />
+  )
+
+  const dialogs = (
+    <>
+      <StatTimelineDialog
+        open={timelineSelection !== null}
+        timeline={activeTimeline}
+        onClose={handleTimelineClose}
+        onPointClick={handleTimelinePointClick}
+      />
+      <SessionSummaryDialog
+        open={selectedSession !== null}
+        session={selectedSession}
+        initialLegNumber={selectedLegNumber}
+        onClose={() => {
+          setSelectedSession(null)
+          setSelectedLegNumber(null)
+        }}
+      />
+    </>
+  )
+
+  if (isEmbedded) {
+    return (
+      <Stack gap={8}>
+        {statsContent}
+        {dialogs}
+      </Stack>
+    )
+  }
+
   return (
     <ContentContainer>
       <Box py={{ base: 6, md: 10 }} pb={10} maxW="720px" w="full" mx="auto">
@@ -241,7 +291,7 @@ export const StatsPage = () => {
                 const { value } = event.target
 
                 if (isDateRangePreset(value)) {
-                  setDateRange(value)
+                  setLocalDateRange(value)
                 }
               }}
             >
@@ -253,36 +303,10 @@ export const StatsPage = () => {
             </select>
           </Stack>
 
-          {hasAnyData ? (
-            <>
-              <TotalDartsHero sessions={filteredSessions} />
-              <X01LegSection sessions={filteredSessions} onStatSelect={handleStatSelect} />
-              <PracticeSection
-                checkout={analytics.practice.checkout}
-                other={analytics.practice.other}
-                onStatSelect={handleStatSelect}
-              />
-            </>
-          ) : (
-            <EmptySection message="No saved games in this period yet. Finish a game and save it to history to see stats here." />
-          )}
+          {statsContent}
         </Stack>
       </Box>
-      <StatTimelineDialog
-        open={timelineSelection !== null}
-        timeline={activeTimeline}
-        onClose={handleTimelineClose}
-        onPointClick={handleTimelinePointClick}
-      />
-      <SessionSummaryDialog
-        open={selectedSession !== null}
-        session={selectedSession}
-        initialLegNumber={selectedLegNumber}
-        onClose={() => {
-          setSelectedSession(null)
-          setSelectedLegNumber(null)
-        }}
-      />
+      {dialogs}
     </ContentContainer>
   )
 }

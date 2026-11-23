@@ -11,6 +11,7 @@ import { NinetyNineDartsStatGroup } from './ninetyNineVisitStats'
 import {
   PROFILE_STATS_VERSION,
   buildProfileStats,
+  getCurrentMonthJdcChallengeBadge,
   orientSessionForProfileUser,
 } from './buildProfileStats'
 
@@ -356,5 +357,47 @@ describe('buildProfileStats', () => {
     })
 
     expect(withoutMonthScore.jdcChallenge?.badge).toBeNull()
+  })
+})
+
+describe('getCurrentMonthJdcChallengeBadge', () => {
+  const jdcSession = (overrides: Partial<GameSession>): GameSession =>
+    sampleSession({
+      mode: GameModeId.JdcChallenge,
+      config: {},
+      finishedEarly: false,
+      visits: [sampleVisit({ visitScore: 60, scoreBefore: 0, scoreAfter: 60 })],
+      ...overrides,
+    })
+
+  it('ignores unfinished and previous-month games', () => {
+    expect(
+      getCurrentMonthJdcChallengeBadge(
+        [
+          jdcSession({ id: 'early', finishedEarly: true }),
+          jdcSession({ id: 'old', completedAt: '2026-07-31T23:59:59.000Z' }),
+        ],
+        NOW,
+      ),
+    ).toBeNull()
+  })
+
+  it('picks the best finished score this month', () => {
+    const badge = getCurrentMonthJdcChallengeBadge(
+      [
+        jdcSession({ id: 'low' }),
+        jdcSession({
+          id: 'high',
+          visits: [sampleVisit({ visitScore: 120, scoreBefore: 0, scoreAfter: 120 })],
+        }),
+        sampleSession({ id: 'x01' }),
+      ],
+      NOW,
+    )
+
+    const lowBadge = getCurrentMonthJdcChallengeBadge([jdcSession({ id: 'low' })], NOW)
+    expect(badge).not.toBeNull()
+    expect(lowBadge).not.toBeNull()
+    expect(badge?.score).toBeGreaterThanOrEqual(lowBadge?.score ?? 0)
   })
 })

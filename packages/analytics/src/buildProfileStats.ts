@@ -322,6 +322,18 @@ const buildJdcChallengeBadge = (
   return thisMonth.reduce((best, entry) => (entry.score > best.score ? entry : best))
 }
 
+/** Best finished JDC Challenge score in the current UTC calendar month. */
+export const getCurrentMonthJdcChallengeBadge = (
+  sessions: GameSession[],
+  now: Date = new Date(),
+): ProfileJdcChallengeBadge | null =>
+  buildJdcChallengeBadge(
+    filterJdcChallengeSessions(sessions).filter(
+      (session) => isCompleted(session) && session.finishedEarly !== true,
+    ),
+    now,
+  )
+
 const buildBigNumbersStats = (
   practiceSessions: GameSession[],
   window: ProfileStatWindow,

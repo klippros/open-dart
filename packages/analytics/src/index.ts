@@ -2,6 +2,7 @@ export {
   PROFILE_ACTIVE_DAYS,
   PROFILE_STATS_VERSION,
   buildProfileStats,
+  getCurrentMonthJdcChallengeBadge,
   orientSessionForProfileUser,
 } from './buildProfileStats.ts'
 export type {
