@@ -32,15 +32,21 @@ See [AGENTS.md](AGENTS.md) for project conventions.
 
 ## Hosting
 
-The example deployment uses Cloudflare Pages. Backends are optional:
+The example site on [opendart.app](https://opendart.app) uses Cloudflare
+Pages, which rebuilds automatically when `master` updates. Optional backends
+(Supabase, the `player-profile-stats` edge function, and the match Worker)
+are still deployed manually. See [optional backends](docs/self-hosting.md).
 
 - **Web only** — no env vars; anonymous local play
 - **Web + Supabase** — sign-in and sync of completed local games
+- **Web + Supabase + edge function** — public profile practice stats
 - **Web + Supabase + match Worker** — online two-player matches
 
 Online play needs **both** Supabase and the Worker (`wrangler deploy` plus
 `SUPABASE_URL`, `SUPABASE_JWT_SECRET`, and `SUPABASE_SERVICE_ROLE_KEY`
-secrets). Follow [optional backends](docs/self-hosting.md).
+secrets). Profile stats need
+`supabase functions deploy player-profile-stats` (and
+`PROFILE_STATS_ALLOWED_ORIGINS`).
 
 ---
 

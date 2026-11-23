@@ -2,13 +2,16 @@
 
 Open Dart works without Supabase or Cloudflare. Local games stay in the
 browser. Online matches are available only when **both** Supabase and the
-match Worker are configured.
+match Worker are configured. Public player-profile practice stats also need
+the `player-profile-stats` edge function on the Supabase project.
 
-| Setup                         | What you get                                    |
-| ----------------------------- | ----------------------------------------------- |
-| Web only                      | Anonymous play, local history in `localStorage` |
-| Web + Supabase                | Optional sign-in, sync completed local games    |
-| Web + Supabase + match Worker | Online two-player matches (plus sync)           |
+| Setup                                         | What you get                                         |
+| --------------------------------------------- | ---------------------------------------------------- |
+| Web only                                      | Anonymous play, local history in `localStorage`      |
+| Web + Supabase                                | Optional sign-in, sync completed local games         |
+| Web + Supabase + `player-profile-stats`       | Synced play plus public profile practice stats       |
+| Web + Supabase + match Worker                 | Online two-player matches (plus sync)                |
+| Web + Supabase + edge function + match Worker | Full stack (sync, profile stats, and online matches) |
 
 ## Web only
 
@@ -96,6 +99,62 @@ pnpm dev
 
 Online matches stay disabled until `VITE_MATCH_SERVER_URL` is set as well.
 
+## Supabase edge function (`player-profile-stats`)
+
+Signed-in profile pages load practice stats with an authenticated `POST` to
+`/functions/v1/player-profile-stats` on the same Supabase project as
+`VITE_SUPABASE_URL`. The function lives under
+`supabase/functions/player-profile-stats/` and uses shared analytics code from
+`packages/analytics`. JWT verification is enabled
+(`[functions.player-profile-stats]` in `supabase/config.toml`); callers send the
+user's Bearer access token.
+
+Without this function deployed, sync and sign-in still work, but public profile
+practice stats fail in the browser.
+
+### Deploy
+
+From a checkout linked to the project (`supabase link`):
+
+```bash
+supabase functions deploy player-profile-stats
+```
+
+Redeploy whenever `supabase/functions/player-profile-stats/` changes, or when
+analytics logic the function imports changes in a way that must reach
+production. A Cloudflare Pages web deploy alone does not update the function.
+If the web UI gains a new practice mode or profile metric and the edge function
+is left on an older deploy, the profile can omit or mis-handle that mode until
+you run `functions deploy` again.
+
+### CORS secret
+
+The function reads `PROFILE_STATS_ALLOWED_ORIGINS` (comma-separated origins).
+When unset, it defaults to `http://localhost:5173` only. Production must
+include your Pages origin, for example:
+
+```text
+http://localhost:5173,https://opendart.app
+```
+
+Set it for the linked project:
+
+```bash
+supabase secrets set PROFILE_STATS_ALLOWED_ORIGINS="http://localhost:5173,https://opendart.app"
+```
+
+You can also manage secrets under **Edge Functions → Secrets** in the Supabase
+dashboard.
+
+### Local development
+
+To iterate on the function locally, serve edge functions with the Supabase CLI
+alongside `pnpm dev` (see
+[Supabase local functions](https://supabase.com/docs/guides/functions/local-development)).
+Point `VITE_SUPABASE_URL` at that local stack when you want the web app to hit
+the local function. Against a hosted project, the app uses the deployed
+function under the same `VITE_SUPABASE_URL`.
+
 ## Cloudflare match Worker (optional online matches)
 
 Online matches need **both** backends: Supabase (auth + match index) and a
@@ -152,7 +211,10 @@ pnpm exec wrangler deploy
 Put the deployed Worker origin in the web app build as `VITE_MATCH_SERVER_URL`
 (for example `https://open-dart-match-server.<account>.workers.dev`).
 
-Rebuild and redeploy the web app so the browser picks up the new URL.
+On the example [opendart.app](https://opendart.app) deployment, Cloudflare
+Pages rebuilds from `master`, so updating `VITE_MATCH_SERVER_URL` in the Pages
+project env and pushing (or triggering a rebuild) ships the new URL. For other
+hosts, rebuild and redeploy the web app so the browser picks up the value.
 
 ### CORS and WebSocket origins
 
@@ -167,3 +229,18 @@ succeeds.
 
 If you put the Worker behind a custom domain, point `VITE_MATCH_SERVER_URL` at
 that origin and keep Supabase auth redirect URLs aligned with the web app host.
+
+## Production deploys after merge to `master`
+
+For the example deployment:
+
+| Surface                    | How it ships                                            |
+| -------------------------- | ------------------------------------------------------- |
+| Web app (Cloudflare Pages) | Automatic rebuild on updates to `master`                |
+| Database migrations        | Manual `supabase db push`                               |
+| `player-profile-stats`     | Manual `supabase functions deploy player-profile-stats` |
+| Match Worker               | Manual `wrangler deploy` (and secrets as needed)        |
+
+Merging UI that depends on a newer edge function without running
+`functions deploy` leaves production profile stats on the previous function
+build until you redeploy it.
