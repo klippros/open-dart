@@ -1,4 +1,4 @@
-import { Box, Portal, Text, Tooltip } from '@chakra-ui/react'
+import { Box, Portal, Stack, Text, Tooltip } from '@chakra-ui/react'
 import type { ProfileJdcChallengeBadge } from '@open-dart/analytics'
 import {
   getJdcChallengeGradeBand,
@@ -21,7 +21,7 @@ export const ProfileJdcJersey = ({ badge }: ProfileJdcJerseyProps) => {
     gradeBand.maxScore === null
       ? `${gradeBand.minScore}+`
       : `${gradeBand.minScore}–${gradeBand.maxScore}`
-  const description = `${gradeLabel} ${gradeRange}. Score ${badge.score}. Best last 30 days`
+  const description = `${gradeLabel} ${gradeRange}. High Score ${badge.score}. last 30 days`
 
   return (
     <Tooltip.Root openDelay={150} closeDelay={50}>
@@ -53,13 +53,15 @@ export const ProfileJdcJersey = ({ badge }: ProfileJdcJerseyProps) => {
       <Portal>
         <Tooltip.Positioner>
           <Tooltip.Content bg="gray.900" color="white" px={3} py={2} borderRadius="md">
-            <Text fontWeight="semibold">
-              {gradeLabel} {gradeRange}
-            </Text>
-            <Text fontSize="sm">Score {badge.score}</Text>
-            <Text fontSize="xs" color="whiteAlpha.700">
-              Best last 30 days
-            </Text>
+            <Stack gap={1}>
+              <Text fontWeight="semibold">
+                {gradeLabel} {gradeRange}
+              </Text>
+              <Text fontSize="sm">High Score {badge.score}</Text>
+              <Text fontSize="xs" color="whiteAlpha.700">
+                last 30 days
+              </Text>
+            </Stack>
           </Tooltip.Content>
         </Tooltip.Positioner>
       </Portal>
