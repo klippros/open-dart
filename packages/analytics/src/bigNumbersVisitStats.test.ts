@@ -86,7 +86,13 @@ describe('bigNumbersVisitStats', () => {
     ).toBe(false)
   })
 
-  it('summarizes live visits and step-backs', () => {
+  it('summarizes live visits, step-backs, and hits per visit', () => {
+    expect(getBigNumbersLiveStats([], 'p1')).toEqual({
+      visitCount: 0,
+      stepBackCount: 0,
+      avgHitsPerVisit: null,
+    })
+
     expect(
       getBigNumbersLiveStats(
         [
@@ -96,7 +102,7 @@ describe('bigNumbersVisitStats', () => {
         ],
         'p1',
       ),
-    ).toEqual({ visitCount: 3, stepBackCount: 1 })
+    ).toEqual({ visitCount: 3, stepBackCount: 1, avgHitsPerVisit: 2 / 3 })
   })
 
   it('summarizes a single session', () => {

@@ -5,6 +5,7 @@ import { PlayerKind } from '@open-dart/game/types/player'
 import { DartMultiplier } from '@open-dart/game/types/dart'
 import { numberDart } from '@open-dart/game/testHelpers'
 import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
+import { BigNumbersRequiredHits } from '@open-dart/game/types/bigNumbers'
 import { NinetyNineDartsTargetKind } from '@open-dart/game/types/ninetyNineDarts'
 import { buildProfileStats, orientSessionForProfileUser } from './buildProfileStats'
 
@@ -150,7 +151,64 @@ describe('buildProfileStats', () => {
     expect(stats.bob27).toBeNull()
     expect(stats.ninetyNineDarts).toBeNull()
     expect(stats.aroundTheClock).toBeNull()
+    expect(stats.bigNumbers).toBeNull()
     expect(stats.jdcChallenge).toBeNull()
+  })
+
+  it('pools Big Numbers hits per visit across required-hit settings', () => {
+    const oneHit = sampleSession({
+      id: 'bn-1',
+      mode: GameModeId.BigNumbers,
+      config: { requiredHits: BigNumbersRequiredHits.One },
+      completedAt: '2026-08-10T00:00:00.000Z',
+      visits: [
+        sampleVisit({
+          visitScore: 1,
+          scoreBefore: 1,
+          scoreAfter: 2,
+          metadata: { hitCount: 1, advanced: true, targetLabel: '1' },
+        }),
+      ],
+    })
+    const threeHits = sampleSession({
+      id: 'bn-3',
+      mode: GameModeId.BigNumbers,
+      config: { requiredHits: BigNumbersRequiredHits.Three },
+      completedAt: '2026-08-20T00:00:00.000Z',
+      visits: [
+        sampleVisit({
+          visitScore: 3,
+          scoreBefore: 1,
+          scoreAfter: 2,
+          metadata: { hitCount: 3, advanced: true, targetLabel: '1' },
+        }),
+      ],
+    })
+    const outsideWindow = sampleSession({
+      id: 'bn-old',
+      mode: GameModeId.BigNumbers,
+      config: { requiredHits: BigNumbersRequiredHits.Two },
+      completedAt: '2026-01-01T00:00:00.000Z',
+      visits: [
+        sampleVisit({
+          visitScore: 2,
+          scoreBefore: 1,
+          scoreAfter: 2,
+          metadata: { hitCount: 2, advanced: true, targetLabel: '1' },
+        }),
+      ],
+    })
+
+    const stats = buildProfileStats({
+      displayName: 'Alex',
+      profileUserId: 'user-a',
+      onlineSessions: [],
+      practiceSessions: [oneHit, threeHits, outsideWindow],
+    })
+
+    expect(stats.bigNumbers?.sessionsPlayed).toBe(2)
+    expect(stats.bigNumbers?.avgHitsPerVisit).toBe(2)
+    expect(stats.bigNumbers?.window.endAt).toBe('2026-08-20T00:00:00.000Z')
   })
 
   it('uses independent active windows and mode-specific practice aggregation', () => {

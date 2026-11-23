@@ -50,6 +50,7 @@ export const isBigNumbersStepBackVisit = (visit: Visit): boolean => {
 export interface BigNumbersLiveStats {
   visitCount: number
   stepBackCount: number
+  avgHitsPerVisit: number | null
 }
 
 export const getBigNumbersAvgHitsPerVisit = (visits: Visit[]): number | null => {
@@ -71,6 +72,7 @@ export const getBigNumbersLiveStats = (visits: Visit[], playerId: string): BigNu
   return {
     visitCount: playerVisits.length,
     stepBackCount: getBigNumbersStepBackCount(playerVisits),
+    avgHitsPerVisit: getBigNumbersAvgHitsPerVisit(playerVisits),
   }
 }
 

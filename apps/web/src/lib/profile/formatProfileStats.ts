@@ -1,6 +1,7 @@
 import type {
   PlayerProfileStats,
   ProfileAroundTheClockStats,
+  ProfileBigNumbersStats,
   ProfileBob27Stats,
   ProfileFiveOhOneStats,
   ProfileJdcChallengeStats,
@@ -99,9 +100,17 @@ export const buildJdcChallengeRows = (stats: ProfileJdcChallengeStats): ProfileS
   return rows
 }
 
+export const buildBigNumbersRows = (stats: ProfileBigNumbersStats): ProfileStatRow[] => {
+  const rows: ProfileStatRow[] = []
+  pushRow(rows, 'Sessions played', formatNumber(stats.sessionsPlayed, 0))
+  pushRow(rows, 'Avg hits / visit', formatNumber(stats.avgHitsPerVisit))
+  return rows
+}
+
 export const profileHasAnyStats = (stats: PlayerProfileStats): boolean =>
   stats.fiveOhOne !== null ||
   stats.bob27 !== null ||
   stats.ninetyNineDarts !== null ||
   stats.aroundTheClock !== null ||
+  stats.bigNumbers !== null ||
   stats.jdcChallenge !== null

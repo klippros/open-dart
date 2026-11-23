@@ -1,6 +1,7 @@
 import type {
   PlayerProfileStats,
   ProfileAroundTheClockStats,
+  ProfileBigNumbersStats,
   ProfileBob27Stats,
   ProfileFiveOhOneStats,
   ProfileJdcChallengeBadge,
@@ -153,6 +154,22 @@ const readJdcChallenge = (value: unknown): ProfileJdcChallengeStats | null => {
   }
 }
 
+const readBigNumbers = (value: unknown): ProfileBigNumbersStats | null => {
+  if (!isRecord(value) || typeof value.sessionsPlayed !== 'number') {
+    return null
+  }
+  const window = readWindow(value.window)
+  if (window === null) {
+    return null
+  }
+
+  return {
+    window,
+    sessionsPlayed: value.sessionsPlayed,
+    avgHitsPerVisit: readNumber(value.avgHitsPerVisit),
+  }
+}
+
 export const parsePlayerProfileStats = (value: unknown): PlayerProfileStats | null => {
   if (!isRecord(value) || value.version !== 1 || typeof value.displayName !== 'string') {
     return null
@@ -165,6 +182,10 @@ export const parsePlayerProfileStats = (value: unknown): PlayerProfileStats | nu
     bob27: value.bob27 === null ? null : readBob27(value.bob27),
     ninetyNineDarts: value.ninetyNineDarts === null ? null : readNinetyNine(value.ninetyNineDarts),
     aroundTheClock: value.aroundTheClock === null ? null : readAroundTheClock(value.aroundTheClock),
+    bigNumbers:
+      value.bigNumbers === null || value.bigNumbers === undefined
+        ? null
+        : readBigNumbers(value.bigNumbers),
     jdcChallenge:
       value.jdcChallenge === null || value.jdcChallenge === undefined
         ? null

@@ -8,6 +8,7 @@ export type {
   BuildProfileStatsInput,
   PlayerProfileStats,
   ProfileAroundTheClockStats,
+  ProfileBigNumbersStats,
   ProfileBob27Stats,
   ProfileFiveOhOneStats,
   ProfileJdcChallengeBadge,

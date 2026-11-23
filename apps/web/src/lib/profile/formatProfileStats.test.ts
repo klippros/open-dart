@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { ProfileFiveOhOneStats } from '@open-dart/analytics'
-import { buildFiveOhOneRows } from './formatProfileStats'
+import type { ProfileBigNumbersStats, ProfileFiveOhOneStats } from '@open-dart/analytics'
+import { buildBigNumbersRows, buildFiveOhOneRows } from './formatProfileStats'
 
 const sampleFiveOhOne = (
   overrides: Partial<ProfileFiveOhOneStats> = {},
@@ -31,5 +31,23 @@ describe('buildFiveOhOneRows', () => {
     const with180 = buildFiveOhOneRows(sampleFiveOhOne({ thrown180: 3, highestVisit: null }))
     expect(with180.some((row) => row.label === '180s' && row.value === '3')).toBe(true)
     expect(with180.some((row) => row.label === 'Highest visit')).toBe(false)
+  })
+})
+
+describe('buildBigNumbersRows', () => {
+  it('formats sessions played and avg hits per visit', () => {
+    const stats: ProfileBigNumbersStats = {
+      window: {
+        startAt: '2026-01-01T00:00:00.000Z',
+        endAt: '2026-01-31T00:00:00.000Z',
+      },
+      sessionsPlayed: 4,
+      avgHitsPerVisit: 1.5,
+    }
+
+    expect(buildBigNumbersRows(stats)).toEqual([
+      { label: 'Sessions played', value: '4' },
+      { label: 'Avg hits / visit', value: '1.5' },
+    ])
   })
 })
