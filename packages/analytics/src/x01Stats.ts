@@ -20,7 +20,7 @@ import {
   countThrown180,
   getHighestCheckout,
   getHighestVisit,
-  getMaxThreeDartAverage,
+  getBestThreeDartAverageLeg,
   getScoringVisits,
   getThreeDartAverage,
   getVisitsBeforeDouble,
@@ -50,6 +50,8 @@ export interface X01LegStats {
   threeDartAverageUntil170: number | null
   threeDartAverageUntilDouble: number | null
   bestLegAverage: number | null
+  /** Dart count for the same leg as `bestLegAverage` (highest 3-dart avg; tie = fewer darts). */
+  bestLegDarts: number | null
   avgDarts: number | null
   thrown180: number
   thrown140Plus: number
@@ -75,6 +77,7 @@ const emptyLegStats = (): X01LegStats => ({
   threeDartAverageUntil170: null,
   threeDartAverageUntilDouble: null,
   bestLegAverage: null,
+  bestLegDarts: null,
   avgDarts: null,
   thrown180: 0,
   thrown140Plus: 0,
@@ -133,13 +136,16 @@ const computeX01LegStats = (
     return mergeDoubleCheckoutStats(totals, result.stats)
   }, emptyDoubleCheckoutStats())
 
+  const bestLeg = getBestThreeDartAverageLeg(legs.map((leg) => leg.visits))
+
   return {
     legCount: legs.length,
     checkoutLegCount: checkoutLegs.length,
     threeDartAverage: getThreeDartAverage(allVisits),
     threeDartAverageUntil170: getThreeDartAverage(scoringVisits),
     threeDartAverageUntilDouble: getThreeDartAverage(visitsBeforeDouble),
-    bestLegAverage: getMaxThreeDartAverage(legs.map((leg) => leg.visits)),
+    bestLegAverage: bestLeg?.average ?? null,
+    bestLegDarts: bestLeg?.darts ?? null,
     avgDarts:
       checkoutLegs.length === 0
         ? null

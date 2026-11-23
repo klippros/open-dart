@@ -12,8 +12,11 @@ import {
 } from './bob27VisitStats.ts'
 import {
   getBigNumbersAvgHitsPerVisit,
+  getBigNumbersBestSessionHitRate,
+  getBigNumbersHitRate,
   getBigNumbersSessionVisitCount,
 } from './bigNumbersVisitStats.ts'
+import { computeHunterPracticeRollup } from './hunterVisitStats.ts'
 import { getClaimTheBoardPrimaryPlayerStats } from './claimTheBoardVisitStats.ts'
 import {
   computeBullRunSingleSessionStats,
@@ -140,8 +143,19 @@ export interface BigNumbersPracticeStats {
   gameCount: number
   completedCount: number
   avgHitsPerVisit: number | null
+  hitRate: number | null
+  bestHitRate: number | null
   avgVisitsToComplete: number | null
   bestVisitsToComplete: number | null
+  lastPlayedAt: string
+}
+
+export interface HunterPracticeStats {
+  mode: GameModeId.Hunter
+  label: string
+  gameCount: number
+  avgAdvancesPerVisit: number | null
+  hitRate: number | null
   lastPlayedAt: string
 }
 
@@ -168,6 +182,7 @@ export type OtherPracticeStats =
   | BullRunPracticeStats
   | BigNumbersPracticeStats
   | JdcChallengePracticeStats
+  | HunterPracticeStats
 
 export interface PracticeStats {
   checkout: CheckoutPracticeStats[]
@@ -469,9 +484,36 @@ const computeBigNumbersStatsForRequiredHits = (
     gameCount: modeSessions.length,
     completedCount: completedSessions.length,
     avgHitsPerVisit: getBigNumbersAvgHitsPerVisit(allVisits),
+    hitRate: getBigNumbersHitRate(allVisits),
+    bestHitRate: getBigNumbersBestSessionHitRate(modeSessions),
     avgVisitsToComplete: averageOrNull(completedVisitCounts),
     bestVisitsToComplete:
       completedVisitCounts.length === 0 ? null : Math.min(...completedVisitCounts),
+    lastPlayedAt,
+  }
+}
+
+const computeHunterStats = (sessions: GameSession[]): HunterPracticeStats | null => {
+  const modeSessions = sessions.filter((session) => session.mode === GameModeId.Hunter)
+
+  if (modeSessions.length === 0) {
+    return null
+  }
+
+  const lastPlayedAt = getLatestSessionStartedAt(modeSessions)
+
+  if (lastPlayedAt === null) {
+    return null
+  }
+
+  const rollup = computeHunterPracticeRollup(modeSessions)
+
+  return {
+    mode: GameModeId.Hunter,
+    label: gameModeDefinitions[GameModeId.Hunter].label,
+    gameCount: rollup.gameCount,
+    avgAdvancesPerVisit: rollup.avgAdvancesPerVisit,
+    hitRate: rollup.hitRate,
     lastPlayedAt,
   }
 }
@@ -536,6 +578,7 @@ export const computePracticeStats = (sessions: GameSession[]): PracticeStats => 
       computeBigNumbersStatsForRequiredHits(sessions, requiredHits),
     ),
     computeJdcChallengeStats(sessions),
+    computeHunterStats(sessions),
   ].flatMap((stats) => (stats === null ? [] : [stats])),
 })
 
@@ -564,3 +607,6 @@ export const isBigNumbersPracticeStats = (
 export const isJdcChallengePracticeStats = (
   stats: OtherPracticeStats,
 ): stats is JdcChallengePracticeStats => stats.mode === GameModeId.JdcChallenge
+
+export const isHunterPracticeStats = (stats: OtherPracticeStats): stats is HunterPracticeStats =>
+  stats.mode === GameModeId.Hunter

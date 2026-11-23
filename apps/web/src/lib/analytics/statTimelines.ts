@@ -11,9 +11,11 @@ import {
 } from '@open-dart/analytics/bob27VisitStats'
 import {
   getBigNumbersAvgHitsPerVisit,
+  getBigNumbersHitRate,
   getBigNumbersSessionVisitCount,
 } from '@open-dart/analytics/bigNumbersVisitStats'
 import { computeBullRunSingleSessionStats } from '@open-dart/analytics/bullRunVisitStats'
+import { computeHunterPrimaryPlayerStats } from '@open-dart/analytics/hunterVisitStats'
 import { computeJdcChallengeSingleSessionStats } from '@open-dart/analytics/jdcChallengeVisitStats'
 import { computeNinetyNineDartsSingleSessionStats } from '@open-dart/analytics/ninetyNineVisitStats'
 import type { NinetyNineDartsStatGroup } from '@open-dart/analytics/ninetyNineVisitStats'
@@ -34,6 +36,7 @@ import {
   filterBullRunSessions,
   filterCheckoutPracticeSessions,
   filterFiveOhOneSessions,
+  filterHunterSessions,
   filterJdcChallengeSessions,
   filterNinetyNineDartsSessions,
   filterOneSeventySessions,
@@ -74,7 +77,9 @@ export type StatMetricId =
   | 'avgFinalScore'
   | 'bestFinalScore'
   | 'hitRate'
+  | 'bestHitRate'
   | 'avgHitsPerVisit'
+  | 'avgAdvancesPerVisit'
   | 'avgDoublesPerGame'
   | 'bestDoublesPerGame'
   | 'avgSinglesPerGame'
@@ -101,8 +106,9 @@ export type StatTimelineScope =
   | { type: 'practice-around-the-clock'; aimMode?: AroundTheClockAimMode }
   | { type: 'practice-99-darts'; group: NinetyNineDartsStatGroup }
   | { type: 'practice-bull-run' }
-  | { type: 'practice-big-numbers'; requiredHits: BigNumbersRequiredHits }
+  | { type: 'practice-big-numbers'; requiredHits?: BigNumbersRequiredHits }
   | { type: 'practice-jdc-challenge' }
+  | { type: 'practice-hunter' }
 
 export interface StatTimelineSelection {
   scope: StatTimelineScope
@@ -178,7 +184,9 @@ const getX01LegMetric = (slice: X01LegSlice, metric: StatMetricId): number | nul
     case 'avgFinalScore':
     case 'bestFinalScore':
     case 'hitRate':
+    case 'bestHitRate':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'avgDoublesPerGame':
     case 'bestDoublesPerGame':
     case 'avgSinglesPerGame':
@@ -242,7 +250,9 @@ const getCheckoutPracticeSessionMetric = (
     case 'avgFinalScore':
     case 'bestFinalScore':
     case 'hitRate':
+    case 'bestHitRate':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'avgDoublesPerGame':
     case 'bestDoublesPerGame':
     case 'avgSinglesPerGame':
@@ -294,6 +304,8 @@ const getBob27SessionMetric = (session: GameSession, metric: StatMetricId): numb
     case 'checkoutRate':
     case 'avgCheckoutsPerGame':
     case 'bestCheckoutsPerGame':
+    case 'bestHitRate':
+    case 'avgAdvancesPerVisit':
     case 'avgSinglesPerGame':
     case 'avgTreblesPerGame':
     case 'singlesPerThreeDarts':
@@ -352,7 +364,9 @@ const getAroundTheClockSessionMetric = (
     case 'avgFinalScore':
     case 'bestFinalScore':
     case 'hitRate':
+    case 'bestHitRate':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'avgDoublesPerGame':
     case 'bestDoublesPerGame':
     case 'avgSinglesPerGame':
@@ -412,7 +426,9 @@ const getNinetyNineDartsSessionMetric = (
     case 'avgDarts':
     case 'bestDarts':
     case 'completionRate':
+    case 'bestHitRate':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'bestDoublesPerGame':
     case 'singlesPerThreeDarts':
     case 'doublesPerThreeDarts':
@@ -463,7 +479,9 @@ const getBullRunSessionMetric = (session: GameSession, metric: StatMetricId): nu
     case 'avgDarts':
     case 'avgFinalScore':
     case 'bestFinalScore':
+    case 'bestHitRate':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'avgDoublesPerGame':
     case 'bestDoublesPerGame':
     case 'avgSinglesPerGame':
@@ -522,7 +540,9 @@ const getJdcChallengeSessionMetric = (
     case 'bestCheckoutsPerGame':
     case 'avgDarts':
     case 'hitRate':
+    case 'bestHitRate':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'avgDoublesPerGame':
     case 'bestDoublesPerGame':
     case 'avgSinglesPerGame':
@@ -548,6 +568,9 @@ const getBigNumbersSessionMetric = (session: GameSession, metric: StatMetricId):
   switch (metric) {
     case 'avgHitsPerVisit':
       return getBigNumbersAvgHitsPerVisit(visits)
+    case 'hitRate':
+    case 'bestHitRate':
+      return getBigNumbersHitRate(visits)
     case 'avgVisitsToComplete':
     case 'bestVisitsToComplete':
       return completed ? visitCount : null
@@ -573,7 +596,7 @@ const getBigNumbersSessionMetric = (session: GameSession, metric: StatMetricId):
     case 'avgDarts':
     case 'avgFinalScore':
     case 'bestFinalScore':
-    case 'hitRate':
+    case 'avgAdvancesPerVisit':
     case 'avgDoublesPerGame':
     case 'bestDoublesPerGame':
     case 'avgSinglesPerGame':
@@ -589,6 +612,59 @@ const getBigNumbersSessionMetric = (session: GameSession, metric: StatMetricId):
   return null
 }
 
+const getHunterSessionMetric = (session: GameSession, metric: StatMetricId): number | null => {
+  const stats = computeHunterPrimaryPlayerStats(session)
+
+  if (stats === null) {
+    return null
+  }
+
+  switch (metric) {
+    case 'hitRate':
+      return stats.hitRate
+    case 'avgAdvancesPerVisit':
+      return stats.avgAdvancesPerVisit
+    case 'threeDartAverage':
+    case 'threeDartAverageUntil170':
+    case 'threeDartAverageUntilDouble':
+    case 'bestLegAverage':
+    case 'thrown180':
+    case 'thrown140Plus':
+    case 'thrown100Plus':
+    case 'highestVisit':
+    case 'doubleCheckoutRate':
+    case 'checkouts100Plus':
+    case 'highestCheckout':
+    case 'checkoutRate':
+    case 'avgCheckoutsPerGame':
+    case 'bestCheckoutsPerGame':
+    case 'avgDarts':
+    case 'avgFinalScore':
+    case 'bestFinalScore':
+    case 'bestHitRate':
+    case 'avgHitsPerVisit':
+    case 'avgDoublesPerGame':
+    case 'bestDoublesPerGame':
+    case 'avgSinglesPerGame':
+    case 'avgTreblesPerGame':
+    case 'bestDarts':
+    case 'completionRate':
+    case 'singlesPerThreeDarts':
+    case 'doublesPerThreeDarts':
+    case 'avgPerThreeDarts':
+    case 'avgVisitsToComplete':
+    case 'bestVisitsToComplete':
+    case 'avgShanghaisPerGame':
+    case 'bestShanghaisPerGame':
+    case 'avgShanghaiLowScore':
+    case 'avgDoublesScore':
+    case 'avgShanghaiHighScore':
+      return null
+  }
+
+  return null
+}
+
 export const getStatTimelineFormat = (metric: StatMetricId): StatTimelineFormat => {
   switch (metric) {
     case 'checkoutRate':
@@ -596,6 +672,7 @@ export const getStatTimelineFormat = (metric: StatMetricId): StatTimelineFormat 
       return 'wholePercent'
     case 'completionRate':
     case 'hitRate':
+    case 'bestHitRate':
       return 'percent'
     case 'avgDarts':
     case 'avgFinalScore':
@@ -619,6 +696,7 @@ export const getStatTimelineFormat = (metric: StatMetricId): StatTimelineFormat 
     case 'avgDoublesPerGame':
     case 'avgCheckoutsPerGame':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'avgSinglesPerGame':
     case 'avgTreblesPerGame':
     case 'singlesPerThreeDarts':
@@ -660,6 +738,8 @@ const filterSessionsForScope = (
       return filterBigNumbersSessions(sessions, scope.requiredHits)
     case 'practice-jdc-challenge':
       return filterJdcChallengeSessions(sessions)
+    case 'practice-hunter':
+      return filterHunterSessions(sessions)
     default:
       return []
   }
@@ -736,6 +816,10 @@ const getPracticeSessionMetricValue = (
 
   if (selection.scope.type === 'practice-jdc-challenge') {
     return getJdcChallengeSessionMetric(session, selection.metric)
+  }
+
+  if (selection.scope.type === 'practice-hunter') {
+    return getHunterSessionMetric(session, selection.metric)
   }
 
   return null

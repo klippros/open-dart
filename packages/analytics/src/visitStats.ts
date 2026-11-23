@@ -43,17 +43,40 @@ export const getThreeDartAverage = (visits: Visit[]): number | null => {
   return total / visits.length
 }
 
-export const getMaxThreeDartAverage = (visitGroups: Visit[][]): number | null => {
-  const averages = visitGroups
-    .map((visits) => getThreeDartAverage(visits))
-    .filter((average): average is number => average !== null)
+export interface BestThreeDartAverageLeg {
+  average: number
+  darts: number
+}
 
-  if (averages.length === 0) {
-    return null
+/** Highest 3-dart average; ties prefer the leg with fewer darts. */
+export const getBestThreeDartAverageLeg = (
+  visitGroups: Visit[][],
+): BestThreeDartAverageLeg | null => {
+  let best: BestThreeDartAverageLeg | null = null
+
+  for (const visits of visitGroups) {
+    const average = getThreeDartAverage(visits)
+
+    if (average === null) {
+      continue
+    }
+
+    const darts = visits.reduce((sum, visit) => sum + getVisitDartCount(visit), 0)
+
+    if (
+      best === null ||
+      average > best.average ||
+      (average === best.average && darts < best.darts)
+    ) {
+      best = { average, darts }
+    }
   }
 
-  return Math.max(...averages)
+  return best
 }
+
+export const getMaxThreeDartAverage = (visitGroups: Visit[][]): number | null =>
+  getBestThreeDartAverageLeg(visitGroups)?.average ?? null
 
 export const getScoringVisits = (visits: Visit[]): Visit[] =>
   visits.filter((visit) => visit.scoreBefore > MAX_CHECKOUT_SCORE)

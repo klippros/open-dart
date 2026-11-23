@@ -8,16 +8,24 @@ export interface AnalyticsFilter {
   dateRange: DateRangePreset
 }
 
-const getDateRangeCutoff = (dateRange: DateRangePreset): string | null => {
+const MS_PER_DAY = 24 * 60 * 60 * 1000
+
+/**
+ * Absolute "now minus N days" cutoff as an ISO instant.
+ * Shared by client session filters and online fetch windows so boundary
+ * sessions cannot be included under one calendar rule and dropped under another.
+ */
+export const getDateRangeCutoff = (
+  dateRange: DateRangePreset,
+  now: Date = new Date(),
+): string | null => {
   if (dateRange === 'all') {
     return null
   }
 
-  const cutoff = new Date()
   const days = dateRange === '7d' ? 7 : 30
-  cutoff.setDate(cutoff.getDate() - days)
 
-  return cutoff.toISOString()
+  return new Date(now.getTime() - days * MS_PER_DAY).toISOString()
 }
 
 export const filterSessions = (sessions: GameSession[], filter: AnalyticsFilter): GameSession[] => {

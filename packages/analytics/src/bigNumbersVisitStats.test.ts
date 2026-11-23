@@ -4,9 +4,13 @@ import { BigNumbersRequiredHits } from '@open-dart/game/types/bigNumbers'
 import { PlayerKind } from '@open-dart/game/types/player'
 import type { GameSession } from '@open-dart/game/types/gameSession'
 import type { Visit } from '@open-dart/game/types/visit'
+import { DartMultiplier } from '@open-dart/game/types/dart'
+import { numberDart } from '@open-dart/game/testHelpers'
 import {
   computeBigNumbersSingleSessionStats,
   getBigNumbersAvgHitsPerVisit,
+  getBigNumbersBestSessionHitRate,
+  getBigNumbersHitRate,
   getBigNumbersLiveStats,
   getBigNumbersVisitHitCount,
   isBigNumbersStepBackVisit,
@@ -18,16 +22,18 @@ const visit = ({
   scoreAfter,
   advanced,
   checkout = false,
+  dartCount = 3,
 }: {
   hitCount: number
   scoreBefore: number
   scoreAfter: number
   advanced: boolean
   checkout?: boolean
+  dartCount?: number
 }): Visit => ({
   visitIndex: 0,
   playerId: 'p1',
-  darts: [],
+  darts: Array.from({ length: dartCount }, () => numberDart(scoreBefore, DartMultiplier.Single)),
   visitScore: hitCount,
   scoreBefore,
   scoreAfter,
@@ -116,6 +122,7 @@ describe('bigNumbersVisitStats', () => {
     expect(completed).toEqual({
       visitCount: 2,
       avgHitsPerVisit: 2,
+      hitRate: (4 / 6) * 100,
       completed: true,
     })
 
@@ -126,7 +133,30 @@ describe('bigNumbersVisitStats', () => {
     expect(early).toMatchObject({
       visitCount: 1,
       avgHitsPerVisit: 1,
+      hitRate: (1 / 3) * 100,
       completed: false,
     })
+  })
+
+  it('computes hit rate as hits over actual darts thrown', () => {
+    const visits = [
+      visit({ hitCount: 2, scoreBefore: 1, scoreAfter: 2, advanced: true, dartCount: 3 }),
+      visit({ hitCount: 1, scoreBefore: 2, scoreAfter: 2, advanced: false, dartCount: 2 }),
+    ]
+
+    expect(getBigNumbersHitRate(visits)).toBe((3 / 5) * 100)
+  })
+
+  it('picks the best session hit rate', () => {
+    const weaker = session([
+      visit({ hitCount: 1, scoreBefore: 1, scoreAfter: 1, advanced: false, dartCount: 3 }),
+    ])
+    const stronger = session(
+      [visit({ hitCount: 3, scoreBefore: 1, scoreAfter: 2, advanced: true, dartCount: 3 })],
+      false,
+    )
+    stronger.id = 's2'
+
+    expect(getBigNumbersBestSessionHitRate([weaker, stronger])).toBe(100)
   })
 })

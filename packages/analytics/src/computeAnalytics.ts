@@ -34,4 +34,5 @@ export type {
   BullRunPracticeStats,
   BigNumbersPracticeStats,
   JdcChallengePracticeStats,
+  HunterPracticeStats,
 } from './practiceStats'

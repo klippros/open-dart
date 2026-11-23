@@ -1,3 +1,6 @@
+import { getDateRangeCutoff } from '@open-dart/analytics/sessionFilters'
+import type { DateRangePreset } from '@open-dart/analytics/sessionFilters'
+
 export const HISTORY_PAGE_SIZE = 30
 
 export interface HistorySortableEntry {
@@ -85,12 +88,5 @@ export const loadedHistoryCoversPage = <T extends HistorySortableEntry>(
   )
 }
 
-export const getDateRangeCompletedAfter = (dateRange: 'all' | '7d' | '30d'): string | null => {
-  if (dateRange === 'all') {
-    return null
-  }
-
-  const cutoff = new Date()
-  cutoff.setUTCDate(cutoff.getUTCDate() - (dateRange === '7d' ? 7 : 30))
-  return cutoff.toISOString()
-}
+export const getDateRangeCompletedAfter = (dateRange: DateRangePreset): string | null =>
+  getDateRangeCutoff(dateRange)
