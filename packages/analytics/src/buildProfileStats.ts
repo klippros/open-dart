@@ -1,16 +1,14 @@
 import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode.ts'
 import type { GameSession } from '@open-dart/game/types/gameSession.ts'
 import { PlayerKind } from '@open-dart/game/types/player.ts'
-import { isAroundTheClockConfig } from '@open-dart/game/game/gameConfigGuards.ts'
-import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig.ts'
-import { aggregateAroundTheClockSessionStats } from './aroundTheClockStats.ts'
 import {
   isBob27PracticeStats,
   isJdcChallengePracticeStats,
   isNinetyNineDartsPracticeStats,
   computePracticeStats,
 } from './practiceStats.ts'
-import { getBigNumbersAvgHitsPerVisit } from './bigNumbersVisitStats.ts'
+import { getBigNumbersBestSessionHitRate, getBigNumbersHitRate } from './bigNumbersVisitStats.ts'
+import { getBob27AvgHitsPerVisit } from './bob27VisitStats.ts'
 import { computeJdcChallengeSingleSessionStats } from './jdcChallengeVisitStats.ts'
 import {
   filterBigNumbersSessions,
@@ -20,16 +18,13 @@ import {
 } from './sessionScope.ts'
 import type { JdcChallengeGrade } from '@open-dart/game/types/jdcChallenge.ts'
 import { getSessionCompletedAt } from './sessionLabels.ts'
-import {
-  countDartsInVisits,
-  expandX01SessionsLegs,
-  legFinishedWithCheckout,
-} from './x01LegSlices.ts'
+import { expandX01SessionsLegs } from './x01LegSlices.ts'
 import { computeX01Stats } from './x01Stats.ts'
-import { countTotalDartsThrown, countThrown180, getPrimaryPlayerVisits } from './visitStats.ts'
+import { getPrimaryPlayerVisits } from './visitStats.ts'
 import { NinetyNineDartsStatGroup } from './ninetyNineVisitStats.ts'
+import { getDateRangeCutoff } from './sessionFilters.ts'
 
-export const PROFILE_STATS_VERSION = 1
+export const PROFILE_STATS_VERSION = 2
 export const PROFILE_ACTIVE_DAYS = 30
 
 export interface ProfileStatWindow {
@@ -38,74 +33,70 @@ export interface ProfileStatWindow {
 }
 
 export interface ProfileFiveOhOneStats {
-  window: ProfileStatWindow
+  legsPlayed: number
   threeDartAverage: number | null
   threeDartAverageUntil170: number | null
   checkoutPercent: number | null
-  legsPlayed: number
-  legWinRate: number | null
-  dartsThrown: number
+  avgDarts: number | null
+  bestLegAverage: number | null
   bestLegDarts: number | null
-  highestCheckout: number | null
-  highestVisit: number | null
-  thrown180: number | null
+  legWinRate: number | null
 }
 
 export interface ProfileBob27Stats {
-  window: ProfileStatWindow
   sessionsPlayed: number
   avgFinalScore: number | null
   hitRate: number | null
   bestFinalScore: number | null
+  avgHitsPerVisit: number | null
+  avgDoublesPerGame: number | null
+  bestHitsPerVisit: number | null
+  bestDoublesPerGame: number | null
 }
 
-export interface ProfileNinetyNineDartsStats {
-  window: ProfileStatWindow
+export interface ProfileNinetyNineDartsGroupStats {
+  group: NinetyNineDartsStatGroup
   sessionsPlayed: number
   avgFinalScore: number | null
   hitRate: number | null
   avgTreblesPerGame: number | null
+  avgSinglesPerGame: number | null
+  avgDoublesPerGame: number | null
 }
 
-export interface ProfileAroundTheClockStats {
-  window: ProfileStatWindow
-  sessionsPlayed: number
-  avgDartsFullRun: number | null
-  avgDartsPerField: number | null
-  bestDartsFullRun: number | null
+export interface ProfileNinetyNineDartsStats {
+  groups: ProfileNinetyNineDartsGroupStats[]
 }
 
 export interface ProfileJdcChallengeBadge {
   score: number
   grade: JdcChallengeGrade
-  /** False when showing the last score because there is no score this calendar month. */
-  isCurrentMonth: boolean
-  bestEverGrade: JdcChallengeGrade
 }
 
 export interface ProfileJdcChallengeStats {
-  window: ProfileStatWindow
   sessionsPlayed: number
   avgFinalScore: number | null
   bestFinalScore: number | null
   avgShanghaisPerGame: number | null
-  bestShanghaisPerGame: number | null
+  avgShanghaiLowScore: number | null
+  avgDoublesScore: number | null
+  avgShanghaiHighScore: number | null
   badge: ProfileJdcChallengeBadge | null
 }
 
 export interface ProfileBigNumbersStats {
-  window: ProfileStatWindow
   sessionsPlayed: number
-  avgHitsPerVisit: number | null
+  hitRate: number | null
+  bestHitRate: number | null
 }
 
 export interface PlayerProfileStats {
   version: typeof PROFILE_STATS_VERSION
   displayName: string
+  window: ProfileStatWindow
   fiveOhOne: ProfileFiveOhOneStats | null
   bob27: ProfileBob27Stats | null
   ninetyNineDarts: ProfileNinetyNineDartsStats | null
-  aroundTheClock: ProfileAroundTheClockStats | null
   bigNumbers: ProfileBigNumbersStats | null
   jdcChallenge: ProfileJdcChallengeStats | null
 }
@@ -115,16 +106,24 @@ export interface BuildProfileStatsInput {
   onlineSessions: GameSession[]
   practiceSessions: GameSession[]
   profileUserId: string
+  /** Override "now" for absolute window / badge month (tests). */
+  now?: Date
 }
 
-const ACTIVE_WINDOW_MS = PROFILE_ACTIVE_DAYS * 24 * 60 * 60 * 1000
+const NINETY_NINE_GROUPS = [
+  NinetyNineDartsStatGroup.Twenty,
+  NinetyNineDartsStatGroup.Bull,
+  NinetyNineDartsStatGroup.Other,
+] as const
 
 const isCompleted = (session: GameSession): boolean => session.status === GameStatus.Completed
 
-const windowFromAnchor = (anchorAt: string): ProfileStatWindow => {
-  const end = new Date(anchorAt)
-  const start = new Date(end.getTime() - ACTIVE_WINDOW_MS)
-  return { startAt: start.toISOString(), endAt: end.toISOString() }
+const absoluteProfileWindow = (now: Date): ProfileStatWindow => {
+  const startAt = getDateRangeCutoff('30d', now)
+  if (startAt === null) {
+    throw new Error('Expected a 30-day profile cutoff')
+  }
+  return { startAt, endAt: now.toISOString() }
 }
 
 const sessionsInWindow = (sessions: GameSession[], window: ProfileStatWindow): GameSession[] =>
@@ -132,20 +131,6 @@ const sessionsInWindow = (sessions: GameSession[], window: ProfileStatWindow): G
     const completedAt = getSessionCompletedAt(session)
     return completedAt >= window.startAt && completedAt <= window.endAt
   })
-
-const latestCompletedAt = (sessions: GameSession[]): string | null => {
-  let latest: string | null = null
-  for (const session of sessions) {
-    if (!isCompleted(session)) {
-      continue
-    }
-    const completedAt = getSessionCompletedAt(session)
-    if (latest === null || completedAt > latest) {
-      latest = completedAt
-    }
-  }
-  return latest
-}
 
 /** Orient an online session so the profile user is the primary Human player. */
 export const orientSessionForProfileUser = (
@@ -158,18 +143,6 @@ export const orientSessionForProfileUser = (
     kind: player.id === profileUserId ? PlayerKind.Human : PlayerKind.Remote,
   })),
 })
-
-const computeBestLegDarts = (sessions: GameSession[]): number | null => {
-  const checkoutLegs = expandX01SessionsLegs(sessions).filter((leg) =>
-    legFinishedWithCheckout(leg.visits),
-  )
-
-  if (checkoutLegs.length === 0) {
-    return null
-  }
-
-  return Math.min(...checkoutLegs.map((leg) => countDartsInVisits(leg.visits)))
-}
 
 const computeLegWinRate = (sessions: GameSession[], profileUserId: string): number | null => {
   let wins = 0
@@ -212,53 +185,39 @@ const checkoutPercent = (stats: {
 const buildFiveOhOneStats = (
   onlineSessions: GameSession[],
   profileUserId: string,
+  window: ProfileStatWindow,
 ): ProfileFiveOhOneStats | null => {
-  const fiveOhOne = filterFiveOhOneSessions(onlineSessions.filter(isCompleted))
-  const anchor = latestCompletedAt(fiveOhOne)
-  if (anchor === null) {
-    return null
-  }
-
-  const window = windowFromAnchor(anchor)
-  const windowSessions = sessionsInWindow(fiveOhOne, window)
-  if (windowSessions.length === 0) {
-    return null
-  }
-
-  const oriented = windowSessions.map((session) =>
-    orientSessionForProfileUser(session, profileUserId),
+  const fiveOhOne = sessionsInWindow(
+    filterFiveOhOneSessions(onlineSessions.filter(isCompleted)),
+    window,
   )
+  if (fiveOhOne.length === 0) {
+    return null
+  }
+
+  const oriented = fiveOhOne.map((session) => orientSessionForProfileUser(session, profileUserId))
   const stats = computeX01Stats(oriented).fiveOhOne
-  const thrown180 = countThrown180(
-    oriented.flatMap((session) => expandX01SessionsLegs([session]).flatMap((leg) => leg.visits)),
-  )
 
   return {
-    window,
+    legsPlayed: stats.legCount,
     threeDartAverage: stats.threeDartAverage,
     threeDartAverageUntil170: stats.threeDartAverageUntil170,
     checkoutPercent: checkoutPercent(stats),
-    legsPlayed: stats.legCount,
+    avgDarts: stats.avgDarts,
+    bestLegAverage: stats.bestLegAverage,
+    bestLegDarts: stats.bestLegDarts,
     legWinRate: computeLegWinRate(oriented, profileUserId),
-    dartsThrown: countTotalDartsThrown(oriented),
-    bestLegDarts: computeBestLegDarts(oriented),
-    highestCheckout: stats.highestCheckout,
-    highestVisit: thrown180 > 0 ? null : stats.highestVisit,
-    thrown180: thrown180 > 0 ? thrown180 : null,
   }
 }
 
-const buildBob27Stats = (practiceSessions: GameSession[]): ProfileBob27Stats | null => {
-  const modeSessions = practiceSessions.filter(
-    (session) => isCompleted(session) && session.mode === GameModeId.Bob27,
+const buildBob27Stats = (
+  practiceSessions: GameSession[],
+  window: ProfileStatWindow,
+): ProfileBob27Stats | null => {
+  const windowSessions = sessionsInWindow(
+    practiceSessions.filter((session) => isCompleted(session) && session.mode === GameModeId.Bob27),
+    window,
   )
-  const anchor = latestCompletedAt(modeSessions)
-  if (anchor === null) {
-    return null
-  }
-
-  const window = windowFromAnchor(anchor)
-  const windowSessions = sessionsInWindow(modeSessions, window)
   if (windowSessions.length === 0) {
     return null
   }
@@ -268,98 +227,65 @@ const buildBob27Stats = (practiceSessions: GameSession[]): ProfileBob27Stats | n
     return null
   }
 
+  const sessionHits = windowSessions
+    .map((session) => getBob27AvgHitsPerVisit(getPrimaryPlayerVisits(session)))
+    .filter((value): value is number => value !== null)
+
   return {
-    window,
     sessionsPlayed: practice.gameCount,
     avgFinalScore: practice.avgFinalScore,
     hitRate: practice.hitRate,
     bestFinalScore: practice.bestFinalScore,
+    avgHitsPerVisit: practice.avgHitsPerVisit,
+    avgDoublesPerGame: practice.avgDoublesPerGame,
+    bestHitsPerVisit: sessionHits.length === 0 ? null : Math.max(...sessionHits),
+    bestDoublesPerGame: practice.bestDoublesPerGame,
   }
 }
 
 const buildNinetyNineDartsStats = (
   practiceSessions: GameSession[],
+  window: ProfileStatWindow,
 ): ProfileNinetyNineDartsStats | null => {
-  const modeSessions = practiceSessions.filter(
-    (session) => isCompleted(session) && session.mode === GameModeId.NinetyNineDarts,
-  )
-  const anchor = latestCompletedAt(modeSessions)
-  if (anchor === null) {
-    return null
-  }
-
-  const window = windowFromAnchor(anchor)
-  const windowSessions = sessionsInWindow(modeSessions, window)
-  if (windowSessions.length === 0) {
-    return null
-  }
-
-  const atTwenty = filterNinetyNineDartsSessions(windowSessions, NinetyNineDartsStatGroup.Twenty)
-  const practice = computePracticeStats(atTwenty).other.find(isNinetyNineDartsPracticeStats)
-
-  return {
+  const modeSessions = sessionsInWindow(
+    practiceSessions.filter(
+      (session) => isCompleted(session) && session.mode === GameModeId.NinetyNineDarts,
+    ),
     window,
-    sessionsPlayed: windowSessions.length,
-    avgFinalScore: practice?.avgFinalScore ?? null,
-    hitRate: practice?.hitRate ?? null,
-    avgTreblesPerGame: practice?.avgTreblesPerGame ?? null,
-  }
-}
-
-const buildAroundTheClockStats = (
-  practiceSessions: GameSession[],
-): ProfileAroundTheClockStats | null => {
-  const modeSessions = practiceSessions.filter(
-    (session) =>
-      isCompleted(session) &&
-      session.mode === GameModeId.AroundTheClock &&
-      isAroundTheClockConfig(session.mode, session.config),
   )
-  const anchor = latestCompletedAt(modeSessions)
-  if (anchor === null) {
+  if (modeSessions.length === 0) {
     return null
   }
 
-  const window = windowFromAnchor(anchor)
-  const windowSessions = sessionsInWindow(modeSessions, window)
-  if (windowSessions.length === 0) {
+  const groups = NINETY_NINE_GROUPS.flatMap((group) => {
+    const groupSessions = filterNinetyNineDartsSessions(modeSessions, group)
+    if (groupSessions.length === 0) {
+      return []
+    }
+
+    const practice = computePracticeStats(groupSessions).other.find(isNinetyNineDartsPracticeStats)
+    if (practice === undefined) {
+      return []
+    }
+
+    return [
+      {
+        group,
+        sessionsPlayed: practice.gameCount,
+        avgFinalScore: practice.avgFinalScore,
+        hitRate: practice.hitRate,
+        avgTreblesPerGame: practice.avgTreblesPerGame,
+        avgSinglesPerGame: practice.avgSinglesPerGame,
+        avgDoublesPerGame: practice.avgDoublesPerGame,
+      },
+    ]
+  })
+
+  if (groups.length === 0) {
     return null
   }
 
-  // Pool every aim mode by scoring each session with its own configured aim mode.
-  const perSession = windowSessions
-    .map((session) => {
-      if (!isAroundTheClockConfig(session.mode, session.config)) {
-        return null
-      }
-      const { aimMode } = getAroundTheClockConfig(session.config)
-      return aggregateAroundTheClockSessionStats([session], aimMode)
-    })
-    .filter((stats): stats is NonNullable<typeof stats> => stats !== null)
-
-  const completedRuns = perSession
-    .map((stats) => stats.bestDartsFullRun)
-    .filter((value): value is number => value !== null)
-  const avgFullRuns = perSession
-    .map((stats) => stats.avgDartsFullRun)
-    .filter((value): value is number => value !== null)
-  const avgPerField = perSession
-    .map((stats) => stats.avgDartsPerField)
-    .filter((value): value is number => value !== null)
-
-  return {
-    window,
-    sessionsPlayed: windowSessions.length,
-    avgDartsFullRun:
-      avgFullRuns.length === 0
-        ? null
-        : avgFullRuns.reduce((sum, value) => sum + value, 0) / avgFullRuns.length,
-    avgDartsPerField:
-      avgPerField.length === 0
-        ? null
-        : avgPerField.reduce((sum, value) => sum + value, 0) / avgPerField.length,
-    bestDartsFullRun: completedRuns.length === 0 ? null : Math.min(...completedRuns),
-  }
+  return { groups }
 }
 
 const calendarMonthStartIso = (at: Date): string =>
@@ -367,56 +293,43 @@ const calendarMonthStartIso = (at: Date): string =>
 
 const buildJdcChallengeBadge = (
   finishedSessions: GameSession[],
+  now: Date,
 ): ProfileJdcChallengeBadge | null => {
-  const scored = finishedSessions
+  const monthStart = calendarMonthStartIso(now)
+  const thisMonth = finishedSessions
     .map((session) => {
       const stats = computeJdcChallengeSingleSessionStats(session)
       if (stats === null || !stats.completed) {
         return null
       }
 
+      const completedAt = getSessionCompletedAt(session)
+      if (completedAt < monthStart) {
+        return null
+      }
+
       return {
         score: stats.score,
         grade: stats.grade,
-        completedAt: getSessionCompletedAt(session),
       }
     })
     .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
-    .sort((left, right) => left.completedAt.localeCompare(right.completedAt))
 
-  if (scored.length === 0) {
+  if (thisMonth.length === 0) {
     return null
   }
 
-  const bestEver = scored.reduce((best, entry) => (entry.score > best.score ? entry : best))
-  const monthStart = calendarMonthStartIso(new Date())
-  const thisMonth = scored.filter((entry) => entry.completedAt >= monthStart)
-  const badgeSource =
-    thisMonth.length > 0
-      ? thisMonth.reduce((best, entry) => (entry.score > best.score ? entry : best))
-      : scored.at(-1)
-
-  if (badgeSource === undefined) {
-    return null
-  }
-
-  return {
-    score: badgeSource.score,
-    grade: badgeSource.grade,
-    isCurrentMonth: thisMonth.length > 0,
-    bestEverGrade: bestEver.grade,
-  }
+  return thisMonth.reduce((best, entry) => (entry.score > best.score ? entry : best))
 }
 
-const buildBigNumbersStats = (practiceSessions: GameSession[]): ProfileBigNumbersStats | null => {
-  const modeSessions = filterBigNumbersSessions(practiceSessions).filter(isCompleted)
-  const anchor = latestCompletedAt(modeSessions)
-  if (anchor === null) {
-    return null
-  }
-
-  const window = windowFromAnchor(anchor)
-  const windowSessions = sessionsInWindow(modeSessions, window)
+const buildBigNumbersStats = (
+  practiceSessions: GameSession[],
+  window: ProfileStatWindow,
+): ProfileBigNumbersStats | null => {
+  const windowSessions = sessionsInWindow(
+    filterBigNumbersSessions(practiceSessions).filter(isCompleted),
+    window,
+  )
   if (windowSessions.length === 0) {
     return null
   }
@@ -424,40 +337,43 @@ const buildBigNumbersStats = (practiceSessions: GameSession[]): ProfileBigNumber
   const allVisits = windowSessions.flatMap((session) => getPrimaryPlayerVisits(session))
 
   return {
-    window,
     sessionsPlayed: windowSessions.length,
-    avgHitsPerVisit: getBigNumbersAvgHitsPerVisit(allVisits),
+    hitRate: getBigNumbersHitRate(allVisits),
+    bestHitRate: getBigNumbersBestSessionHitRate(windowSessions),
   }
 }
 
 const buildJdcChallengeStats = (
   practiceSessions: GameSession[],
+  window: ProfileStatWindow,
+  now: Date,
 ): ProfileJdcChallengeStats | null => {
   const modeSessions = filterJdcChallengeSessions(practiceSessions).filter(isCompleted)
   const finished = modeSessions.filter((session) => session.finishedEarly !== true)
-  const badge = buildJdcChallengeBadge(finished)
+  const badge = buildJdcChallengeBadge(finished, now)
 
-  const anchor = latestCompletedAt(modeSessions)
-  if (anchor === null) {
+  const windowSessions = sessionsInWindow(modeSessions, window)
+  if (windowSessions.length === 0 && badge === null) {
     return null
   }
 
-  const window = windowFromAnchor(anchor)
-  const windowSessions = sessionsInWindow(modeSessions, window)
   const practice = computePracticeStats(windowSessions).other.find(isJdcChallengePracticeStats)
 
   return {
-    window,
     sessionsPlayed: windowSessions.length,
     avgFinalScore: practice?.avgFinalScore ?? null,
     bestFinalScore: practice?.bestFinalScore ?? null,
     avgShanghaisPerGame: practice?.avgShanghaisPerGame ?? null,
-    bestShanghaisPerGame: practice?.bestShanghaisPerGame ?? null,
+    avgShanghaiLowScore: practice?.avgShanghaiLowScore ?? null,
+    avgDoublesScore: practice?.avgDoublesScore ?? null,
+    avgShanghaiHighScore: practice?.avgShanghaiHighScore ?? null,
     badge,
   }
 }
 
 export const buildProfileStats = (input: BuildProfileStatsInput): PlayerProfileStats => {
+  const now = input.now ?? new Date()
+  const window = absoluteProfileWindow(now)
   const online = input.onlineSessions
     .filter(isCompleted)
     .map((session) => orientSessionForProfileUser(session, input.profileUserId))
@@ -466,11 +382,11 @@ export const buildProfileStats = (input: BuildProfileStatsInput): PlayerProfileS
   return {
     version: PROFILE_STATS_VERSION,
     displayName: input.displayName,
-    fiveOhOne: buildFiveOhOneStats(online, input.profileUserId),
-    bob27: buildBob27Stats(practice),
-    ninetyNineDarts: buildNinetyNineDartsStats(practice),
-    aroundTheClock: buildAroundTheClockStats(practice),
-    bigNumbers: buildBigNumbersStats(practice),
-    jdcChallenge: buildJdcChallengeStats(practice),
+    window,
+    fiveOhOne: buildFiveOhOneStats(online, input.profileUserId, window),
+    bob27: buildBob27Stats(practice, window),
+    ninetyNineDarts: buildNinetyNineDartsStats(practice, window),
+    bigNumbers: buildBigNumbersStats(practice, window),
+    jdcChallenge: buildJdcChallengeStats(practice, window, now),
   }
 }

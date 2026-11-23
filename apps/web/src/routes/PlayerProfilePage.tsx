@@ -21,13 +21,11 @@ import { HISTORY_PAGE_SIZE } from '../lib/history/historyPager'
 import { decorateOnlineSessionForViewer } from '../lib/matchServer/onlinePlay'
 import type { OnlineMatchHistoryRow, OnlineMatchSummary } from '../lib/matchServer/types'
 import {
-  buildAroundTheClockRows,
   buildBigNumbersRows,
   buildBob27Rows,
   buildFiveOhOneRows,
   buildJdcChallengeRows,
   buildNinetyNineRows,
-  formatProfileWindowLabel,
   profileHasAnyStats,
 } from '../lib/profile/formatProfileStats'
 import { ProfileJdcChallengeBadge } from '../components/ProfileJdcChallengeBadge/ProfileJdcChallengeBadge'
@@ -320,35 +318,28 @@ export const PlayerProfilePage = () => {
               {stats.fiveOhOne !== null ? (
                 <ProfileStatSection
                   title="501"
-                  windowLabel={formatProfileWindowLabel(stats.fiveOhOne.window)}
+                  windowLabel="Last 30 days"
                   rows={buildFiveOhOneRows(stats.fiveOhOne)}
                 />
               ) : null}
               {stats.bob27 !== null ? (
                 <ProfileStatSection
                   title="Bob's 27"
-                  windowLabel={formatProfileWindowLabel(stats.bob27.window)}
+                  windowLabel="Last 30 days"
                   rows={buildBob27Rows(stats.bob27)}
                 />
               ) : null}
               {stats.ninetyNineDarts !== null ? (
                 <ProfileStatSection
                   title="99 Darts"
-                  windowLabel={formatProfileWindowLabel(stats.ninetyNineDarts.window)}
+                  windowLabel="Last 30 days"
                   rows={buildNinetyNineRows(stats.ninetyNineDarts)}
-                />
-              ) : null}
-              {stats.aroundTheClock !== null ? (
-                <ProfileStatSection
-                  title="Around the Clock"
-                  windowLabel={formatProfileWindowLabel(stats.aroundTheClock.window)}
-                  rows={buildAroundTheClockRows(stats.aroundTheClock)}
                 />
               ) : null}
               {stats.bigNumbers !== null ? (
                 <ProfileStatSection
                   title="Big Numbers"
-                  windowLabel={formatProfileWindowLabel(stats.bigNumbers.window)}
+                  windowLabel="Last 30 days"
                   rows={buildBigNumbersRows(stats.bigNumbers)}
                 />
               ) : null}
@@ -359,14 +350,14 @@ export const PlayerProfilePage = () => {
                   ) : null}
                   <ProfileStatSection
                     title="JDC Challenge"
-                    windowLabel={formatProfileWindowLabel(stats.jdcChallenge.window)}
+                    windowLabel="Last 30 days"
                     rows={buildJdcChallengeRows(stats.jdcChallenge)}
                   />
                 </Stack>
               ) : null}
             </Stack>
           ) : !loadingStats && statsError === null ? (
-            <Text color="whiteAlpha.700">No public stats in the recent windows yet.</Text>
+            <Text color="whiteAlpha.700">No public stats in the last 30 days yet.</Text>
           ) : null}
 
           <Stack gap={3}>

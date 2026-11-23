@@ -1,6 +1,5 @@
 import type {
   PlayerProfileStats,
-  ProfileAroundTheClockStats,
   ProfileBigNumbersStats,
   ProfileBob27Stats,
   ProfileFiveOhOneStats,
@@ -8,6 +7,7 @@ import type {
   ProfileNinetyNineDartsStats,
   ProfileStatWindow,
 } from '@open-dart/analytics'
+import { NinetyNineDartsStatGroup } from '@open-dart/analytics/ninetyNineVisitStats'
 
 export interface ProfileStatRow {
   label: string
@@ -43,19 +43,17 @@ export const formatProfileWindowLabel = (window: ProfileStatWindow): string => {
 
 export const buildFiveOhOneRows = (stats: ProfileFiveOhOneStats): ProfileStatRow[] => {
   const rows: ProfileStatRow[] = []
+  pushRow(rows, '501 legs played', formatNumber(stats.legsPlayed, 0))
   pushRow(rows, '3-dart average', formatNumber(stats.threeDartAverage))
   pushRow(rows, '3-dart average to 170', formatNumber(stats.threeDartAverageUntil170))
   pushRow(rows, 'Checkout %', formatPercent(stats.checkoutPercent))
-  pushRow(rows, '501 legs played', formatNumber(stats.legsPlayed, 0))
-  pushRow(rows, '501 leg win rate', formatPercent(stats.legWinRate))
-  pushRow(rows, 'Darts thrown', formatNumber(stats.dartsThrown, 0))
-  pushRow(rows, 'Best leg', stats.bestLegDarts === null ? null : `${stats.bestLegDarts} darts`)
-  pushRow(rows, 'Highest checkout', formatNumber(stats.highestCheckout, 0))
-  if (stats.thrown180 !== null) {
-    pushRow(rows, '180s', formatNumber(stats.thrown180, 0))
-  } else {
-    pushRow(rows, 'Highest visit', formatNumber(stats.highestVisit, 0))
+  pushRow(rows, 'Avg darts', formatNumber(stats.avgDarts))
+  if (stats.bestLegAverage !== null) {
+    const darts =
+      stats.bestLegDarts === null ? null : ` (${formatNumber(stats.bestLegDarts, 0)} darts)`
+    pushRow(rows, 'Best leg', `${formatNumber(stats.bestLegAverage)}${darts ?? ''}`)
   }
+  pushRow(rows, '501 leg win rate', formatPercent(stats.legWinRate))
   return rows
 }
 
@@ -65,28 +63,37 @@ export const buildBob27Rows = (stats: ProfileBob27Stats): ProfileStatRow[] => {
   pushRow(rows, 'Avg score', formatNumber(stats.avgFinalScore))
   pushRow(rows, 'Hit rate', formatPercent(stats.hitRate))
   pushRow(rows, 'Best score', formatNumber(stats.bestFinalScore, 0))
+  pushRow(rows, 'Avg hits / visit', formatNumber(stats.avgHitsPerVisit))
+  pushRow(rows, 'Avg doubles / game', formatNumber(stats.avgDoublesPerGame))
+  pushRow(rows, 'Best hits / visit', formatNumber(stats.bestHitsPerVisit))
+  pushRow(rows, 'Best doubles / game', formatNumber(stats.bestDoublesPerGame, 0))
   return rows
+}
+
+const ninetyNineGroupLabel = (group: NinetyNineDartsStatGroup): string => {
+  switch (group) {
+    case NinetyNineDartsStatGroup.Twenty:
+      return 'on 20'
+    case NinetyNineDartsStatGroup.Bull:
+      return 'on bull'
+    case NinetyNineDartsStatGroup.Other:
+      return 'other'
+    default:
+      return 'other'
+  }
 }
 
 export const buildNinetyNineRows = (stats: ProfileNinetyNineDartsStats): ProfileStatRow[] => {
   const rows: ProfileStatRow[] = []
-  pushRow(rows, 'Sessions played', formatNumber(stats.sessionsPlayed, 0))
-  pushRow(rows, 'Avg score on 20', formatNumber(stats.avgFinalScore))
-  pushRow(rows, 'Hit rate on 20', formatPercent(stats.hitRate))
-  pushRow(rows, 'Avg trebles on 20', formatNumber(stats.avgTreblesPerGame))
-  return rows
-}
-
-export const buildAroundTheClockRows = (stats: ProfileAroundTheClockStats): ProfileStatRow[] => {
-  const rows: ProfileStatRow[] = []
-  pushRow(rows, 'Sessions played', formatNumber(stats.sessionsPlayed, 0))
-  pushRow(rows, 'Avg darts to finish', formatNumber(stats.avgDartsFullRun))
-  pushRow(rows, 'Avg darts per field', formatNumber(stats.avgDartsPerField))
-  pushRow(
-    rows,
-    'Best finish',
-    stats.bestDartsFullRun === null ? null : `${stats.bestDartsFullRun} darts`,
-  )
+  for (const group of stats.groups) {
+    const suffix = ninetyNineGroupLabel(group.group)
+    pushRow(rows, `Sessions ${suffix}`, formatNumber(group.sessionsPlayed, 0))
+    pushRow(rows, `Avg score ${suffix}`, formatNumber(group.avgFinalScore))
+    pushRow(rows, `Hit rate ${suffix}`, formatPercent(group.hitRate))
+    pushRow(rows, `Avg trebles ${suffix}`, formatNumber(group.avgTreblesPerGame))
+    pushRow(rows, `Avg singles ${suffix}`, formatNumber(group.avgSinglesPerGame))
+    pushRow(rows, `Avg doubles ${suffix}`, formatNumber(group.avgDoublesPerGame))
+  }
   return rows
 }
 
@@ -96,14 +103,17 @@ export const buildJdcChallengeRows = (stats: ProfileJdcChallengeStats): ProfileS
   pushRow(rows, 'Avg score', formatNumber(stats.avgFinalScore))
   pushRow(rows, 'Best score', formatNumber(stats.bestFinalScore, 0))
   pushRow(rows, 'Avg Shanghais', formatNumber(stats.avgShanghaisPerGame))
-  pushRow(rows, 'Best Shanghais', formatNumber(stats.bestShanghaisPerGame, 0))
+  pushRow(rows, 'Avg Shanghai 10–15', formatNumber(stats.avgShanghaiLowScore))
+  pushRow(rows, 'Avg doubles', formatNumber(stats.avgDoublesScore))
+  pushRow(rows, 'Avg Shanghai 15–20', formatNumber(stats.avgShanghaiHighScore))
   return rows
 }
 
 export const buildBigNumbersRows = (stats: ProfileBigNumbersStats): ProfileStatRow[] => {
   const rows: ProfileStatRow[] = []
   pushRow(rows, 'Sessions played', formatNumber(stats.sessionsPlayed, 0))
-  pushRow(rows, 'Avg hits / visit', formatNumber(stats.avgHitsPerVisit))
+  pushRow(rows, 'Hit rate', formatPercent(stats.hitRate))
+  pushRow(rows, 'Best hit rate', formatPercent(stats.bestHitRate))
   return rows
 }
 
@@ -111,6 +121,5 @@ export const profileHasAnyStats = (stats: PlayerProfileStats): boolean =>
   stats.fiveOhOne !== null ||
   stats.bob27 !== null ||
   stats.ninetyNineDarts !== null ||
-  stats.aroundTheClock !== null ||
   stats.bigNumbers !== null ||
   stats.jdcChallenge !== null

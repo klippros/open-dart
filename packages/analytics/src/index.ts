@@ -7,12 +7,12 @@ export {
 export type {
   BuildProfileStatsInput,
   PlayerProfileStats,
-  ProfileAroundTheClockStats,
   ProfileBigNumbersStats,
   ProfileBob27Stats,
   ProfileFiveOhOneStats,
   ProfileJdcChallengeBadge,
   ProfileJdcChallengeStats,
+  ProfileNinetyNineDartsGroupStats,
   ProfileNinetyNineDartsStats,
   ProfileStatWindow,
 } from './buildProfileStats.ts'

@@ -5,49 +5,41 @@ import { buildBigNumbersRows, buildFiveOhOneRows } from './formatProfileStats'
 const sampleFiveOhOne = (
   overrides: Partial<ProfileFiveOhOneStats> = {},
 ): ProfileFiveOhOneStats => ({
-  window: {
-    startAt: '2026-01-01T00:00:00.000Z',
-    endAt: '2026-01-31T00:00:00.000Z',
-  },
   threeDartAverage: 80.5,
   threeDartAverageUntil170: 85,
   checkoutPercent: 40,
   legsPlayed: 10,
   legWinRate: 55,
-  dartsThrown: 300,
+  avgDarts: 18.2,
+  bestLegAverage: 100,
   bestLegDarts: 15,
-  highestCheckout: 120,
-  highestVisit: 140,
-  thrown180: null,
   ...overrides,
 })
 
 describe('buildFiveOhOneRows', () => {
-  it('omits null values and switches to 180s when present', () => {
-    const without180 = buildFiveOhOneRows(sampleFiveOhOne({ legWinRate: null }))
-    expect(without180.some((row) => row.label === '501 leg win rate')).toBe(false)
-    expect(without180.some((row) => row.label === 'Highest visit')).toBe(true)
-
-    const with180 = buildFiveOhOneRows(sampleFiveOhOne({ thrown180: 3, highestVisit: null }))
-    expect(with180.some((row) => row.label === '180s' && row.value === '3')).toBe(true)
-    expect(with180.some((row) => row.label === 'Highest visit')).toBe(false)
+  it('formats summary fields and omits null values', () => {
+    const rows = buildFiveOhOneRows(sampleFiveOhOne({ legWinRate: null }))
+    expect(rows.some((row) => row.label === '501 leg win rate')).toBe(false)
+    expect(rows.some((row) => row.label === 'Best leg' && row.value === '100 (15 darts)')).toBe(
+      true,
+    )
+    expect(rows.some((row) => row.label === 'Darts thrown')).toBe(false)
+    expect(rows.some((row) => row.label === '180s')).toBe(false)
   })
 })
 
 describe('buildBigNumbersRows', () => {
-  it('formats sessions played and avg hits per visit', () => {
+  it('formats sessions played and hit rates', () => {
     const stats: ProfileBigNumbersStats = {
-      window: {
-        startAt: '2026-01-01T00:00:00.000Z',
-        endAt: '2026-01-31T00:00:00.000Z',
-      },
       sessionsPlayed: 4,
-      avgHitsPerVisit: 1.5,
+      hitRate: 55.5,
+      bestHitRate: 80,
     }
 
     expect(buildBigNumbersRows(stats)).toEqual([
       { label: 'Sessions played', value: '4' },
-      { label: 'Avg hits / visit', value: '1.5' },
+      { label: 'Hit rate', value: '55.5%' },
+      { label: 'Best hit rate', value: '80.0%' },
     ])
   })
 })
