@@ -10,7 +10,7 @@ import { SessionSummaryDialog } from '../components/MatchSummaryDialog/SessionSu
 import { ProfileFollowButton } from '../components/ProfileFollowButton/ProfileFollowButton'
 import { ProfileDisplayName } from '../components/ProfilePageHeader/ProfileDisplayName'
 import { ProfilePageHeader } from '../components/ProfilePageHeader/ProfilePageHeader'
-import { ProfileStatSection } from '../components/ProfileStatSection/ProfileStatSection'
+import { PublicProfileStats } from '../components/PublicProfileStats/PublicProfileStats'
 import { SignInDialog } from '../components/SignInDialog/SignInDialog'
 import { useAuth } from '../hooks/authContext'
 import { isSignInEnabled } from '../lib/klipprosHost'
@@ -20,14 +20,6 @@ import { getOnlineMatchCompletedAt, HistoryEntrySource } from '../lib/history/on
 import { HISTORY_PAGE_SIZE } from '../lib/history/historyPager'
 import { decorateOnlineSessionForViewer } from '../lib/matchServer/onlinePlay'
 import type { OnlineMatchHistoryRow, OnlineMatchSummary } from '../lib/matchServer/types'
-import {
-  buildBigNumbersRows,
-  buildBob27Rows,
-  buildFiveOhOneRows,
-  buildJdcChallengeRows,
-  buildNinetyNineRows,
-  profileHasAnyStats,
-} from '../lib/profile/formatProfileStats'
 import {
   fetchPlayerProfileStats,
   isProfileUserId,
@@ -290,47 +282,7 @@ export const PlayerProfilePage = () => {
           {loadingStats ? <Text color="whiteAlpha.700">Loading stats…</Text> : null}
           {statsError !== null ? <Text color="red.300">{statsError}</Text> : null}
 
-          {stats !== null && profileHasAnyStats(stats) ? (
-            <Stack gap={8}>
-              {stats.fiveOhOne !== null ? (
-                <ProfileStatSection
-                  title="501"
-                  windowLabel="Last 30 days"
-                  rows={buildFiveOhOneRows(stats.fiveOhOne)}
-                />
-              ) : null}
-              {stats.bob27 !== null ? (
-                <ProfileStatSection
-                  title="Bob's 27"
-                  windowLabel="Last 30 days"
-                  rows={buildBob27Rows(stats.bob27)}
-                />
-              ) : null}
-              {stats.ninetyNineDarts !== null ? (
-                <ProfileStatSection
-                  title="99 Darts"
-                  windowLabel="Last 30 days"
-                  rows={buildNinetyNineRows(stats.ninetyNineDarts)}
-                />
-              ) : null}
-              {stats.bigNumbers !== null ? (
-                <ProfileStatSection
-                  title="Big Numbers"
-                  windowLabel="Last 30 days"
-                  rows={buildBigNumbersRows(stats.bigNumbers)}
-                />
-              ) : null}
-              {stats.jdcChallenge !== null ? (
-                <ProfileStatSection
-                  title="JDC Challenge"
-                  windowLabel="Last 30 days"
-                  rows={buildJdcChallengeRows(stats.jdcChallenge)}
-                />
-              ) : null}
-            </Stack>
-          ) : !loadingStats && statsError === null ? (
-            <Text color="whiteAlpha.700">No public stats in the last 30 days yet.</Text>
-          ) : null}
+          {loadingStats || statsError !== null ? null : <PublicProfileStats stats={stats} />}
 
           <Stack gap={3}>
             <Heading as="h2" size="lg" color="white" fontFamily="Archivo Black, sans-serif">
