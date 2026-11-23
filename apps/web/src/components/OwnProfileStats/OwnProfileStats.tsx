@@ -20,7 +20,6 @@ import { ProfileSectionId, getVisibleOwnProfileSections } from '../../lib/profil
 import { JdcChallengeProfileSection } from '../ProfileStatCards/JdcChallengeProfileSection'
 import { NinetyNineDartsProfileSection } from '../ProfileStatCards/NinetyNineDartsProfileSection'
 import { ProfileCardsSection } from '../ProfileStatCards/ProfileCardsSection'
-import { TotalDartsHero } from '../StatsPageSections/TotalDartsHero'
 import { AroundTheClockProfileSection } from './AroundTheClockProfileSection'
 import { X01ProfileSection } from './X01ProfileSection'
 
@@ -120,7 +119,6 @@ export const OwnProfileStats = ({ sessions, analytics, onStatSelect }: OwnProfil
 
   return (
     <Stack gap={8}>
-      <TotalDartsHero sessions={sessions} />
       {getVisibleOwnProfileSections(model.playedSections).map((sectionId) => (
         <Fragment key={sectionId}>
           {renderSection(sectionId, model, sessions, onStatSelect)}

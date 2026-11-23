@@ -1,6 +1,7 @@
-import { Box, Button, Stack } from '@chakra-ui/react'
+import { Box, Button, HStack, Stack, Text } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import { getRecentJdcChallengeBadge } from '@open-dart/analytics'
+import { countTotalDartsThrown } from '@open-dart/analytics/visitStats'
 import type { DateRangePreset } from '@open-dart/analytics/sessionFilters'
 import {
   getLegNumberFromTimelinePointId,
@@ -22,6 +23,7 @@ import { useAuth } from '../hooks/authContext'
 import { useOwnProfileSessions } from '../hooks/useOwnProfileSessions'
 import { buildStatTimeline } from '../lib/analytics/statTimelines'
 import type { StatTimelinePoint, StatTimelineSelection } from '../lib/analytics/statTimelines'
+import { formatInteger } from '../lib/analytics/formatAnalytics'
 import { isSignInEnabled } from '../lib/klipprosHost'
 import { DEFAULT_PROFILE_DATE_RANGE } from '../lib/profile/profileDateRange'
 import { AuthStatus } from '../types/auth'
@@ -37,6 +39,7 @@ export const ProfilePage = () => {
   const { storedSessions, allSessions, filteredSessions, analytics, reloadStoredSessions } =
     useOwnProfileSessions(dateRange)
 
+  const dartsThrown = countTotalDartsThrown(filteredSessions)
   const isSignedIn = authStatus === AuthStatus.Authenticated && user !== null
   const canSignIn = isSignInEnabled && isConfigured
   const jersey = useMemo(() => getRecentJdcChallengeBadge(allSessions), [allSessions])
@@ -89,7 +92,20 @@ export const ProfilePage = () => {
             jersey={jersey}
             identity={identity}
             social={isSignedIn ? <ProfileFollowCounts /> : null}
-            dateControl={<ProfileDateRangeSelect value={dateRange} onChange={setDateRange} />}
+            dateControl={
+              <HStack gap={3} align="center">
+                <Text
+                  fontFamily="Archivo Black, sans-serif"
+                  fontSize="2xl"
+                  lineHeight="1"
+                  color="white"
+                  whiteSpace="nowrap"
+                >
+                  {formatInteger(dartsThrown)} {dartsThrown === 1 ? 'Dart' : 'Darts'}
+                </Text>
+                <ProfileDateRangeSelect value={dateRange} onChange={setDateRange} />
+              </HStack>
+            }
           />
           <OwnProfileStats
             sessions={filteredSessions}

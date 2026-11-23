@@ -1,4 +1,4 @@
-import { Flex, Stack, Switch } from '@chakra-ui/react'
+import { HStack, Stack, Switch } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 import type { GameSession } from '@open-dart/game/types/gameSession'
 import { computeX01Stats } from '@open-dart/analytics/x01Stats'
@@ -49,25 +49,7 @@ export const X01ProfileSection = ({ sessions, onStatSelect }: X01ProfileSectionP
     <ProfileModeSection
       title="x01"
       trailing={
-        <StatsVariantToggle
-          items={X01_PROFILE_VARIANTS.map((candidate) => ({
-            value: candidate.id,
-            label: candidate.label,
-            count: getX01VariantStats(allX01, candidate.id).legCount,
-          }))}
-          value={variant.id}
-          onChange={(value) => {
-            const next = parseX01ProfileVariant(value)
-            if (next !== null) {
-              setChosenVariant(next)
-            }
-          }}
-          countUnit="Leg"
-        />
-      }
-    >
-      <Stack gap={3}>
-        <Flex justify="flex-end">
+        <HStack gap={3} flexWrap="wrap" justify="flex-end">
           <Switch.Root
             size="sm"
             checked={checkedOutOnly}
@@ -87,7 +69,25 @@ export const X01ProfileSection = ({ sessions, onStatSelect }: X01ProfileSectionP
               <Switch.Thumb />
             </Switch.Control>
           </Switch.Root>
-        </Flex>
+          <StatsVariantToggle
+            items={X01_PROFILE_VARIANTS.map((candidate) => ({
+              value: candidate.id,
+              label: candidate.label,
+              count: getX01VariantStats(allX01, candidate.id).legCount,
+            }))}
+            value={variant.id}
+            onChange={(value) => {
+              const next = parseX01ProfileVariant(value)
+              if (next !== null) {
+                setChosenVariant(next)
+              }
+            }}
+            countUnit="Leg"
+          />
+        </HStack>
+      }
+    >
+      <Stack gap={3}>
         <ProfileStatCardGrid
           cards={buildX01SummaryCards(x01SummaryFromLegStats(stats), context)}
           empty={empty}
