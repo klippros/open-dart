@@ -1,5 +1,8 @@
-import { Button, Stack, Text } from '@chakra-ui/react'
+import { Button, HStack, Popover, Portal, Stack, Text } from '@chakra-ui/react'
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useRef, useState } from 'react'
+import { toolbarControlSize } from '../../layout'
 import {
   FollowApiError,
   followUser,
@@ -7,6 +10,8 @@ import {
   unfollowUser,
 } from '../../lib/social/followApi'
 import { createRequestGeneration } from '../../lib/social/requestGeneration'
+import { darkDialogContentProps } from '../darkDialogContentProps'
+import { SettingsDismissBackdrop } from '../SettingsMenu/SettingsDismissBackdrop'
 
 export interface ProfileFollowButtonProps {
   profileUserId: string
@@ -17,6 +22,7 @@ export const ProfileFollowButton = ({ profileUserId }: ProfileFollowButtonProps)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
   const requestGenerationRef = useRef(createRequestGeneration())
 
   useEffect(() => {
@@ -24,6 +30,7 @@ export const ProfileFollowButton = ({ profileUserId }: ProfileFollowButtonProps)
     setLoading(true)
     setError(null)
     setBusy(false)
+    setMenuOpen(false)
 
     const load = async () => {
       const next = await isFollowingUser(profileUserId)
@@ -37,8 +44,8 @@ export const ProfileFollowButton = ({ profileUserId }: ProfileFollowButtonProps)
     void load()
   }, [profileUserId])
 
-  const handleToggle = async () => {
-    if (busy) {
+  const runFollowChange = async (nextFollowing: boolean) => {
+    if (busy || loading || nextFollowing === following) {
       return
     }
 
@@ -46,22 +53,22 @@ export const ProfileFollowButton = ({ profileUserId }: ProfileFollowButtonProps)
     const previous = following
     setBusy(true)
     setError(null)
-    setFollowing(!previous)
+    setFollowing(nextFollowing)
 
     try {
-      if (previous) {
-        await unfollowUser(profileUserId)
-      } else {
+      if (nextFollowing) {
         await followUser(profileUserId)
+      } else {
+        await unfollowUser(profileUserId)
       }
-    } catch (toggleError) {
+    } catch (changeError) {
       if (!requestGenerationRef.current.isCurrent(requestId)) {
         return
       }
       setFollowing(previous)
       setError(
-        toggleError instanceof FollowApiError
-          ? toggleError.message
+        changeError instanceof FollowApiError
+          ? changeError.message
           : 'Unable to update follow status.',
       )
     } finally {
@@ -71,22 +78,107 @@ export const ProfileFollowButton = ({ profileUserId }: ProfileFollowButtonProps)
     }
   }
 
+  const errorText =
+    error !== null ? (
+      <Text fontSize="sm" color="red.300">
+        {error}
+      </Text>
+    ) : null
+
+  if (loading || !following) {
+    return (
+      <Stack gap={2} align="start">
+        <Button
+          variant="emphasis"
+          disabled={loading || busy}
+          onClick={() => {
+            void runFollowChange(true)
+          }}
+        >
+          {loading ? '…' : 'Follow'}
+        </Button>
+        {errorText}
+      </Stack>
+    )
+  }
+
   return (
     <Stack gap={2} align="start">
-      <Button
-        variant={following ? 'cancel' : 'emphasis'}
-        disabled={loading || busy}
-        onClick={() => {
-          void handleToggle()
-        }}
-      >
-        {loading ? '…' : following ? 'Following' : 'Follow'}
-      </Button>
-      {error !== null ? (
-        <Text fontSize="sm" color="red.300">
-          {error}
-        </Text>
-      ) : null}
+      <HStack gap={0} align="stretch">
+        <Button
+          variant="cancel"
+          asChild
+          h={toolbarControlSize}
+          borderRightRadius={0}
+          borderRightWidth={0}
+          px={4}
+          pointerEvents="none"
+          _hover={{ transform: 'scale(1)', bg: 'transparent', borderColor: 'whiteAlpha.600' }}
+        >
+          <span role="status">Following</span>
+        </Button>
+        <Popover.Root
+          open={menuOpen}
+          positioning={{ placement: 'bottom-end' }}
+          onOpenChange={(details) => {
+            setMenuOpen(details.open)
+          }}
+        >
+          <Popover.Trigger asChild>
+            <Button
+              aria-label="Follow options"
+              variant="cancel"
+              h={toolbarControlSize}
+              minW={toolbarControlSize}
+              w={toolbarControlSize}
+              p={0}
+              borderLeftRadius={0}
+              disabled={busy}
+            >
+              <FontAwesomeIcon icon={faChevronDown} />
+            </Button>
+          </Popover.Trigger>
+          <Portal>
+            {menuOpen && (
+              <SettingsDismissBackdrop
+                onDismiss={() => {
+                  setMenuOpen(false)
+                }}
+              />
+            )}
+            <Popover.Positioner css={{ '--z-index': 'zIndex.popover' }}>
+              <Popover.Content
+                bg={darkDialogContentProps.bg}
+                borderWidth={darkDialogContentProps.borderWidth}
+                borderColor={darkDialogContentProps.borderColor}
+                color={darkDialogContentProps.color}
+                borderRadius="xl"
+                shadow="2xl"
+                minW="160px"
+                overflow="hidden"
+                p={0}
+                _focusVisible={{ outline: 'none' }}
+              >
+                <Popover.Body px={3} py={3}>
+                  <Button
+                    variant="cancel"
+                    w="full"
+                    justifyContent="flex-start"
+                    disabled={busy}
+                    onClick={() => {
+                      setMenuOpen(false)
+                      void runFollowChange(false)
+                    }}
+                  >
+                    Unfollow
+                  </Button>
+                </Popover.Body>
+              </Popover.Content>
+            </Popover.Positioner>
+          </Portal>
+        </Popover.Root>
+      </HStack>
+      {errorText}
     </Stack>
   )
 }
