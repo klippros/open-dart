@@ -69,5 +69,10 @@ Deno.test('501 and practice reads use absolute cutoffs and errors stay generic',
   assert(!source.includes('AroundTheClock'), 'Around the Clock must not be a public practice mode')
   assert(!source.includes('Hunter'), 'Hunter must not be a public practice mode')
   assert(!source.includes(".in('id', matchIds)"), '501 query must not fetch an unbounded id list')
+  assert(
+    source.includes(".eq('mode', GameModeId.X01)"),
+    'local x01 should be read from game_sessions',
+  )
+  assert(!source.includes('startScore: 501'), 'online x01 query must include every start score')
   assert(!source.includes('error.message'), 'database errors must not be reflected')
 })

@@ -63,7 +63,7 @@ describe('orientSessionForProfileUser', () => {
 })
 
 describe('buildProfileStats', () => {
-  it('returns version 2 fields with an absolute 30-day window', () => {
+  it('returns version 3 x01 groups with an absolute 30-day window', () => {
     const online = sampleSession({
       id: 'online-1',
       players: [
@@ -135,20 +135,61 @@ describe('buildProfileStats', () => {
     })
 
     expect(stats.version).toBe(PROFILE_STATS_VERSION)
-    expect(stats.version).toBe(2)
+    expect(stats.version).toBe(3)
     expect(stats.displayName).toBe('Alex')
     expect(stats.window.endAt).toBe(NOW.toISOString())
-    expect(stats.fiveOhOne).not.toBeNull()
-    expect(stats.fiveOhOne?.legsPlayed).toBe(1)
-    expect(stats.fiveOhOne?.legWinRate).toBe(100)
-    expect(stats.fiveOhOne?.bestLegDarts).toBe(6)
-    expect(stats.fiveOhOne?.bestDarts).toBe(6)
-    expect(stats.fiveOhOne).not.toHaveProperty('dartsThrown')
-    expect(stats.fiveOhOne).not.toHaveProperty('thrown180')
+    expect(stats.x01.fiveOhOneOnline.legsPlayed).toBe(1)
+    expect(stats.x01.fiveOhOne.legsPlayed).toBe(1)
+    expect(stats.x01.all.legsPlayed).toBe(1)
+    expect(stats.x01.oneSeventy.legsPlayed).toBe(0)
+    expect(stats.x01.fiveOhOne.legWinRate).toBe(100)
+    expect(stats.x01.fiveOhOne.bestDarts).toBe(6)
+    expect(stats.x01.fiveOhOne.thrown180).toBe(1)
+    expect(stats.x01.fiveOhOne).not.toHaveProperty('bestLegSource')
+    expect(stats.x01.fiveOhOne).not.toHaveProperty('bestDartsSource')
+    expect(stats.x01.fiveOhOne).not.toHaveProperty('bestLegDarts')
     expect(stats.bob27?.sessionsPlayed).toBe(1)
     expect(stats).not.toHaveProperty('aroundTheClock')
-    expect(JSON.stringify(stats)).not.toMatch(/"visits"/u)
-    expect(JSON.stringify(stats)).not.toMatch(/"payload"/u)
+    expect(stats).not.toHaveProperty('fiveOhOne')
+    const serialized = JSON.stringify(stats)
+    expect(serialized).not.toMatch(/"visits"/u)
+    expect(serialized).not.toMatch(/"payload"/u)
+    expect(serialized).not.toMatch(/"sessionId"/u)
+    expect(serialized).not.toMatch(/"legNumber"/u)
+  })
+
+  it('keeps local 501 out of the online group and 170 out of 501', () => {
+    const local501 = sampleSession({ id: 'local-501' })
+    const online501 = sampleSession({
+      id: 'online-501',
+      players: [
+        { id: 'user-a', name: 'A', kind: PlayerKind.Human },
+        { id: 'user-b', name: 'B', kind: PlayerKind.Remote },
+      ],
+    })
+    const local170 = sampleSession({
+      id: 'local-170',
+      config: { startScore: 170, doubleIn: false, doubleOut: true },
+      visits: [sampleVisit({ scoreBefore: 170, scoreAfter: 0, visitScore: 170, checkout: true })],
+    })
+    const duplicateOnline = sampleSession({
+      id: 'online-501',
+      players: [{ id: 'user-a', name: 'A', kind: PlayerKind.Human }],
+    })
+
+    const stats = buildProfileStats({
+      displayName: 'Alex',
+      profileUserId: 'user-a',
+      onlineSessions: [online501],
+      localX01Sessions: [local501, local170, duplicateOnline],
+      practiceSessions: [],
+      now: NOW,
+    })
+
+    expect(stats.x01.fiveOhOneOnline.legsPlayed).toBe(1)
+    expect(stats.x01.fiveOhOne.legsPlayed).toBe(2)
+    expect(stats.x01.oneSeventy.legsPlayed).toBe(1)
+    expect(stats.x01.all.legsPlayed).toBe(3)
   })
 
   it('omits empty mode blocks', () => {
@@ -160,7 +201,10 @@ describe('buildProfileStats', () => {
       now: NOW,
     })
 
-    expect(stats.fiveOhOne).toBeNull()
+    expect(stats.x01.fiveOhOne.legsPlayed).toBe(0)
+    expect(stats.x01.fiveOhOneOnline.legsPlayed).toBe(0)
+    expect(stats.x01.oneSeventy.legsPlayed).toBe(0)
+    expect(stats.x01.all.legsPlayed).toBe(0)
     expect(stats.bob27).toBeNull()
     expect(stats.ninetyNineDarts).toBeNull()
     expect(stats.bigNumbers).toBeNull()
