@@ -1,4 +1,4 @@
-import { Box, Button, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, Button, Heading, HStack, Stack, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import type { PlayerProfileStats } from '@open-dart/analytics'
@@ -8,8 +8,10 @@ import type { HistoryListEntry } from '../components/HistoryList/HistoryList'
 import { OnlineMatchSummaryDialog } from '../components/MatchSummaryDialog/OnlineMatchSummaryDialog'
 import { SessionSummaryDialog } from '../components/MatchSummaryDialog/SessionSummaryDialog'
 import { ProfileFollowButton } from '../components/ProfileFollowButton/ProfileFollowButton'
+import { ProfileNameMenu } from '../components/ProfileNameMenu/ProfileNameMenu'
 import { ProfileDisplayName } from '../components/ProfilePageHeader/ProfileDisplayName'
 import { ProfilePageHeader } from '../components/ProfilePageHeader/ProfilePageHeader'
+import { ReportDisplayNameDialog } from '../components/ReportDisplayNameDialog/ReportDisplayNameDialog'
 import { PublicProfileStats } from '../components/PublicProfileStats/PublicProfileStats'
 import { SignInDialog } from '../components/SignInDialog/SignInDialog'
 import { useAuth } from '../hooks/authContext'
@@ -40,6 +42,7 @@ export const PlayerProfilePage = () => {
   const [loadingStats, setLoadingStats] = useState(false)
   const [matches, setMatches] = useState<OnlineMatchSummary[]>([])
   const [hasMoreMatches, setHasMoreMatches] = useState(false)
+  const [reportDialogOpen, setReportDialogOpen] = useState(false)
   const [reportMessage, setReportMessage] = useState<string | null>(null)
   const [selectedSession, setSelectedSession] = useState<GameSession | null>(null)
   const [selectedOnlineMatch, setSelectedOnlineMatch] = useState<OnlineMatchHistoryRow | null>(null)
@@ -242,7 +245,16 @@ export const PlayerProfilePage = () => {
         <Stack gap={8}>
           <ProfilePageHeader
             jersey={stats?.jdcChallenge?.badge ?? null}
-            identity={<ProfileDisplayName name={displayName} />}
+            identity={
+              <HStack gap={1} minW={0} align="center">
+                <ProfileDisplayName name={displayName} />
+                <ProfileNameMenu
+                  onReportName={() => {
+                    setReportDialogOpen(true)
+                  }}
+                />
+              </HStack>
+            }
             social={<ProfileFollowButton profileUserId={profileUserId} />}
             dateControl={
               <Text color="whiteAlpha.700" fontSize="sm">
@@ -250,33 +262,11 @@ export const PlayerProfilePage = () => {
               </Text>
             }
           >
-            <Stack direction="row" gap={3} align="center" flexWrap="wrap">
-              <Button
-                variant="ghost"
-                size="xs"
-                color="whiteAlpha.600"
-                fontWeight="normal"
-                px={1}
-                _hover={{ color: 'whiteAlpha.900', bg: 'transparent' }}
-                onClick={() => {
-                  void (async () => {
-                    const ok = await reportDisplayName(profileUserId)
-                    setReportMessage(
-                      ok
-                        ? 'Thanks. We received your report.'
-                        : 'Could not send the report. Try again later.',
-                    )
-                  })()
-                }}
-              >
-                Report name
-              </Button>
-              {reportMessage !== null ? (
-                <Text fontSize="sm" color="whiteAlpha.700">
-                  {reportMessage}
-                </Text>
-              ) : null}
-            </Stack>
+            {reportMessage !== null ? (
+              <Text fontSize="sm" color="whiteAlpha.700">
+                {reportMessage}
+              </Text>
+            ) : null}
           </ProfilePageHeader>
 
           {loadingStats ? <Text color="whiteAlpha.700">Loading stats…</Text> : null}
@@ -315,6 +305,22 @@ export const PlayerProfilePage = () => {
         match={selectedOnlineMatch}
         onClose={() => {
           setSelectedOnlineMatch(null)
+        }}
+      />
+      <ReportDisplayNameDialog
+        open={reportDialogOpen}
+        displayName={displayName}
+        onOpenChange={setReportDialogOpen}
+        onConfirm={() => {
+          setReportDialogOpen(false)
+          void (async () => {
+            const ok = await reportDisplayName(profileUserId)
+            setReportMessage(
+              ok
+                ? 'Thanks. We received your report.'
+                : 'Could not send the report. Try again later.',
+            )
+          })()
         }}
       />
     </ContentContainer>
