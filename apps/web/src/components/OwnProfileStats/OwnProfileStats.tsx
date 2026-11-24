@@ -138,7 +138,6 @@ const renderSection = (
         <ProfileCardsSection
           title="Hunter"
           cards={buildHunterSummaryCards(model.hunter)}
-          empty={model.hunter.sessionCount === 0}
           sessionCount={model.hunter.sessionCount}
           onStatSelect={onStatSelect}
           onOpenBest={onOpenBest}

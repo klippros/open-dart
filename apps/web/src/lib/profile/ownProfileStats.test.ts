@@ -7,16 +7,16 @@ import { PlayerKind } from '@open-dart/game/types/player'
 import { buildOwnProfileStatsModel } from './ownProfileStats'
 import { ProfileSectionId } from './profileSections'
 
-const bullRunSession: GameSession = {
-  id: 'bull-run',
-  mode: GameModeId.BullRun,
+const playedSession = (id: string, mode: GameModeId): GameSession => ({
+  id,
+  mode,
   config: {},
   players: [{ id: 'p1', name: 'You', kind: PlayerKind.Human }],
   visits: [],
   status: GameStatus.Completed,
   startedAt: '2026-01-01T10:00:00.000Z',
   completedAt: new Date().toISOString(),
-}
+})
 
 describe('buildOwnProfileStatsModel', () => {
   it('returns empty core sections without games', () => {
@@ -31,16 +31,21 @@ describe('buildOwnProfileStatsModel', () => {
     expect(model.bigNumbers.sessionCount).toBe(0)
     expect(model.ninetyNineDarts.map((group) => group.sessionCount)).toEqual([0, 0, 0])
     expect(model.playedSections.size).toBe(0)
+    expect(model.playedSections.has(ProfileSectionId.Hunter)).toBe(false)
   })
 
   it('marks played extras so they become visible', () => {
-    const sessions = [bullRunSession]
+    const sessions = [
+      playedSession('bull-run', GameModeId.BullRun),
+      playedSession('hunter', GameModeId.Hunter),
+    ]
     const model = buildOwnProfileStatsModel(
       computeAnalytics(sessions, { dateRange: 'all' }),
       computeBigNumbersSummary(sessions),
     )
 
     expect(model.playedSections.has(ProfileSectionId.BullRun)).toBe(true)
+    expect(model.playedSections.has(ProfileSectionId.Hunter)).toBe(true)
     expect(model.playedSections.has(ProfileSectionId.ClaimTheBoard)).toBe(false)
   })
 })

@@ -33,21 +33,14 @@ describe('profileSections', () => {
     ])
   })
 
-  it('always shows core sections and Hunter, hiding unplayed extras', () => {
-    expect(getVisibleOwnProfileSections(new Set())).toEqual([
-      ProfileSectionId.X01,
-      ProfileSectionId.JdcChallenge,
-      ProfileSectionId.NinetyNineDarts,
-      ProfileSectionId.BigNumbers,
-      ProfileSectionId.Bob27,
-      ProfileSectionId.Hunter,
-    ])
+  it('always shows core sections and hides unplayed extras, including Hunter', () => {
+    expect(getVisibleOwnProfileSections(new Set())).toEqual([...PUBLIC_PROFILE_SECTION_ORDER])
   })
 
-  it('shows played extras in stats-page order before Hunter', () => {
+  it('shows played extras in section order, with Hunter last', () => {
     expect(
       getVisibleOwnProfileSections(
-        new Set([ProfileSectionId.BullRun, ProfileSectionId.OneTwentyOne]),
+        new Set([ProfileSectionId.BullRun, ProfileSectionId.OneTwentyOne, ProfileSectionId.Hunter]),
       ).slice(-3),
     ).toEqual([ProfileSectionId.OneTwentyOne, ProfileSectionId.BullRun, ProfileSectionId.Hunter])
   })

@@ -51,7 +51,7 @@ export const buildOwnProfileStatsModel = (
   const { checkout, other } = analytics.practice
   const jdc = other.find(isJdcChallengePracticeStats)
   const bob27 = other.find(isBob27PracticeStats)
-  const hunter = other.find(isHunterPracticeStats)
+  const hunter = other.find(isHunterPracticeStats) ?? null
   const ninetyNine = other.filter(isNinetyNineDartsPracticeStats)
   const oneTwentyOne = checkout.find((stats) => stats.mode === GameModeId.OneTwentyOne) ?? null
   const tenUpOneDown = checkout.find((stats) => stats.mode === GameModeId.TenUpOneDown) ?? null
@@ -74,6 +74,9 @@ export const buildOwnProfileStatsModel = (
   }
   if (bullRun !== null) {
     playedSections.add(ProfileSectionId.BullRun)
+  }
+  if (hunter !== null) {
+    playedSections.add(ProfileSectionId.Hunter)
   }
 
   return {

@@ -35,10 +35,9 @@ export const PUBLIC_PROFILE_SECTION_ORDER: readonly ProfileSectionId[] = [
   ProfileSectionId.Bob27,
 ]
 
-const ALWAYS_VISIBLE_OWN_SECTIONS: ReadonlySet<ProfileSectionId> = new Set([
-  ...PUBLIC_PROFILE_SECTION_ORDER,
-  ProfileSectionId.Hunter,
-])
+const ALWAYS_VISIBLE_OWN_SECTIONS: ReadonlySet<ProfileSectionId> = new Set(
+  PUBLIC_PROFILE_SECTION_ORDER,
+)
 
 export const getVisibleOwnProfileSections = (
   playedSections: ReadonlySet<ProfileSectionId>,
