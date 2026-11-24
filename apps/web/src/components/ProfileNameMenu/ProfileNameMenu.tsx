@@ -30,6 +30,7 @@ export const ProfileNameMenu = ({ onReportName }: ProfileNameMenuProps) => {
           w={toolbarControlSize}
           h={toolbarControlSize}
           p={0}
+          flexShrink={0}
           _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
           _expanded={{ color: 'white', bg: 'whiteAlpha.100' }}
         >

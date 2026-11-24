@@ -55,13 +55,14 @@ export const X01ProfileSection = ({
     <ProfileModeSection
       title="x01"
       trailing={
-        <HStack gap={3} flexWrap="wrap" justify="flex-end">
+        <HStack gap={3} flexWrap="wrap" justify="flex-end" w="full" minW={0}>
           <Switch.Root
             size="sm"
             checked={checkedOutOnly}
             colorPalette="orange"
             display="flex"
             alignItems="center"
+            flexShrink={0}
             gap={3}
             onCheckedChange={(details) => {
               setCheckedOutOnly(details.checked)

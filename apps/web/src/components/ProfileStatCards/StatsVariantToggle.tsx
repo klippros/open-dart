@@ -32,6 +32,7 @@ export const StatsVariantToggle = ({ items, value, onChange }: StatsVariantToggl
       p="1"
       w="fit-content"
       maxW="full"
+      minW={0}
     >
       <SegmentGroup.Indicator bg="whiteAlpha.200" />
       <SegmentGroup.Items
@@ -40,6 +41,7 @@ export const StatsVariantToggle = ({ items, value, onChange }: StatsVariantToggl
           label: `${item.label} (${item.count})`,
         }))}
         color="whiteAlpha.800"
+        whiteSpace="nowrap"
         _checked={{ color: 'white', fontWeight: 'semibold' }}
       />
     </SegmentGroup.Root>

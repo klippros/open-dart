@@ -1,4 +1,4 @@
-import { Box, Button, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, Button, Stack, Text } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import { getRecentJdcChallengeBadge } from '@open-dart/analytics'
 import { countTotalDartsThrown } from '@open-dart/analytics/visitStats'
@@ -105,20 +105,18 @@ export const ProfilePage = () => {
             jersey={jersey}
             identity={identity}
             social={isSignedIn ? <ProfileFollowCounts /> : null}
-            dateControl={
-              <HStack gap={3} align="center">
-                <Text
-                  fontFamily="Archivo Black, sans-serif"
-                  fontSize="2xl"
-                  lineHeight="1"
-                  color="white"
-                  whiteSpace="nowrap"
-                >
-                  {formatInteger(dartsThrown)} {dartsThrown === 1 ? 'Dart' : 'Darts'}
-                </Text>
-                <ProfileDateRangeSelect value={dateRange} onChange={setDateRange} />
-              </HStack>
+            meta={
+              <Text
+                fontFamily="Archivo Black, sans-serif"
+                fontSize="2xl"
+                lineHeight="1"
+                color="white"
+                whiteSpace="nowrap"
+              >
+                {formatInteger(dartsThrown)} {dartsThrown === 1 ? 'Dart' : 'Darts'}
+              </Text>
             }
+            dateControl={<ProfileDateRangeSelect value={dateRange} onChange={setDateRange} />}
           />
           <OwnProfileStats
             sessions={filteredSessions}

@@ -35,7 +35,7 @@ export const ProfileFollowCounts = () => {
 
   return (
     <>
-      <HStack gap={1} flexWrap="wrap">
+      <HStack gap={1} flexShrink={0} flexWrap="nowrap">
         {FOLLOW_LIST_KINDS.map((kind) => {
           const count =
             kind === FollowListKind.Followers ? counts?.followerCount : counts?.followingCount
