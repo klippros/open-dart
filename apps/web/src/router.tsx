@@ -15,8 +15,8 @@ import { NinetyNineDartsSetupPage } from './routes/NinetyNineDartsSetupPage'
 import { OnlineMatchJoinPage } from './routes/OnlineMatchJoinPage'
 import { OnlineMatchNewPage } from './routes/OnlineMatchNewPage'
 import { OnlineMatchPage } from './routes/OnlineMatchPage'
+import { OwnProfileRoute } from './routes/OwnProfileRoute'
 import { PlayerProfilePage } from './routes/PlayerProfilePage'
-import { ProfilePage } from './routes/ProfilePage'
 import { X01SetupPage } from './routes/X01SetupPage'
 import { LEGACY_PROFILE_PATHS, OWN_PROFILE_PATH } from './lib/profile/profileRoutes'
 
@@ -39,7 +39,7 @@ export const router = createBrowserRouter(
         { path: 'match/join/:token', element: <OnlineMatchJoinPage /> },
         { path: 'match/:id', element: <OnlineMatchPage /> },
         { path: 'auth/callback', element: <AuthCallbackPage /> },
-        { path: OWN_PROFILE_PATH, element: <ProfilePage /> },
+        { path: OWN_PROFILE_PATH, element: <OwnProfileRoute /> },
         ...LEGACY_PROFILE_PATHS.map((path) => ({
           path,
           element: <Navigate to={OWN_PROFILE_PATH} replace />,

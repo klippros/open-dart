@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState } from 'react'
 import { useAuth } from '../../hooks/authContext'
 import { isSignInEnabled } from '../../lib/klipprosHost'
+import { OWN_PROFILE_PATH, getOwnProfilePath } from '../../lib/profile/profileRoutes'
 import { toolbarControlSize } from '../../layout'
 import { createSettingsNavButton } from '../AppHeader/toolbarButtons'
 import { NavItem } from '../AppNavbar/NavItem'
@@ -79,8 +80,8 @@ export const MobileNavDrawer = ({
             <VStack as="nav" align="stretch" gap={4} aria-label="Main">
               {NAV_ITEMS.map((item) => (
                 <NavItem
-                  key={item.to}
-                  to={item.to}
+                  key={item.label}
+                  to={item.to === OWN_PROFILE_PATH ? getOwnProfilePath(user?.id) : item.to}
                   label={item.label}
                   beta={item.beta}
                   onNavigate={onNavigate}

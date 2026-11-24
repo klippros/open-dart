@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   LEGACY_PROFILE_PATHS,
   OWN_PROFILE_PATH,
+  getOwnProfilePath,
   getPlayerProfilePath,
   isOwnProfileUserId,
 } from './profileRoutes'
@@ -9,6 +10,13 @@ import {
 describe('profileRoutes', () => {
   it('builds player profile links', () => {
     expect(getPlayerProfilePath('abc')).toBe('/players/abc')
+  })
+
+  it('keeps signed-out users on the profile path and signed-in users on a player link', () => {
+    expect(getOwnProfilePath(null)).toBe('/profile')
+    expect(getOwnProfilePath(undefined)).toBe('/profile')
+    expect(getOwnProfilePath('')).toBe('/profile')
+    expect(getOwnProfilePath('abc')).toBe('/players/abc')
   })
 
   it('keeps the legacy history and stats paths for redirects', () => {

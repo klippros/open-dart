@@ -2,6 +2,7 @@ import { Button, HStack } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useAuth } from '../../hooks/authContext'
 import { isSignInEnabled } from '../../lib/klipprosHost'
+import { OWN_PROFILE_PATH, getOwnProfilePath } from '../../lib/profile/profileRoutes'
 import { SignInDialog } from '../SignInDialog/SignInDialog'
 import { UserAccountMenu } from '../UserAccountMenu/UserAccountMenu'
 import { NAV_ITEMS } from './navItems'
@@ -20,7 +21,12 @@ export const AppNavbar = () => {
       display={{ base: 'none', md: 'flex' }}
     >
       {NAV_ITEMS.map((item) => (
-        <NavItem key={item.to} to={item.to} label={item.label} beta={item.beta} />
+        <NavItem
+          key={item.label}
+          to={item.to === OWN_PROFILE_PATH ? getOwnProfilePath(user?.id) : item.to}
+          label={item.label}
+          beta={item.beta}
+        />
       ))}
       {user !== null && <UserAccountMenu />}
       {isSignInEnabled && isConfigured && user === null && (
