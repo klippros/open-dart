@@ -94,7 +94,7 @@ export const ProfilePage = () => {
       Sign in to sync
     </Button>
   ) : canSignIn ? null : (
-    <ProfileDisplayName name="Stats" />
+    <ProfileDisplayName name="Profile" />
   )
 
   return (
