@@ -3,8 +3,9 @@ import { GameModeId, GameStatus } from '@open-dart/game/types/gameMode'
 import type { GameSession } from '@open-dart/game/types/gameSession'
 import { PlayerKind } from '@open-dart/game/types/player'
 import { DartMultiplier } from '@open-dart/game/types/dart'
+import { BigNumbersRequiredHits } from '@open-dart/game/types/bigNumbers'
 import { numberDart } from '@open-dart/game/testHelpers'
-import { buildStatTimeline, hasPlottableTimeline } from './statTimelines'
+import { buildStatTimeline, formatTimelineSecondary, hasPlottableTimeline } from './statTimelines'
 
 const sampleVisit = (
   overrides: Partial<GameSession['visits'][number]> = {},
@@ -61,6 +62,7 @@ describe('statTimelines', () => {
         metric: 'threeDartAverage',
         metricLabel: '3-dart average',
         scopeLabel: '501',
+        secondary: [{ metric: 'avgDarts', suffix: ' darts', emptyLabel: '(not finished)' }],
       },
     )
 
@@ -71,6 +73,10 @@ describe('statTimelines', () => {
     ])
     expect(timeline.points[0]?.value).toBe(80)
     expect(timeline.points[1]?.value).toBe(75)
+    expect(timeline.points.map((point) => formatTimelineSecondary(point.secondaryValues))).toEqual([
+      '(not finished)',
+      '2 darts',
+    ])
     expect(hasPlottableTimeline(timeline)).toBe(true)
   })
 
@@ -231,7 +237,7 @@ describe('statTimelines', () => {
     expect(timeline.points[0]?.sessionLabel).toBe('501 · Leg 1')
   })
 
-  it('builds bob27 doubles-per-game timeline points', () => {
+  it('puts Bob 27 visit and game counts on the same timeline point', () => {
     const timeline = buildStatTimeline(
       [
         sampleSession({
@@ -263,14 +269,108 @@ describe('statTimelines', () => {
       ],
       {
         scope: { type: 'practice-bob27' },
-        metric: 'avgDoublesPerGame',
-        metricLabel: 'Doubles / game',
+        metric: 'hitRate',
+        metricLabel: 'Hit rate',
         scopeLabel: "Bob's 27",
+        secondary: [
+          { metric: 'avgHitsPerVisit', suffix: ' Visit /' },
+          { metric: 'avgDoublesPerGame', suffix: ' Game', digits: 1 },
+        ],
+      },
+    )
+
+    expect(timeline.format).toBe('percent')
+    expect(timeline.points.map((point) => formatTimelineSecondary(point.secondaryValues))).toEqual([
+      '0.50 Visit / 1.0 Game',
+      '2.50 Visit / 5.0 Game',
+    ])
+  })
+
+  it('builds big numbers hit-rate timeline points for pooled sessions', () => {
+    const timeline = buildStatTimeline(
+      [
+        sampleSession({
+          id: 'bn-low',
+          mode: GameModeId.BigNumbers,
+          config: { requiredHits: BigNumbersRequiredHits.Two },
+          completedAt: '2026-01-01T10:00:00.000Z',
+          visits: [
+            sampleVisit({
+              visitScore: 1,
+              scoreBefore: 1,
+              scoreAfter: 1,
+              darts: [
+                numberDart(1, DartMultiplier.Single),
+                numberDart(1, DartMultiplier.Single),
+                numberDart(1, DartMultiplier.Single),
+              ],
+              metadata: { hitCount: 1, targetLabel: '1', advanced: false },
+            }),
+          ],
+        }),
+        sampleSession({
+          id: 'bn-high',
+          mode: GameModeId.BigNumbers,
+          config: { requiredHits: BigNumbersRequiredHits.One },
+          completedAt: '2026-01-02T10:00:00.000Z',
+          visits: [
+            sampleVisit({
+              visitScore: 2,
+              scoreBefore: 1,
+              scoreAfter: 2,
+              darts: [numberDart(1, DartMultiplier.Single), numberDart(1, DartMultiplier.Single)],
+              metadata: { hitCount: 2, targetLabel: '1', advanced: true },
+            }),
+          ],
+        }),
+      ],
+      {
+        scope: { type: 'practice-big-numbers' },
+        metric: 'bestHitRate',
+        metricLabel: 'Best hit rate',
+        scopeLabel: 'Big Numbers',
+      },
+    )
+
+    expect(timeline.format).toBe('percent')
+    expect(timeline.points.map((point) => point.sessionId)).toEqual(['bn-low', 'bn-high'])
+    expect(timeline.points.map((point) => point.value)).toEqual([(1 / 3) * 100, 100])
+  })
+
+  it('builds hunter advances-per-visit timeline points', () => {
+    const timeline = buildStatTimeline(
+      [
+        sampleSession({
+          id: 'hunter-1',
+          mode: GameModeId.Hunter,
+          config: { startingPlayerIndex: 0 },
+          completedAt: '2026-01-01T10:00:00.000Z',
+          visits: [
+            sampleVisit({
+              visitScore: 2,
+              scoreBefore: 1,
+              scoreAfter: 5,
+              darts: [
+                numberDart(1, DartMultiplier.Single),
+                numberDart(18, DartMultiplier.Single),
+                numberDart(4, DartMultiplier.Double),
+              ],
+              metadata: { fieldNumber: 1, advances: 2 },
+            }),
+          ],
+        }),
+      ],
+      {
+        scope: { type: 'practice-hunter' },
+        metric: 'avgAdvancesPerVisit',
+        metricLabel: 'Advances / visit',
+        scopeLabel: 'Hunter',
       },
     )
 
     expect(timeline.format).toBe('average')
-    expect(timeline.points.map((point) => point.value)).toEqual([1, 5])
+    expect(timeline.points).toHaveLength(1)
+    expect(timeline.points[0]?.value).toBe(2)
   })
 
   it('builds 121 checkouts-per-game timeline points', () => {
@@ -324,5 +424,29 @@ describe('statTimelines', () => {
 
     expect(timeline.format).toBe('integer')
     expect(timeline.points.map((point) => point.value)).toEqual([1, 2])
+  })
+
+  it('limits the online 501 scope to games with a remote opponent', () => {
+    const timeline = buildStatTimeline(
+      [
+        sampleSession({ id: 'local' }),
+        sampleSession({
+          id: 'online',
+          players: [
+            { id: 'player-1', name: 'You', kind: PlayerKind.Human },
+            { id: 'player-2', name: 'Them', kind: PlayerKind.Remote },
+          ],
+        }),
+      ],
+      {
+        scope: { type: 'x01-501-online' },
+        metric: 'bestLegAverage',
+        metricLabel: 'Best leg average',
+        scopeLabel: '501 online',
+      },
+    )
+
+    expect(timeline.points.map((point) => point.sessionId)).toEqual(['online:leg:1'])
+    expect(timeline.points[0]?.value).toBe(60)
   })
 })

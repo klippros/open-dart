@@ -7,7 +7,15 @@ import { numberDart } from '@open-dart/game/testHelpers'
 import { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock'
 import { BigNumbersRequiredHits } from '@open-dart/game/types/bigNumbers'
 import { NinetyNineDartsTargetKind } from '@open-dart/game/types/ninetyNineDarts'
-import { buildProfileStats, orientSessionForProfileUser } from './buildProfileStats'
+import { NinetyNineDartsStatGroup } from './ninetyNineVisitStats'
+import {
+  PROFILE_STATS_VERSION,
+  buildProfileStats,
+  getRecentJdcChallengeBadge,
+  orientSessionForProfileUser,
+} from './buildProfileStats'
+
+const NOW = new Date('2026-08-25T12:00:00.000Z')
 
 const sampleVisit = (
   overrides: Partial<GameSession['visits'][number]> = {},
@@ -34,8 +42,8 @@ const sampleSession = (overrides: Partial<GameSession> = {}): GameSession => ({
   players: [{ id: 'user-a', name: 'A', kind: PlayerKind.Human }],
   visits: [sampleVisit()],
   status: GameStatus.Completed,
-  startedAt: '2026-01-01T00:00:00.000Z',
-  completedAt: '2026-03-01T00:00:00.000Z',
+  startedAt: '2026-08-10T00:00:00.000Z',
+  completedAt: '2026-08-10T00:00:00.000Z',
   ...overrides,
 })
 
@@ -55,7 +63,7 @@ describe('orientSessionForProfileUser', () => {
 })
 
 describe('buildProfileStats', () => {
-  it('returns numbers only and replaces highest visit with 180s', () => {
+  it('returns version 2 fields with an absolute 30-day window', () => {
     const online = sampleSession({
       id: 'online-1',
       players: [
@@ -99,7 +107,7 @@ describe('buildProfileStats', () => {
       id: 'bob-1',
       mode: GameModeId.Bob27,
       config: { startScore: 27 },
-      completedAt: '2026-04-01T00:00:00.000Z',
+      completedAt: '2026-08-20T00:00:00.000Z',
       visits: [
         sampleVisit({
           visitScore: 40,
@@ -123,18 +131,22 @@ describe('buildProfileStats', () => {
       profileUserId: 'user-a',
       onlineSessions: [online],
       practiceSessions: [bobRecent, bobOld],
+      now: NOW,
     })
 
+    expect(stats.version).toBe(PROFILE_STATS_VERSION)
+    expect(stats.version).toBe(2)
     expect(stats.displayName).toBe('Alex')
+    expect(stats.window.endAt).toBe(NOW.toISOString())
     expect(stats.fiveOhOne).not.toBeNull()
-    expect(stats.fiveOhOne?.thrown180).toBe(1)
-    expect(stats.fiveOhOne?.highestVisit).toBeNull()
     expect(stats.fiveOhOne?.legsPlayed).toBe(1)
     expect(stats.fiveOhOne?.legWinRate).toBe(100)
-    expect(stats.fiveOhOne?.dartsThrown).toBe(6)
     expect(stats.fiveOhOne?.bestLegDarts).toBe(6)
+    expect(stats.fiveOhOne?.bestDarts).toBe(6)
+    expect(stats.fiveOhOne).not.toHaveProperty('dartsThrown')
+    expect(stats.fiveOhOne).not.toHaveProperty('thrown180')
     expect(stats.bob27?.sessionsPlayed).toBe(1)
-    expect(stats.aroundTheClock).toBeNull()
+    expect(stats).not.toHaveProperty('aroundTheClock')
     expect(JSON.stringify(stats)).not.toMatch(/"visits"/u)
     expect(JSON.stringify(stats)).not.toMatch(/"payload"/u)
   })
@@ -145,17 +157,17 @@ describe('buildProfileStats', () => {
       profileUserId: 'user-a',
       onlineSessions: [],
       practiceSessions: [],
+      now: NOW,
     })
 
     expect(stats.fiveOhOne).toBeNull()
     expect(stats.bob27).toBeNull()
     expect(stats.ninetyNineDarts).toBeNull()
-    expect(stats.aroundTheClock).toBeNull()
     expect(stats.bigNumbers).toBeNull()
     expect(stats.jdcChallenge).toBeNull()
   })
 
-  it('pools Big Numbers hits per visit across required-hit settings', () => {
+  it('pools Big Numbers hit rates across required-hit settings', () => {
     const oneHit = sampleSession({
       id: 'bn-1',
       mode: GameModeId.BigNumbers,
@@ -166,6 +178,7 @@ describe('buildProfileStats', () => {
           visitScore: 1,
           scoreBefore: 1,
           scoreAfter: 2,
+          darts: [numberDart(1, DartMultiplier.Single)],
           metadata: { hitCount: 1, advanced: true, targetLabel: '1' },
         }),
       ],
@@ -180,6 +193,11 @@ describe('buildProfileStats', () => {
           visitScore: 3,
           scoreBefore: 1,
           scoreAfter: 2,
+          darts: [
+            numberDart(1, DartMultiplier.Single),
+            numberDart(1, DartMultiplier.Single),
+            numberDart(1, DartMultiplier.Single),
+          ],
           metadata: { hitCount: 3, advanced: true, targetLabel: '1' },
         }),
       ],
@@ -204,21 +222,23 @@ describe('buildProfileStats', () => {
       profileUserId: 'user-a',
       onlineSessions: [],
       practiceSessions: [oneHit, threeHits, outsideWindow],
+      now: NOW,
     })
 
     expect(stats.bigNumbers?.sessionsPlayed).toBe(2)
-    expect(stats.bigNumbers?.avgHitsPerVisit).toBe(2)
-    expect(stats.bigNumbers?.window.endAt).toBe('2026-08-20T00:00:00.000Z')
+    expect(stats.bigNumbers?.hitRate).toBe((4 / 4) * 100)
+    expect(stats.bigNumbers?.bestHitRate).toBe(100)
+    expect(stats.bigNumbers).not.toHaveProperty('avgHitsPerVisit')
   })
 
-  it('uses independent active windows and mode-specific practice aggregation', () => {
+  it('uses absolute windows and group-scoped 99 Darts sessions', () => {
     const ninetyNineAtTwenty = sampleSession({
       id: '99-at-20',
       mode: GameModeId.NinetyNineDarts,
       config: {
         target: { kind: NinetyNineDartsTargetKind.Number, value: 20 },
       },
-      completedAt: '2026-05-05T00:00:00.000Z',
+      completedAt: '2026-08-05T00:00:00.000Z',
       visits: [
         sampleVisit({
           visitScore: 9,
@@ -231,44 +251,174 @@ describe('buildProfileStats', () => {
       id: '99-bull',
       mode: GameModeId.NinetyNineDarts,
       config: { target: { kind: NinetyNineDartsTargetKind.Bull } },
-      completedAt: '2026-05-31T00:00:00.000Z',
+      completedAt: '2026-08-15T00:00:00.000Z',
       visits: [sampleVisit({ visitScore: 6, scoreBefore: 0, scoreAfter: 6 })],
+    })
+    const olderNinetyNine = sampleSession({
+      id: '99-old',
+      mode: GameModeId.NinetyNineDarts,
+      config: {
+        target: { kind: NinetyNineDartsTargetKind.Number, value: 20 },
+      },
+      completedAt: '2026-01-01T00:00:00.000Z',
+      visits: [sampleVisit({ visitScore: 9, scoreBefore: 0, scoreAfter: 9 })],
     })
     const newerBob = sampleSession({
       id: 'newer-bob',
       mode: GameModeId.Bob27,
       config: { startScore: 27 },
-      completedAt: '2026-07-15T00:00:00.000Z',
+      completedAt: '2026-08-18T00:00:00.000Z',
       visits: [sampleVisit({ visitScore: 40, scoreBefore: 27, scoreAfter: 67 })],
     })
     const aroundSingles = sampleSession({
       id: 'atc-singles',
       mode: GameModeId.AroundTheClock,
       config: { finishOnBull: false, aimMode: AroundTheClockAimMode.Singles },
-      completedAt: '2026-06-01T00:00:00.000Z',
+      completedAt: '2026-08-12T00:00:00.000Z',
       visits: [sampleVisit({ visitScore: 1, scoreBefore: 0, scoreAfter: 1, checkout: true })],
-    })
-    const aroundAny = sampleSession({
-      id: 'atc-any',
-      mode: GameModeId.AroundTheClock,
-      config: { finishOnBull: false, aimMode: AroundTheClockAimMode.Any },
-      completedAt: '2026-06-15T00:00:00.000Z',
-      visits: [sampleVisit({ visitScore: 2, scoreBefore: 0, scoreAfter: 1, checkout: true })],
     })
 
     const stats = buildProfileStats({
       displayName: 'Alex',
       profileUserId: 'user-a',
       onlineSessions: [],
-      practiceSessions: [ninetyNineAtTwenty, ninetyNineBull, newerBob, aroundSingles, aroundAny],
+      practiceSessions: [
+        ninetyNineAtTwenty,
+        ninetyNineBull,
+        olderNinetyNine,
+        newerBob,
+        aroundSingles,
+      ],
+      now: NOW,
     })
 
-    expect(stats.ninetyNineDarts?.sessionsPlayed).toBe(2)
-    expect(stats.ninetyNineDarts?.avgFinalScore).toBe(9)
-    expect(stats.ninetyNineDarts?.avgTreblesPerGame).toBe(3)
-    expect(stats.ninetyNineDarts?.window.endAt).toBe('2026-05-31T00:00:00.000Z')
-    expect(stats.bob27?.window.endAt).toBe('2026-07-15T00:00:00.000Z')
-    expect(stats.aroundTheClock?.sessionsPlayed).toBe(2)
-    expect(stats.aroundTheClock?.window.endAt).toBe('2026-06-15T00:00:00.000Z')
+    expect(stats.ninetyNineDarts?.groups).toHaveLength(2)
+    const twenty = stats.ninetyNineDarts?.groups.find(
+      (group) => group.group === NinetyNineDartsStatGroup.Twenty,
+    )
+    const bull = stats.ninetyNineDarts?.groups.find(
+      (group) => group.group === NinetyNineDartsStatGroup.Bull,
+    )
+    expect(twenty?.sessionsPlayed).toBe(1)
+    expect(twenty?.avgFinalScore).toBe(9)
+    expect(twenty?.bestFinalScore).toBe(9)
+    expect(twenty?.avgTreblesPerGame).toBe(3)
+    expect(bull?.sessionsPlayed).toBe(1)
+    expect(stats.bob27?.sessionsPlayed).toBe(1)
+    expect(stats).not.toHaveProperty('aroundTheClock')
+  })
+
+  it('only badges the best finished JDC score in the last 30 days', () => {
+    const recent = sampleSession({
+      id: 'jdc-recent',
+      mode: GameModeId.JdcChallenge,
+      config: {},
+      completedAt: '2026-08-10T00:00:00.000Z',
+      finishedEarly: false,
+      visits: [
+        sampleVisit({
+          visitScore: 60,
+          scoreBefore: 0,
+          scoreAfter: 60,
+        }),
+      ],
+    })
+    const olderThan30Days = sampleSession({
+      id: 'jdc-old',
+      mode: GameModeId.JdcChallenge,
+      config: {},
+      completedAt: '2026-07-20T00:00:00.000Z',
+      finishedEarly: false,
+      visits: [
+        sampleVisit({
+          visitScore: 120,
+          scoreBefore: 0,
+          scoreAfter: 120,
+        }),
+      ],
+    })
+
+    const withBadge = buildProfileStats({
+      displayName: 'Alex',
+      profileUserId: 'user-a',
+      onlineSessions: [],
+      practiceSessions: [recent, olderThan30Days],
+      now: NOW,
+    })
+
+    const recentOnly = buildProfileStats({
+      displayName: 'Alex',
+      profileUserId: 'user-a',
+      onlineSessions: [],
+      practiceSessions: [recent],
+      now: NOW,
+    })
+
+    expect(withBadge.jdcChallenge?.badge).toEqual(recentOnly.jdcChallenge?.badge)
+    expect(withBadge.jdcChallenge?.badge).not.toBeNull()
+    expect(withBadge.jdcChallenge?.badge).not.toHaveProperty('bestEverGrade')
+    expect(withBadge.jdcChallenge?.badge).not.toHaveProperty('isCurrentMonth')
+
+    const withoutRecentScore = buildProfileStats({
+      displayName: 'Alex',
+      profileUserId: 'user-a',
+      onlineSessions: [],
+      practiceSessions: [olderThan30Days],
+      now: NOW,
+    })
+
+    expect(withoutRecentScore.jdcChallenge).toBeNull()
+  })
+})
+
+describe('getRecentJdcChallengeBadge', () => {
+  const jdcSession = (overrides: Partial<GameSession>): GameSession =>
+    sampleSession({
+      mode: GameModeId.JdcChallenge,
+      config: {},
+      finishedEarly: false,
+      visits: [sampleVisit({ visitScore: 60, scoreBefore: 0, scoreAfter: 60 })],
+      ...overrides,
+    })
+
+  it('ignores unfinished games and games older than 30 days', () => {
+    expect(
+      getRecentJdcChallengeBadge(
+        [
+          jdcSession({ id: 'early', finishedEarly: true }),
+          jdcSession({ id: 'old', completedAt: '2026-07-20T00:00:00.000Z' }),
+        ],
+        NOW,
+      ),
+    ).toBeNull()
+  })
+
+  it('includes a previous calendar month when it is still inside 30 days', () => {
+    expect(
+      getRecentJdcChallengeBadge(
+        [jdcSession({ id: 'previous-month', completedAt: '2026-07-31T00:00:00.000Z' })],
+        NOW,
+      ),
+    ).not.toBeNull()
+  })
+
+  it('picks the best finished score in the last 30 days', () => {
+    const badge = getRecentJdcChallengeBadge(
+      [
+        jdcSession({ id: 'low' }),
+        jdcSession({
+          id: 'high',
+          visits: [sampleVisit({ visitScore: 120, scoreBefore: 0, scoreAfter: 120 })],
+        }),
+        jdcSession({ id: 'previous-month', completedAt: '2026-07-31T00:00:00.000Z' }),
+        sampleSession({ id: 'x01' }),
+      ],
+      NOW,
+    )
+
+    const lowBadge = getRecentJdcChallengeBadge([jdcSession({ id: 'low' })], NOW)
+    expect(badge).not.toBeNull()
+    expect(lowBadge).not.toBeNull()
+    expect(badge?.score).toBeGreaterThanOrEqual(lowBadge?.score ?? 0)
   })
 })

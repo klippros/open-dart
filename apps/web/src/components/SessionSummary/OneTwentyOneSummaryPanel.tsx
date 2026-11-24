@@ -6,7 +6,7 @@ import {
 } from '../../lib/analytics/formatAnalytics'
 import { computeOneTwentyOneSingleSessionStats } from '@open-dart/analytics/oneTwentyOneVisitStats'
 import type { GameSession } from '@open-dart/game/types/gameSession'
-import { StatCard } from '../StatsPageSections/StatCard'
+import { StatCard } from './StatCard'
 
 export interface OneTwentyOneSummaryPanelProps {
   session: GameSession

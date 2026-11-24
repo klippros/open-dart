@@ -4,6 +4,7 @@ import type { AroundTheClockAimMode } from '@open-dart/game/types/aroundTheClock
 import type { BigNumbersRequiredHits } from '@open-dart/game/types/bigNumbers'
 import type { Visit } from '@open-dart/game/types/visit'
 import { getAroundTheClockConfig } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
+import { computeAroundTheClockSingleSessionStats } from '@open-dart/analytics/aroundTheClockStats'
 import {
   getBob27AvgHitsPerVisit,
   getBob27SessionDoublesHit,
@@ -11,9 +12,11 @@ import {
 } from '@open-dart/analytics/bob27VisitStats'
 import {
   getBigNumbersAvgHitsPerVisit,
+  getBigNumbersHitRate,
   getBigNumbersSessionVisitCount,
 } from '@open-dart/analytics/bigNumbersVisitStats'
 import { computeBullRunSingleSessionStats } from '@open-dart/analytics/bullRunVisitStats'
+import { computeHunterPrimaryPlayerStats } from '@open-dart/analytics/hunterVisitStats'
 import { computeJdcChallengeSingleSessionStats } from '@open-dart/analytics/jdcChallengeVisitStats'
 import { computeNinetyNineDartsSingleSessionStats } from '@open-dart/analytics/ninetyNineVisitStats'
 import type { NinetyNineDartsStatGroup } from '@open-dart/analytics/ninetyNineVisitStats'
@@ -24,7 +27,14 @@ import {
 } from '@open-dart/analytics/oneTwentyOneVisitStats'
 import { getSessionCompletedAt, getSessionModeLabel } from '../history/sessionSummary'
 import { isAroundTheClockConfig, isX01Config } from '@open-dart/game/game/gameConfigGuards'
-import { getDoubleCheckoutRate } from './formatAnalytics'
+import {
+  formatAverage,
+  formatCheckoutPercent,
+  formatCount,
+  formatInteger,
+  formatPercent,
+  getDoubleCheckoutRate,
+} from './formatAnalytics'
 import { computePlayerStatsForVisits } from './matchPlayerStats'
 import {
   filterAllX01Sessions,
@@ -34,9 +44,11 @@ import {
   filterBullRunSessions,
   filterCheckoutPracticeSessions,
   filterFiveOhOneSessions,
+  filterHunterSessions,
   filterJdcChallengeSessions,
   filterNinetyNineDartsSessions,
   filterOneSeventySessions,
+  filterOnlineFiveOhOneSessions,
 } from '@open-dart/analytics/sessionScope'
 import {
   countDartsInSession,
@@ -71,10 +83,13 @@ export type StatMetricId =
   | 'avgCheckoutsPerGame'
   | 'bestCheckoutsPerGame'
   | 'avgDarts'
+  | 'avgDartsPerField'
   | 'avgFinalScore'
   | 'bestFinalScore'
   | 'hitRate'
+  | 'bestHitRate'
   | 'avgHitsPerVisit'
+  | 'avgAdvancesPerVisit'
   | 'avgDoublesPerGame'
   | 'bestDoublesPerGame'
   | 'avgSinglesPerGame'
@@ -93,6 +108,7 @@ export type StatMetricId =
   | 'avgShanghaiHighScore'
 
 export type StatTimelineScope =
+  | { type: 'x01-501-online' }
   | { type: 'x01-501' }
   | { type: 'x01-170' }
   | { type: 'x01-all' }
@@ -101,8 +117,18 @@ export type StatTimelineScope =
   | { type: 'practice-around-the-clock'; aimMode?: AroundTheClockAimMode }
   | { type: 'practice-99-darts'; group: NinetyNineDartsStatGroup }
   | { type: 'practice-bull-run' }
-  | { type: 'practice-big-numbers'; requiredHits: BigNumbersRequiredHits }
+  | { type: 'practice-big-numbers'; requiredHits?: BigNumbersRequiredHits }
   | { type: 'practice-jdc-challenge' }
+  | { type: 'practice-hunter' }
+
+/** Extra value drawn in the primary stat's chart tooltip, not its own chart. */
+export interface StatTimelineSecondaryMetric {
+  metric: StatMetricId
+  suffix: string
+  digits?: number
+  /** Shown when this leg or session has no secondary value, such as an unfinished x01 leg. */
+  emptyLabel?: string
+}
 
 export interface StatTimelineSelection {
   scope: StatTimelineScope
@@ -110,15 +136,25 @@ export interface StatTimelineSelection {
   metricLabel: string
   scopeLabel: string
   checkedOutOnly?: boolean
+  secondary?: readonly StatTimelineSecondaryMetric[]
 }
 
 export type StatTimelineFormat = 'average' | 'percent' | 'wholePercent' | 'integer' | 'count'
+
+export interface StatTimelineSecondaryValue {
+  value: number | null
+  suffix: string
+  digits?: number
+  format: StatTimelineFormat
+  emptyLabel?: string
+}
 
 export interface StatTimelinePoint {
   sessionId: string
   completedAt: string
   sessionLabel: string
   value: number | null
+  secondaryValues: readonly StatTimelineSecondaryValue[]
 }
 
 export interface StatTimeline {
@@ -178,7 +214,9 @@ const getX01LegMetric = (slice: X01LegSlice, metric: StatMetricId): number | nul
     case 'avgFinalScore':
     case 'bestFinalScore':
     case 'hitRate':
+    case 'bestHitRate':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'avgDoublesPerGame':
     case 'bestDoublesPerGame':
     case 'avgSinglesPerGame':
@@ -195,6 +233,7 @@ const getX01LegMetric = (slice: X01LegSlice, metric: StatMetricId): number | nul
     case 'avgShanghaiLowScore':
     case 'avgDoublesScore':
     case 'avgShanghaiHighScore':
+    case 'avgDartsPerField':
       return null
   }
 
@@ -242,7 +281,9 @@ const getCheckoutPracticeSessionMetric = (
     case 'avgFinalScore':
     case 'bestFinalScore':
     case 'hitRate':
+    case 'bestHitRate':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'avgDoublesPerGame':
     case 'bestDoublesPerGame':
     case 'avgSinglesPerGame':
@@ -259,6 +300,7 @@ const getCheckoutPracticeSessionMetric = (
     case 'avgShanghaiLowScore':
     case 'avgDoublesScore':
     case 'avgShanghaiHighScore':
+    case 'avgDartsPerField':
       return null
   }
 
@@ -294,6 +336,8 @@ const getBob27SessionMetric = (session: GameSession, metric: StatMetricId): numb
     case 'checkoutRate':
     case 'avgCheckoutsPerGame':
     case 'bestCheckoutsPerGame':
+    case 'bestHitRate':
+    case 'avgAdvancesPerVisit':
     case 'avgSinglesPerGame':
     case 'avgTreblesPerGame':
     case 'singlesPerThreeDarts':
@@ -306,6 +350,7 @@ const getBob27SessionMetric = (session: GameSession, metric: StatMetricId): numb
     case 'avgShanghaiLowScore':
     case 'avgDoublesScore':
     case 'avgShanghaiHighScore':
+    case 'avgDartsPerField':
       return null
   }
 
@@ -333,6 +378,8 @@ const getAroundTheClockSessionMetric = (
       return isCompleted ? 100 : 0
     case 'avgDarts':
       return isCompleted ? dartCount : null
+    case 'avgDartsPerField':
+      return computeAroundTheClockSingleSessionStats(session)?.avgDartsPerField ?? null
     case 'bestDarts':
       return isCompleted ? dartCount : null
     case 'threeDartAverage':
@@ -352,7 +399,9 @@ const getAroundTheClockSessionMetric = (
     case 'avgFinalScore':
     case 'bestFinalScore':
     case 'hitRate':
+    case 'bestHitRate':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'avgDoublesPerGame':
     case 'bestDoublesPerGame':
     case 'avgSinglesPerGame':
@@ -412,7 +461,9 @@ const getNinetyNineDartsSessionMetric = (
     case 'avgDarts':
     case 'bestDarts':
     case 'completionRate':
+    case 'bestHitRate':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'bestDoublesPerGame':
     case 'singlesPerThreeDarts':
     case 'doublesPerThreeDarts':
@@ -424,6 +475,7 @@ const getNinetyNineDartsSessionMetric = (
     case 'avgShanghaiLowScore':
     case 'avgDoublesScore':
     case 'avgShanghaiHighScore':
+    case 'avgDartsPerField':
       return null
   }
 
@@ -463,7 +515,9 @@ const getBullRunSessionMetric = (session: GameSession, metric: StatMetricId): nu
     case 'avgDarts':
     case 'avgFinalScore':
     case 'bestFinalScore':
+    case 'bestHitRate':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'avgDoublesPerGame':
     case 'bestDoublesPerGame':
     case 'avgSinglesPerGame':
@@ -477,6 +531,7 @@ const getBullRunSessionMetric = (session: GameSession, metric: StatMetricId): nu
     case 'avgShanghaiLowScore':
     case 'avgDoublesScore':
     case 'avgShanghaiHighScore':
+    case 'avgDartsPerField':
       return null
   }
 
@@ -522,7 +577,9 @@ const getJdcChallengeSessionMetric = (
     case 'bestCheckoutsPerGame':
     case 'avgDarts':
     case 'hitRate':
+    case 'bestHitRate':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'avgDoublesPerGame':
     case 'bestDoublesPerGame':
     case 'avgSinglesPerGame':
@@ -534,6 +591,7 @@ const getJdcChallengeSessionMetric = (
     case 'avgPerThreeDarts':
     case 'avgVisitsToComplete':
     case 'bestVisitsToComplete':
+    case 'avgDartsPerField':
       return null
   }
 
@@ -548,6 +606,9 @@ const getBigNumbersSessionMetric = (session: GameSession, metric: StatMetricId):
   switch (metric) {
     case 'avgHitsPerVisit':
       return getBigNumbersAvgHitsPerVisit(visits)
+    case 'hitRate':
+    case 'bestHitRate':
+      return getBigNumbersHitRate(visits)
     case 'avgVisitsToComplete':
     case 'bestVisitsToComplete':
       return completed ? visitCount : null
@@ -573,7 +634,7 @@ const getBigNumbersSessionMetric = (session: GameSession, metric: StatMetricId):
     case 'avgDarts':
     case 'avgFinalScore':
     case 'bestFinalScore':
-    case 'hitRate':
+    case 'avgAdvancesPerVisit':
     case 'avgDoublesPerGame':
     case 'bestDoublesPerGame':
     case 'avgSinglesPerGame':
@@ -583,6 +644,61 @@ const getBigNumbersSessionMetric = (session: GameSession, metric: StatMetricId):
     case 'singlesPerThreeDarts':
     case 'doublesPerThreeDarts':
     case 'avgPerThreeDarts':
+    case 'avgDartsPerField':
+      return null
+  }
+
+  return null
+}
+
+const getHunterSessionMetric = (session: GameSession, metric: StatMetricId): number | null => {
+  const stats = computeHunterPrimaryPlayerStats(session)
+
+  if (stats === null) {
+    return null
+  }
+
+  switch (metric) {
+    case 'hitRate':
+      return stats.hitRate
+    case 'avgAdvancesPerVisit':
+      return stats.avgAdvancesPerVisit
+    case 'threeDartAverage':
+    case 'threeDartAverageUntil170':
+    case 'threeDartAverageUntilDouble':
+    case 'bestLegAverage':
+    case 'thrown180':
+    case 'thrown140Plus':
+    case 'thrown100Plus':
+    case 'highestVisit':
+    case 'doubleCheckoutRate':
+    case 'checkouts100Plus':
+    case 'highestCheckout':
+    case 'checkoutRate':
+    case 'avgCheckoutsPerGame':
+    case 'bestCheckoutsPerGame':
+    case 'avgDarts':
+    case 'avgFinalScore':
+    case 'bestFinalScore':
+    case 'bestHitRate':
+    case 'avgHitsPerVisit':
+    case 'avgDoublesPerGame':
+    case 'bestDoublesPerGame':
+    case 'avgSinglesPerGame':
+    case 'avgTreblesPerGame':
+    case 'bestDarts':
+    case 'completionRate':
+    case 'singlesPerThreeDarts':
+    case 'doublesPerThreeDarts':
+    case 'avgPerThreeDarts':
+    case 'avgVisitsToComplete':
+    case 'bestVisitsToComplete':
+    case 'avgShanghaisPerGame':
+    case 'bestShanghaisPerGame':
+    case 'avgShanghaiLowScore':
+    case 'avgDoublesScore':
+    case 'avgShanghaiHighScore':
+    case 'avgDartsPerField':
       return null
   }
 
@@ -596,6 +712,7 @@ export const getStatTimelineFormat = (metric: StatMetricId): StatTimelineFormat 
       return 'wholePercent'
     case 'completionRate':
     case 'hitRate':
+    case 'bestHitRate':
       return 'percent'
     case 'avgDarts':
     case 'avgFinalScore':
@@ -619,11 +736,13 @@ export const getStatTimelineFormat = (metric: StatMetricId): StatTimelineFormat 
     case 'avgDoublesPerGame':
     case 'avgCheckoutsPerGame':
     case 'avgHitsPerVisit':
+    case 'avgAdvancesPerVisit':
     case 'avgSinglesPerGame':
     case 'avgTreblesPerGame':
     case 'singlesPerThreeDarts':
     case 'doublesPerThreeDarts':
     case 'avgPerThreeDarts':
+    case 'avgDartsPerField':
     case 'avgVisitsToComplete':
     case 'avgShanghaisPerGame':
     case 'avgShanghaiLowScore':
@@ -640,6 +759,8 @@ const filterSessionsForScope = (
   scope: StatTimelineScope,
 ): GameSession[] => {
   switch (scope.type) {
+    case 'x01-501-online':
+      return filterOnlineFiveOhOneSessions(sessions)
     case 'x01-501':
       return filterFiveOhOneSessions(sessions)
     case 'x01-170':
@@ -660,18 +781,105 @@ const filterSessionsForScope = (
       return filterBigNumbersSessions(sessions, scope.requiredHits)
     case 'practice-jdc-challenge':
       return filterJdcChallengeSessions(sessions)
+    case 'practice-hunter':
+      return filterHunterSessions(sessions)
     default:
       return []
   }
 }
 
 const isX01TimelineScope = (scope: StatTimelineScope): boolean =>
-  scope.type === 'x01-501' || scope.type === 'x01-170' || scope.type === 'x01-all'
+  scope.type === 'x01-501-online' ||
+  scope.type === 'x01-501' ||
+  scope.type === 'x01-170' ||
+  scope.type === 'x01-all'
+
+const readSecondaryValues = (
+  metrics: readonly StatTimelineSecondaryMetric[],
+  valueForMetric: (metric: StatMetricId) => number | null,
+): StatTimelineSecondaryValue[] =>
+  metrics.map((metric) => ({
+    value: valueForMetric(metric.metric),
+    suffix: metric.suffix,
+    ...(metric.digits === undefined ? {} : { digits: metric.digits }),
+    ...(metric.emptyLabel === undefined ? {} : { emptyLabel: metric.emptyLabel }),
+    format: getStatTimelineFormat(metric.metric),
+  }))
+
+const formatStoredSecondaryValue = (part: StatTimelineSecondaryValue): string => {
+  if (part.value === null) {
+    return '—'
+  }
+
+  if (part.digits !== undefined) {
+    return formatAverage(part.value, part.digits)
+  }
+
+  switch (part.format) {
+    case 'percent':
+      return formatPercent(part.value)
+    case 'wholePercent':
+      return formatCheckoutPercent(part.value)
+    case 'integer':
+      return formatInteger(part.value)
+    case 'count':
+      return formatCount(part.value)
+    case 'average':
+      return formatAverage(part.value)
+  }
+
+  return formatAverage(part.value)
+}
+
+export const formatTimelineSecondary = (
+  values: readonly StatTimelineSecondaryValue[],
+): string | null => {
+  const parts = values.flatMap((part) => {
+    if (part.value === null) {
+      return part.emptyLabel === undefined ? [] : [part.emptyLabel]
+    }
+
+    return [`${formatStoredSecondaryValue(part)}${part.suffix}`]
+  })
+
+  return parts.length === 0 ? null : parts.join(' ')
+}
+
+export const averageTimelineSecondary = (
+  points: readonly StatTimelinePoint[],
+): StatTimelineSecondaryValue[] => {
+  const template = points.find((point) => point.secondaryValues.length > 0)?.secondaryValues
+
+  if (template === undefined) {
+    return []
+  }
+
+  const averaged: StatTimelineSecondaryValue[] = []
+
+  for (const [index, part] of template.entries()) {
+    const values = points.flatMap((point) => {
+      const value = point.secondaryValues[index]?.value
+
+      return value === null || value === undefined ? [] : [value]
+    })
+
+    averaged.push({
+      ...part,
+      value:
+        values.length === 0
+          ? null
+          : values.reduce((total, item) => total + item, 0) / values.length,
+    })
+  }
+
+  return averaged
+}
 
 const buildX01TimelinePoints = (
   sessions: GameSession[],
   metric: StatMetricId,
   checkedOutOnly: boolean,
+  secondary: readonly StatTimelineSecondaryMetric[] = [],
 ): StatTimelinePoint[] => {
   const points = sessions.flatMap((session) => {
     const legs = expandX01SessionLegs(session)
@@ -684,6 +892,9 @@ const buildX01TimelinePoints = (
       completedAt: getSessionCompletedAt(session),
       sessionLabel: getX01LegSessionLabel(slice, legs.length),
       value: getX01LegMetric(slice, metric),
+      secondaryValues: readSecondaryValues(secondary, (secondaryMetric) =>
+        getX01LegMetric(slice, secondaryMetric),
+      ),
       legNumber: slice.legNumber,
     }))
   })
@@ -698,11 +909,12 @@ const buildX01TimelinePoints = (
 
       return left.legNumber - right.legNumber
     })
-    .map(({ sessionId, completedAt, sessionLabel, value }) => ({
+    .map(({ sessionId, completedAt, sessionLabel, value, secondaryValues }) => ({
       sessionId,
       completedAt,
       sessionLabel,
       value,
+      secondaryValues,
     }))
 }
 
@@ -738,6 +950,10 @@ const getPracticeSessionMetricValue = (
     return getJdcChallengeSessionMetric(session, selection.metric)
   }
 
+  if (selection.scope.type === 'practice-hunter') {
+    return getHunterSessionMetric(session, selection.metric)
+  }
+
   return null
 }
 
@@ -757,6 +973,7 @@ export const buildStatTimeline = (
         scopedSessions,
         selection.metric,
         selection.checkedOutOnly === true,
+        selection.secondary ?? [],
       ),
     }
   }
@@ -775,6 +992,9 @@ export const buildStatTimeline = (
       completedAt: getSessionCompletedAt(session),
       sessionLabel: getSessionModeLabel(session),
       value: getPracticeSessionMetricValue(session, selection),
+      secondaryValues: readSecondaryValues(selection.secondary ?? [], (metric) =>
+        getPracticeSessionMetricValue(session, { ...selection, metric }),
+      ),
     })),
   }
 }

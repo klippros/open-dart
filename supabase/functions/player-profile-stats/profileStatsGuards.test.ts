@@ -50,7 +50,7 @@ Deno.test('payload budgets count UTF-8 bytes and reject overflow', () => {
   )
 })
 
-Deno.test('501 reads stay window-bounded and errors stay generic', async () => {
+Deno.test('501 and practice reads use absolute cutoffs and errors stay generic', async () => {
   const source = await Deno.readTextFile(new URL('./index.ts', import.meta.url))
   assert(
     source.includes(".select('completed_at, result_payload, online_match_players!inner(user_id)')"),
@@ -58,12 +58,16 @@ Deno.test('501 reads stay window-bounded and errors stay generic', async () => {
   )
   assert(
     source.includes(".gte('completed_at', windowStart)"),
-    '501 query should have a lower bound',
+    '501 query should have an absolute lower bound',
   )
+  assert(!source.includes('latestOnlineAt'), '501 query must not anchor on latest session')
+  assert(!source.includes('windowStartFromAnchor'), 'anchored window helper must be removed')
   assert(
-    source.includes(".lte('completed_at', latestOnlineAt)"),
-    '501 query should have an upper bound',
+    !source.includes('FULL_HISTORY_PRACTICE_MODES'),
+    'full-history practice modes must be removed',
   )
+  assert(!source.includes('AroundTheClock'), 'Around the Clock must not be a public practice mode')
+  assert(!source.includes('Hunter'), 'Hunter must not be a public practice mode')
   assert(!source.includes(".in('id', matchIds)"), '501 query must not fetch an unbounded id list')
   assert(!source.includes('error.message'), 'database errors must not be reflected')
 })

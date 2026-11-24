@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import type { GameSession } from '@open-dart/game/types/gameSession.ts'
 import { GameModeId } from '@open-dart/game/types/gameMode.ts'
-import { buildProfileStats } from '@open-dart/analytics'
+import { PROFILE_ACTIVE_DAYS, buildProfileStats } from '@open-dart/analytics'
 import {
   addStoredValueToBudget,
   isRecord,
@@ -12,14 +12,11 @@ import {
 const PRACTICE_MODES = [
   GameModeId.Bob27,
   GameModeId.NinetyNineDarts,
-  GameModeId.AroundTheClock,
   GameModeId.BigNumbers,
   GameModeId.JdcChallenge,
 ] as const
 
-const FULL_HISTORY_PRACTICE_MODES = new Set<string>([GameModeId.JdcChallenge])
-
-const ACTIVE_DAYS_MS = 30 * 24 * 60 * 60 * 1000
+const ACTIVE_DAYS_MS = PROFILE_ACTIVE_DAYS * 24 * 60 * 60 * 1000
 
 const corsHeadersFor = (origin: string | null): HeadersInit => {
   const allowed = (Deno.env.get('PROFILE_STATS_ALLOWED_ORIGINS') ?? 'http://localhost:5173')
@@ -52,8 +49,8 @@ const jsonResponse = (
     },
   })
 
-const windowStartFromAnchor = (anchorIso: string): string =>
-  new Date(new Date(anchorIso).getTime() - ACTIVE_DAYS_MS).toISOString()
+const absoluteWindowStart = (now: Date): string =>
+  new Date(now.getTime() - ACTIVE_DAYS_MS).toISOString()
 
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get('Origin')
@@ -135,100 +132,57 @@ Deno.serve(async (req: Request) => {
         ? profileResult.data.display_name
         : 'Player'
 
+    const now = new Date()
+    const windowStart = absoluteWindowStart(now)
     const onlineSessions: GameSession[] = []
     let totalBytes = 0
 
-    const latestOnlineResult = await admin
+    const matchesResult = await admin
       .from('online_matches')
-      .select('completed_at, online_match_players!inner(user_id)')
+      .select('completed_at, result_payload, online_match_players!inner(user_id)')
       .eq('online_match_players.user_id', profileUserId)
       .eq('mode', GameModeId.X01)
       .eq('status', 'completed')
       .contains('config', { startScore: 501 })
-      .not('completed_at', 'is', null)
+      .gte('completed_at', windowStart)
       .order('completed_at', { ascending: false })
-      .limit(1)
 
-    if (latestOnlineResult.error !== null) {
+    if (matchesResult.error !== null) {
       return jsonResponse(500, { error: 'server_error' }, origin)
     }
 
-    const latestOnlineAt = latestOnlineResult.data?.[0]?.completed_at
-    if (typeof latestOnlineAt === 'string') {
-      const windowStart = windowStartFromAnchor(latestOnlineAt)
-      const matchesResult = await admin
-        .from('online_matches')
-        .select('completed_at, result_payload, online_match_players!inner(user_id)')
-        .eq('online_match_players.user_id', profileUserId)
-        .eq('mode', GameModeId.X01)
-        .eq('status', 'completed')
-        .contains('config', { startScore: 501 })
-        .gte('completed_at', windowStart)
-        .lte('completed_at', latestOnlineAt)
-        .order('completed_at', { ascending: false })
-
-      if (matchesResult.error !== null) {
-        return jsonResponse(500, { error: 'server_error' }, origin)
+    for (const row of matchesResult.data ?? []) {
+      if (!isRecord(row)) {
+        continue
       }
 
-      for (const row of matchesResult.data ?? []) {
-        if (!isRecord(row)) {
-          continue
-        }
+      const payload = row.result_payload
+      if (!isRecord(payload) || !('session' in payload)) {
+        continue
+      }
 
-        const payload = row.result_payload
-        if (!isRecord(payload) || !('session' in payload)) {
-          continue
-        }
+      const nextTotalBytes = addStoredValueToBudget(totalBytes, payload.session)
+      if (nextTotalBytes === null) {
+        return jsonResponse(500, { error: 'server_error' }, origin)
+      }
+      totalBytes = nextTotalBytes
 
-        const nextTotalBytes = addStoredValueToBudget(totalBytes, payload.session)
-        if (nextTotalBytes === null) {
-          return jsonResponse(500, { error: 'server_error' }, origin)
-        }
-        totalBytes = nextTotalBytes
-
-        const session = parseStoredSession(payload.session)
-        if (session !== null) {
-          onlineSessions.push(session)
-        }
+      const session = parseStoredSession(payload.session)
+      if (session !== null) {
+        onlineSessions.push(session)
       }
     }
 
     const practiceSessions: GameSession[] = []
     for (const mode of PRACTICE_MODES) {
-      const latestResult = await admin
-        .from('game_sessions')
-        .select('completed_at')
-        .eq('user_id', profileUserId)
-        .eq('mode', mode)
-        .eq('status', 'completed')
-        .order('completed_at', { ascending: false })
-        .limit(1)
-
-      if (latestResult.error !== null) {
-        return jsonResponse(500, { error: 'server_error' }, origin)
-      }
-
-      const latestAt = latestResult.data?.[0]?.completed_at
-      if (typeof latestAt !== 'string') {
-        continue
-      }
-
-      const loadFullHistory = FULL_HISTORY_PRACTICE_MODES.has(mode)
-      const windowStart = windowStartFromAnchor(latestAt)
-      let sessionsQuery = admin
+      const sessionsResult = await admin
         .from('game_sessions')
         .select('payload, completed_at')
         .eq('user_id', profileUserId)
         .eq('mode', mode)
         .eq('status', 'completed')
+        .gte('completed_at', windowStart)
         .order('completed_at', { ascending: false })
-
-      if (!loadFullHistory) {
-        sessionsQuery = sessionsQuery.gte('completed_at', windowStart).lte('completed_at', latestAt)
-      }
-
-      const sessionsResult = await sessionsQuery
 
       if (sessionsResult.error !== null) {
         return jsonResponse(500, { error: 'server_error' }, origin)
@@ -257,6 +211,7 @@ Deno.serve(async (req: Request) => {
       profileUserId,
       onlineSessions,
       practiceSessions,
+      now,
     })
 
     return jsonResponse(200, stats as unknown as Record<string, unknown>, origin)

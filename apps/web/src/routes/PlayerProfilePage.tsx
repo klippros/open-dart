@@ -1,36 +1,25 @@
 import { Box, Button, Heading, Stack, Text } from '@chakra-ui/react'
-import { faPen } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link as RouterLink, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import type { PlayerProfileStats } from '@open-dart/analytics'
 import { ContentContainer } from '../components/ContentContainer'
-import { DisplayNameEditor } from '../components/DisplayNameEditor/DisplayNameEditor'
 import { HistoryList } from '../components/HistoryList/HistoryList'
 import type { HistoryListEntry } from '../components/HistoryList/HistoryList'
 import { OnlineMatchSummaryDialog } from '../components/MatchSummaryDialog/OnlineMatchSummaryDialog'
 import { SessionSummaryDialog } from '../components/MatchSummaryDialog/SessionSummaryDialog'
 import { ProfileFollowButton } from '../components/ProfileFollowButton/ProfileFollowButton'
-import { ProfileStatSection } from '../components/ProfileStatSection/ProfileStatSection'
+import { ProfileDisplayName } from '../components/ProfilePageHeader/ProfileDisplayName'
+import { ProfilePageHeader } from '../components/ProfilePageHeader/ProfilePageHeader'
+import { PublicProfileStats } from '../components/PublicProfileStats/PublicProfileStats'
 import { SignInDialog } from '../components/SignInDialog/SignInDialog'
 import { useAuth } from '../hooks/authContext'
-import { toolbarControlSize } from '../layout'
 import { isSignInEnabled } from '../lib/klipprosHost'
+import { OTHER_PROFILE_WINDOW_LABEL } from '../lib/profile/profileDateRange'
+import { OWN_PROFILE_PATH, isOwnProfileUserId } from '../lib/profile/profileRoutes'
 import { getOnlineMatchCompletedAt, HistoryEntrySource } from '../lib/history/onlineHistorySummary'
 import { HISTORY_PAGE_SIZE } from '../lib/history/historyPager'
 import { decorateOnlineSessionForViewer } from '../lib/matchServer/onlinePlay'
 import type { OnlineMatchHistoryRow, OnlineMatchSummary } from '../lib/matchServer/types'
-import {
-  buildAroundTheClockRows,
-  buildBigNumbersRows,
-  buildBob27Rows,
-  buildFiveOhOneRows,
-  buildJdcChallengeRows,
-  buildNinetyNineRows,
-  formatProfileWindowLabel,
-  profileHasAnyStats,
-} from '../lib/profile/formatProfileStats'
-import { ProfileJdcChallengeBadge } from '../components/ProfileJdcChallengeBadge/ProfileJdcChallengeBadge'
 import {
   fetchPlayerProfileStats,
   isProfileUserId,
@@ -44,9 +33,8 @@ import { resolveHumanPlayerName } from '@open-dart/game/game/playerFactory'
 
 export const PlayerProfilePage = () => {
   const { userId: routeUserId } = useParams()
-  const { user, profile, authStatus, isConfigured, setDisplayName } = useAuth()
+  const { user, profile, authStatus, isConfigured } = useAuth()
   const [signInDialogOpen, setSignInDialogOpen] = useState(false)
-  const [displayNameDialogOpen, setDisplayNameDialogOpen] = useState(false)
   const [stats, setStats] = useState<PlayerProfileStats | null>(null)
   const [statsError, setStatsError] = useState<string | null>(null)
   const [loadingStats, setLoadingStats] = useState(false)
@@ -58,7 +46,7 @@ export const PlayerProfilePage = () => {
 
   const profileUserId = routeUserId ?? ''
   const isSignedIn = authStatus === AuthStatus.Authenticated && user !== null
-  const isOwnProfile = isSignedIn && user.id === profileUserId
+  const isOwnProfile = isOwnProfileUserId(routeUserId, user?.id)
   const validUserId = isProfileUserId(profileUserId)
 
   useEffect(() => {
@@ -81,7 +69,7 @@ export const PlayerProfilePage = () => {
   }, [])
 
   useEffect(() => {
-    if (!isSignedIn || !validUserId || user === null) {
+    if (!isSignedIn || !validUserId || user === null || isOwnProfile) {
       setStats(null)
       setMatches([])
       return undefined
@@ -120,7 +108,7 @@ export const PlayerProfilePage = () => {
     return () => {
       cancelled = true
     }
-  }, [isSignedIn, profileUserId, user, validUserId])
+  }, [isOwnProfile, isSignedIn, profileUserId, user, validUserId])
 
   const historyEntries = useMemo((): HistoryListEntry[] => {
     if (user === null) {
@@ -197,6 +185,14 @@ export const PlayerProfilePage = () => {
     [profile?.displayName, user],
   )
 
+  if (isOwnProfile) {
+    return <Navigate to={OWN_PROFILE_PATH} replace />
+  }
+
+  if (authStatus === AuthStatus.Loading) {
+    return null
+  }
+
   if (!validUserId) {
     return (
       <ContentContainer>
@@ -238,136 +234,55 @@ export const PlayerProfilePage = () => {
     )
   }
 
-  const displayName = stats?.displayName ?? (isOwnProfile ? profile?.displayName : null) ?? 'Player'
+  const displayName = stats?.displayName ?? 'Player'
 
   return (
     <ContentContainer>
-      <Box py={{ base: 6, md: 10 }} pb={10} maxW="720px" w="full" mx="auto">
+      <Box py={{ base: 6, md: 10 }} pb={10} maxW="960px" w="full" mx="auto">
         <Stack gap={8}>
-          <Stack gap={3}>
-            <Stack direction="row" align="center" gap={2}>
-              <Heading as="h1" size="2xl" color="white" fontFamily="Archivo Black, sans-serif">
-                {displayName}
-              </Heading>
-              {isOwnProfile ? (
-                <Button
-                  aria-label="Edit name"
-                  variant="ghost"
-                  color="whiteAlpha.800"
-                  minW={toolbarControlSize}
-                  w={toolbarControlSize}
-                  h={toolbarControlSize}
-                  p={0}
-                  _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
-                  onClick={() => {
-                    setDisplayNameDialogOpen(true)
-                  }}
-                >
-                  <FontAwesomeIcon icon={faPen} />
-                </Button>
-              ) : null}
-            </Stack>
-            <Text color="whiteAlpha.700" fontSize="sm">
-              <RouterLink to="/history">Back to history</RouterLink>
-            </Text>
-          </Stack>
-
-          {isOwnProfile ? (
-            <DisplayNameEditor
-              open={displayNameDialogOpen}
-              onOpenChange={setDisplayNameDialogOpen}
-              currentName={displayName}
-              onSaved={(nextName) => {
-                setDisplayName(nextName)
-                setStats((current) =>
-                  current === null ? current : { ...current, displayName: nextName },
-                )
-              }}
-            />
-          ) : (
-            <Stack gap={3} align="start">
-              <Stack direction="row" gap={2} flexWrap="wrap">
-                <ProfileFollowButton profileUserId={profileUserId} />
-                <Button
-                  variant="cancel"
-                  onClick={() => {
-                    void (async () => {
-                      const ok = await reportDisplayName(profileUserId)
-                      setReportMessage(
-                        ok
-                          ? 'Thanks. We received your report.'
-                          : 'Could not send the report. Try again later.',
-                      )
-                    })()
-                  }}
-                >
-                  Report name
-                </Button>
-              </Stack>
+          <ProfilePageHeader
+            jersey={stats?.jdcChallenge?.badge ?? null}
+            identity={<ProfileDisplayName name={displayName} />}
+            social={<ProfileFollowButton profileUserId={profileUserId} />}
+            dateControl={
+              <Text color="whiteAlpha.700" fontSize="sm">
+                {OTHER_PROFILE_WINDOW_LABEL}
+              </Text>
+            }
+          >
+            <Stack direction="row" gap={3} align="center" flexWrap="wrap">
+              <Button
+                variant="ghost"
+                size="xs"
+                color="whiteAlpha.600"
+                fontWeight="normal"
+                px={1}
+                _hover={{ color: 'whiteAlpha.900', bg: 'transparent' }}
+                onClick={() => {
+                  void (async () => {
+                    const ok = await reportDisplayName(profileUserId)
+                    setReportMessage(
+                      ok
+                        ? 'Thanks. We received your report.'
+                        : 'Could not send the report. Try again later.',
+                    )
+                  })()
+                }}
+              >
+                Report name
+              </Button>
               {reportMessage !== null ? (
                 <Text fontSize="sm" color="whiteAlpha.700">
                   {reportMessage}
                 </Text>
               ) : null}
             </Stack>
-          )}
+          </ProfilePageHeader>
 
           {loadingStats ? <Text color="whiteAlpha.700">Loading stats…</Text> : null}
           {statsError !== null ? <Text color="red.300">{statsError}</Text> : null}
 
-          {stats !== null && profileHasAnyStats(stats) ? (
-            <Stack gap={8}>
-              {stats.fiveOhOne !== null ? (
-                <ProfileStatSection
-                  title="501"
-                  windowLabel={formatProfileWindowLabel(stats.fiveOhOne.window)}
-                  rows={buildFiveOhOneRows(stats.fiveOhOne)}
-                />
-              ) : null}
-              {stats.bob27 !== null ? (
-                <ProfileStatSection
-                  title="Bob's 27"
-                  windowLabel={formatProfileWindowLabel(stats.bob27.window)}
-                  rows={buildBob27Rows(stats.bob27)}
-                />
-              ) : null}
-              {stats.ninetyNineDarts !== null ? (
-                <ProfileStatSection
-                  title="99 Darts"
-                  windowLabel={formatProfileWindowLabel(stats.ninetyNineDarts.window)}
-                  rows={buildNinetyNineRows(stats.ninetyNineDarts)}
-                />
-              ) : null}
-              {stats.aroundTheClock !== null ? (
-                <ProfileStatSection
-                  title="Around the Clock"
-                  windowLabel={formatProfileWindowLabel(stats.aroundTheClock.window)}
-                  rows={buildAroundTheClockRows(stats.aroundTheClock)}
-                />
-              ) : null}
-              {stats.bigNumbers !== null ? (
-                <ProfileStatSection
-                  title="Big Numbers"
-                  windowLabel={formatProfileWindowLabel(stats.bigNumbers.window)}
-                  rows={buildBigNumbersRows(stats.bigNumbers)}
-                />
-              ) : null}
-              {stats.jdcChallenge !== null ? (
-                <Stack gap={3}>
-                  {stats.jdcChallenge.badge !== null ? (
-                    <ProfileJdcChallengeBadge badge={stats.jdcChallenge.badge} />
-                  ) : null}
-                  <ProfileStatSection
-                    title="JDC Challenge"
-                    windowLabel={formatProfileWindowLabel(stats.jdcChallenge.window)}
-                    rows={buildJdcChallengeRows(stats.jdcChallenge)}
-                  />
-                </Stack>
-              ) : null}
-            </Stack>
-          ) : !loadingStats && statsError === null ? (
-            <Text color="whiteAlpha.700">No public stats in the recent windows yet.</Text>
-          ) : null}
+          {loadingStats || statsError !== null ? null : <PublicProfileStats stats={stats} />}
 
           <Stack gap={3}>
             <Heading as="h2" size="lg" color="white" fontFamily="Archivo Black, sans-serif">
@@ -383,6 +298,7 @@ export const PlayerProfilePage = () => {
               onSelectOnlineMatch={(match) => {
                 void handleSelectOnlineMatch(match)
               }}
+              emptyMessage="No online matches yet."
             />
           </Stack>
         </Stack>

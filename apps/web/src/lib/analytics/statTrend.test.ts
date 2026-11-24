@@ -12,6 +12,7 @@ const point = (value: number | null, id = 'session'): StatTimelinePoint => ({
   completedAt: '2026-01-01T10:00:00.000Z',
   sessionLabel: 'Session',
   value,
+  secondaryValues: [],
 })
 
 describe('getTrailingAverages', () => {

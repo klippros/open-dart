@@ -12,6 +12,7 @@ import {
   filterAllX01Sessions,
   filterFiveOhOneSessions,
   filterOneSeventySessions,
+  filterOnlineFiveOhOneSessions,
 } from './sessionScope.ts'
 import {
   countCheckouts100Plus,
@@ -20,7 +21,7 @@ import {
   countThrown180,
   getHighestCheckout,
   getHighestVisit,
-  getMaxThreeDartAverage,
+  findBestThreeDartAverage,
   getScoringVisits,
   getThreeDartAverage,
   getVisitsBeforeDouble,
@@ -34,6 +35,7 @@ import {
 export const FIVE_OH_ONE_START_SCORE = x01PresetConfigs[X01PresetId.FiveOhOne].startScore
 
 export enum X01StatsFilterId {
+  FiveOhOneOnline = '501-online',
   FiveOhOne = '501',
   OneSeventy = '170',
   All = 'all',
@@ -50,7 +52,21 @@ export interface X01LegStats {
   threeDartAverageUntil170: number | null
   threeDartAverageUntilDouble: number | null
   bestLegAverage: number | null
+  /** Leg behind `bestLegAverage`, when one exists. */
+  bestLegSource: { sessionId: string; legNumber: number } | null
+  /**
+   * Dart count for the same leg as `bestLegAverage`. Null when that leg did not
+   * check out, so the profile can say it was not finished.
+   */
+  bestLegDarts: number | null
   avgDarts: number | null
+  /** Fewest darts among legs that checked out. Null when none did. */
+  bestDarts: number | null
+  /** Checked-out leg behind `bestDarts`, when one exists. */
+  bestDartsSource: { sessionId: string; legNumber: number } | null
+  dartsThrown: number
+  /** Share of legs won (checked out) in games with an opponent; null without one. */
+  legWinRate: number | null
   thrown180: number
   thrown140Plus: number
   thrown100Plus: number
@@ -63,6 +79,7 @@ export interface X01LegStats {
 }
 
 export interface X01Stats {
+  fiveOhOneOnline: X01LegStats
   fiveOhOne: X01LegStats
   oneSeventy: X01LegStats
   all: X01LegStats
@@ -75,7 +92,13 @@ const emptyLegStats = (): X01LegStats => ({
   threeDartAverageUntil170: null,
   threeDartAverageUntilDouble: null,
   bestLegAverage: null,
+  bestLegSource: null,
+  bestLegDarts: null,
   avgDarts: null,
+  bestDarts: null,
+  bestDartsSource: null,
+  dartsThrown: 0,
+  legWinRate: null,
   thrown180: 0,
   thrown140Plus: 0,
   thrown100Plus: 0,
@@ -133,18 +156,41 @@ const computeX01LegStats = (
     return mergeDoubleCheckoutStats(totals, result.stats)
   }, emptyDoubleCheckoutStats())
 
+  const bestLeg = findBestThreeDartAverage(legs, (leg) => leg.visits)
+  const bestDartsLeg = checkoutLegs.reduce<(typeof checkoutLegs)[number] | null>((best, leg) => {
+    if (best === null || countDartsInVisits(leg.visits) < countDartsInVisits(best.visits)) {
+      return leg
+    }
+
+    return best
+  }, null)
+  const contestedLegs = legs.filter((leg) => leg.session.players.length > 1)
+  const contestedWins = contestedLegs.filter((leg) => legFinishedWithCheckout(leg.visits)).length
+
   return {
     legCount: legs.length,
     checkoutLegCount: checkoutLegs.length,
     threeDartAverage: getThreeDartAverage(allVisits),
     threeDartAverageUntil170: getThreeDartAverage(scoringVisits),
     threeDartAverageUntilDouble: getThreeDartAverage(visitsBeforeDouble),
-    bestLegAverage: getMaxThreeDartAverage(legs.map((leg) => leg.visits)),
+    bestLegAverage: bestLeg?.average ?? null,
+    bestLegSource:
+      bestLeg === null
+        ? null
+        : { sessionId: bestLeg.item.session.id, legNumber: bestLeg.item.legNumber },
+    bestLegDarts: bestLeg !== null && bestLeg.checkedOut ? bestLeg.darts : null,
     avgDarts:
       checkoutLegs.length === 0
         ? null
         : checkoutLegs.reduce((sum, leg) => sum + countDartsInVisits(leg.visits), 0) /
           checkoutLegs.length,
+    bestDarts: bestDartsLeg === null ? null : countDartsInVisits(bestDartsLeg.visits),
+    bestDartsSource:
+      bestDartsLeg === null
+        ? null
+        : { sessionId: bestDartsLeg.session.id, legNumber: bestDartsLeg.legNumber },
+    dartsThrown: countDartsInVisits(allVisits),
+    legWinRate: contestedLegs.length === 0 ? null : (contestedWins / contestedLegs.length) * 100,
     thrown180: countThrown180(allVisits),
     thrown140Plus: countThrown140Plus(allVisits),
     thrown100Plus: countThrown100Plus(allVisits),
@@ -165,6 +211,7 @@ export const computeX01Stats = (
   sessions: GameSession[],
   options: X01StatsOptions = {},
 ): X01Stats => ({
+  fiveOhOneOnline: computeX01LegStats(filterOnlineFiveOhOneSessions(sessions), options),
   fiveOhOne: computeX01LegStats(filterFiveOhOneSessions(sessions), options),
   oneSeventy: computeX01LegStats(filterOneSeventySessions(sessions), options),
   all: computeX01LegStats(filterAllX01Sessions(sessions), options),

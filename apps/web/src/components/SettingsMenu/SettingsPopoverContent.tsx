@@ -1,6 +1,9 @@
 import { Stack } from '@chakra-ui/react'
+import { useAuth } from '../../hooks/authContext'
 import { useSettings } from '../../hooks/settingsContext'
+import { AuthStatus } from '../../types/auth'
 import { SingleDartScoringMode } from '../../types/settings'
+import { InvitePrivacySetting } from '../UserAccountMenu/InvitePrivacySetting'
 import { ImportStatsControl } from './ImportStatsControl'
 import { SettingsSegmentRow } from './SettingsSegmentRow'
 import { SettingsSwitchRow } from './SettingsSwitchRow'
@@ -12,6 +15,7 @@ const SINGLE_DART_SCORING_OPTIONS = [
 ]
 
 export const SettingsPopoverContent = () => {
+  const { authStatus, user } = useAuth()
   const {
     scoreCallerEnabled,
     setScoreCallerEnabled,
@@ -22,6 +26,8 @@ export const SettingsPopoverContent = () => {
     enableInputSwiping,
     setEnableInputSwiping,
   } = useSettings()
+
+  const isSignedIn = authStatus === AuthStatus.Authenticated && user !== null
 
   return (
     <Stack gap={4}>
@@ -50,6 +56,7 @@ export const SettingsPopoverContent = () => {
         options={SINGLE_DART_SCORING_OPTIONS}
         onValueChange={setSingleDartScoring}
       />
+      {isSignedIn ? <InvitePrivacySetting /> : null}
       <ImportStatsControl />
     </Stack>
   )

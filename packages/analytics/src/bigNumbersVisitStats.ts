@@ -1,5 +1,6 @@
 import type { GameSession } from '@open-dart/game/types/gameSession.ts'
 import type { Visit } from '@open-dart/game/types/visit.ts'
+import { getVisitDartCount } from '@open-dart/game/types/visit.ts'
 import { GameModeId } from '@open-dart/game/types/gameMode.ts'
 import type { BigNumbersRequiredHits } from '@open-dart/game/types/bigNumbers.ts'
 import { isBigNumbersConfig } from '@open-dart/game/game/gameConfigGuards.ts'
@@ -63,6 +64,34 @@ export const getBigNumbersAvgHitsPerVisit = (visits: Visit[]): number | null => 
   return totalHits / visits.length
 }
 
+/** Percentage of darts that hit the target across visits. */
+export const getBigNumbersHitRate = (visits: Visit[]): number | null => {
+  const dartsThrown = visits.reduce((sum, visit) => sum + getVisitDartCount(visit), 0)
+
+  if (dartsThrown === 0) {
+    return null
+  }
+
+  const hits = visits.reduce((sum, visit) => sum + getBigNumbersVisitHitCount(visit), 0)
+
+  return (hits / dartsThrown) * 100
+}
+
+export const getBigNumbersSessionHitRate = (session: GameSession): number | null =>
+  getBigNumbersHitRate(getPrimaryPlayerVisits(session))
+
+export const getBigNumbersBestSessionHitRate = (sessions: GameSession[]): number | null => {
+  const rates = sessions
+    .map((session) => getBigNumbersSessionHitRate(session))
+    .filter((rate): rate is number => rate !== null)
+
+  if (rates.length === 0) {
+    return null
+  }
+
+  return Math.max(...rates)
+}
+
 export const getBigNumbersStepBackCount = (visits: Visit[]): number =>
   visits.reduce((sum, visit) => sum + (isBigNumbersStepBackVisit(visit) ? 1 : 0), 0)
 
@@ -93,6 +122,7 @@ export const getBigNumbersRequiredHits = (session: GameSession): BigNumbersRequi
 export interface BigNumbersSingleSessionStats {
   visitCount: number
   avgHitsPerVisit: number | null
+  hitRate: number | null
   completed: boolean
 }
 
@@ -108,6 +138,7 @@ export const computeBigNumbersSingleSessionStats = (
   return {
     visitCount: visits.length,
     avgHitsPerVisit: getBigNumbersAvgHitsPerVisit(visits),
+    hitRate: getBigNumbersHitRate(visits),
     completed: isCompletedBigNumbersSession(session),
   }
 }

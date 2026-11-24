@@ -43,17 +43,61 @@ export const getThreeDartAverage = (visits: Visit[]): number | null => {
   return total / visits.length
 }
 
-export const getMaxThreeDartAverage = (visitGroups: Visit[][]): number | null => {
-  const averages = visitGroups
-    .map((visits) => getThreeDartAverage(visits))
-    .filter((average): average is number => average !== null)
+export interface BestThreeDartAverageLeg {
+  average: number
+  darts: number
+  checkedOut: boolean
+}
 
-  if (averages.length === 0) {
+export interface BestThreeDartAverageMatch<T> extends BestThreeDartAverageLeg {
+  item: T
+}
+
+/** Highest 3-dart average; ties prefer the leg with fewer darts. */
+export const findBestThreeDartAverage = <T>(
+  items: readonly T[],
+  getVisits: (item: T) => Visit[],
+): BestThreeDartAverageMatch<T> | null => {
+  let best: BestThreeDartAverageMatch<T> | null = null
+
+  for (const item of items) {
+    const visits = getVisits(item)
+    const average = getThreeDartAverage(visits)
+
+    if (average === null) {
+      continue
+    }
+
+    const darts = visits.reduce((sum, visit) => sum + getVisitDartCount(visit), 0)
+    const checkedOut = visits.some((visit) => visit.checkout)
+
+    if (
+      best === null ||
+      average > best.average ||
+      (average === best.average && darts < best.darts)
+    ) {
+      best = { item, average, darts, checkedOut }
+    }
+  }
+
+  return best
+}
+
+/** Highest 3-dart average; ties prefer the leg with fewer darts. */
+export const getBestThreeDartAverageLeg = (
+  visitGroups: Visit[][],
+): BestThreeDartAverageLeg | null => {
+  const best = findBestThreeDartAverage(visitGroups, (visits) => visits)
+
+  if (best === null) {
     return null
   }
 
-  return Math.max(...averages)
+  return { average: best.average, darts: best.darts, checkedOut: best.checkedOut }
 }
+
+export const getMaxThreeDartAverage = (visitGroups: Visit[][]): number | null =>
+  getBestThreeDartAverageLeg(visitGroups)?.average ?? null
 
 export const getScoringVisits = (visits: Visit[]): Visit[] =>
   visits.filter((visit) => visit.scoreBefore > MAX_CHECKOUT_SCORE)

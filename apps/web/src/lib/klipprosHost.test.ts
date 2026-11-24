@@ -23,6 +23,7 @@ describe('klipprosHost', () => {
     expect(isLegacyPlayRoute('/match/abc')).toBe(true)
     expect(isLegacyPlayRoute('/match/new')).toBe(false)
     expect(isLegacyPlayRoute('/')).toBe(false)
+    expect(isLegacyPlayRoute('/profile')).toBe(false)
     expect(isLegacyPlayRoute('/history')).toBe(false)
   })
 
@@ -31,7 +32,10 @@ describe('klipprosHost', () => {
       true,
     )
     expect(
-      shouldRedirectKlipprosSignedInUser('klippros.com', AuthStatus.Authenticated, '/history'),
+      shouldRedirectKlipprosSignedInUser('klippros.com', AuthStatus.Authenticated, '/profile'),
+    ).toBe(true)
+    expect(
+      shouldRedirectKlipprosSignedInUser('klippros.com', AuthStatus.Authenticated, '/players/abc'),
     ).toBe(true)
     expect(
       shouldRedirectKlipprosSignedInUser('klippros.com', AuthStatus.Authenticated, '/game'),

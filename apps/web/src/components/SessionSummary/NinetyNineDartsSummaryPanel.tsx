@@ -2,7 +2,7 @@ import { SimpleGrid } from '@chakra-ui/react'
 import { formatInteger, formatPercent } from '../../lib/analytics/formatAnalytics'
 import { computeNinetyNineDartsSingleSessionStats } from '@open-dart/analytics/ninetyNineVisitStats'
 import type { GameSession } from '@open-dart/game/types/gameSession'
-import { StatCard } from '../StatsPageSections/StatCard'
+import { StatCard } from './StatCard'
 
 export interface NinetyNineDartsSummaryPanelProps {
   session: GameSession
