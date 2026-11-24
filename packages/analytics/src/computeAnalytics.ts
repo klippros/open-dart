@@ -1,9 +1,9 @@
-import type { AnalyticsFilter } from './sessionFilters'
-import { filterSessions } from './sessionFilters'
-import { computePracticeStats } from './practiceStats'
-import type { PracticeStats } from './practiceStats'
-import { computeX01Stats } from './x01Stats'
-import type { X01Stats } from './x01Stats'
+import type { AnalyticsFilter } from './sessionFilters.ts'
+import { filterSessions } from './sessionFilters.ts'
+import { computePracticeStats } from './practiceStats.ts'
+import type { PracticeStats } from './practiceStats.ts'
+import { computeX01Stats } from './x01Stats.ts'
+import type { X01Stats } from './x01Stats.ts'
 
 export interface AnalyticsResult {
   filter: AnalyticsFilter
@@ -24,8 +24,8 @@ export const computeAnalytics = (
   }
 }
 
-export type { X01LegStats, X01Stats } from './x01Stats'
-export type { CheckoutPracticeStats, OtherPracticeStats, PracticeStats } from './practiceStats'
+export type { X01LegStats, X01Stats } from './x01Stats.ts'
+export type { CheckoutPracticeStats, OtherPracticeStats, PracticeStats } from './practiceStats.ts'
 export type {
   Bob27PracticeStats,
   ClaimTheBoardPracticeStats,
@@ -35,4 +35,4 @@ export type {
   BigNumbersPracticeStats,
   JdcChallengePracticeStats,
   HunterPracticeStats,
-} from './practiceStats'
+} from './practiceStats.ts'

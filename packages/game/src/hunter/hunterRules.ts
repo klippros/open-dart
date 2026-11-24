@@ -1,18 +1,18 @@
-import { DartMultiplier } from '../types/dart'
-import type { DartThrow } from '../types/dart'
-import { HunterOutcome } from '../types/hunter'
+import { DartMultiplier } from '../types/dart.ts'
+import type { DartThrow } from '../types/dart.ts'
+import { HunterOutcome } from '../types/hunter.ts'
 import {
   hitsDoubleOnNumber,
   hitsNumberSegment,
   hitsSingleOnNumber,
   hitsTripleOnNumber,
-} from '../segmentMatching'
+} from '../segmentMatching.ts'
 import {
   advanceHunterFieldIndex,
   doesHunterAdvanceCatch,
   getHunterFieldIndexForNumber,
   getHunterFieldNumber,
-} from './hunterClock'
+} from './hunterClock.ts'
 
 export const HUNTER_MAX_DARTS_PER_VISIT = 3
 

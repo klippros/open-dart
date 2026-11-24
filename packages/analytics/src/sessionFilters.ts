@@ -1,6 +1,6 @@
-import { GameStatus } from '@open-dart/game/types/gameMode'
-import type { GameSession } from '@open-dart/game/types/gameSession'
-import { getSessionCompletedAt } from './sessionLabels'
+import { GameStatus } from '@open-dart/game/types/gameMode.ts'
+import type { GameSession } from '@open-dart/game/types/gameSession.ts'
+import { getSessionCompletedAt } from './sessionLabels.ts'
 
 export type DateRangePreset = 'all' | '7d' | '30d'
 
