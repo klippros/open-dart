@@ -9,7 +9,7 @@ import {
   getNinetyNineDartsGroupLabel,
 } from '../../lib/profile/profileCards'
 import type { NinetyNineDartsGroupInput, ProfileBestSource } from '../../lib/profile/profileCards'
-import { StatsVariantToggle } from '../StatsPageSections/StatsVariantToggle'
+import { StatsVariantToggle } from './StatsVariantToggle'
 import { ProfileModeSection } from './ProfileModeSection'
 import { ProfileStatCardGrid } from './ProfileStatCardGrid'
 

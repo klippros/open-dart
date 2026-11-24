@@ -6,9 +6,9 @@ import { buildAroundTheClockCards } from '../../lib/profile/profileCards'
 import type { ProfileBestSource } from '../../lib/profile/profileCards'
 import { ProfileModeSection } from '../ProfileStatCards/ProfileModeSection'
 import { ProfileStatCardGrid } from '../ProfileStatCards/ProfileStatCardGrid'
-import { AroundTheClockHeatmap } from '../StatsPageSections/AroundTheClockHeatmap/AroundTheClockHeatmap'
-import { StatsVariantToggle } from '../StatsPageSections/StatsVariantToggle'
-import { useLastPlayedVariantSelection } from '../StatsPageSections/useLastPlayedVariantSelection'
+import { StatsVariantToggle } from '../ProfileStatCards/StatsVariantToggle'
+import { AroundTheClockHeatmap } from './AroundTheClockHeatmap/AroundTheClockHeatmap'
+import { useLastPlayedVariantSelection } from './useLastPlayedVariantSelection'
 import { ProfileDisclosure } from './ProfileDisclosure'
 
 export interface AroundTheClockProfileSectionProps {

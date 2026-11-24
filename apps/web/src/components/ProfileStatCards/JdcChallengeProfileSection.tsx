@@ -5,7 +5,7 @@ import {
   buildJdcChallengeSummaryCards,
 } from '../../lib/profile/profileCards'
 import type { JdcChallengeSummaryInput, ProfileBestSource } from '../../lib/profile/profileCards'
-import { StatsCountLabel } from '../StatsPageSections/StatsCountLabel'
+import { StatsCountLabel } from './StatsCountLabel'
 import { ProfileModeSection } from './ProfileModeSection'
 import { ProfileStatCardGrid } from './ProfileStatCardGrid'
 

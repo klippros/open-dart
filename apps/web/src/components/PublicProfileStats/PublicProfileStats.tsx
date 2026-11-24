@@ -13,7 +13,7 @@ import { PUBLIC_PROFILE_SECTION_ORDER, ProfileSectionId } from '../../lib/profil
 import { JdcChallengeProfileSection } from '../ProfileStatCards/JdcChallengeProfileSection'
 import { NinetyNineDartsProfileSection } from '../ProfileStatCards/NinetyNineDartsProfileSection'
 import { ProfileCardsSection } from '../ProfileStatCards/ProfileCardsSection'
-import { StatsCountLabel } from '../StatsPageSections/StatsCountLabel'
+import { StatsCountLabel } from '../ProfileStatCards/StatsCountLabel'
 import { ProfileModeSection } from '../ProfileStatCards/ProfileModeSection'
 import { ProfileStatCardGrid } from '../ProfileStatCards/ProfileStatCardGrid'
 

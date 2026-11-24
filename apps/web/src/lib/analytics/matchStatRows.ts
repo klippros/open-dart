@@ -1,5 +1,4 @@
-import type { X01LegStats } from '@open-dart/analytics/x01Stats'
-import { formatAverage, formatCount, formatDoubleCheckout, formatInteger } from './formatAnalytics'
+import { formatAverage, formatDoubleCheckout, formatInteger } from './formatAnalytics'
 import type { PlayerMatchStats } from './matchPlayerStats'
 import { emptyPlayerMatchStats } from './matchPlayerStats'
 
@@ -12,10 +11,8 @@ export enum MatchStatRowId {
   Checkouts = 'checkouts',
   Checkouts100Plus = 'checkouts100Plus',
   HighestCheckout = 'highestCheckout',
-  BestLegAverage = 'bestLegAverage',
   ThreeDartAverageUntil170 = 'threeDartAverageUntil170',
   ThreeDartAverageUntilDouble = 'threeDartAverageUntilDouble',
-  AvgDarts = 'avgDarts',
 }
 
 export interface MatchStatRowDefinition {
@@ -104,61 +101,8 @@ const sharedMatchStatRows: MatchStatRowDefinition[] = [
   },
 ]
 
-const statsPageOnlyRows: MatchStatRowDefinition[] = [
-  {
-    id: MatchStatRowId.BestLegAverage,
-    label: 'Best leg avg',
-    formatValue: () => '—',
-    isVisible: () => true,
-  },
-  {
-    id: MatchStatRowId.AvgDarts,
-    label: 'Avg darts',
-    formatValue: () => '—',
-    isVisible: () => true,
-  },
-]
-
 export const getVisibleMatchStatRows = (
   statsByPlayer: Record<string, PlayerMatchStats>,
   playerIds: string[],
 ): MatchStatRowDefinition[] =>
   sharedMatchStatRows.filter((row) => row.isVisible(statsByPlayer, playerIds))
-
-export const getVisibleStatsPageRows = (
-  statsByPlayer: Record<string, PlayerMatchStats>,
-  playerIds: string[],
-): MatchStatRowDefinition[] => [
-  ...getVisibleMatchStatRows(statsByPlayer, playerIds),
-  ...statsPageOnlyRows,
-]
-
-export const x01LegStatsToPlayerMatchStats = (stats: X01LegStats): PlayerMatchStats => ({
-  threeDartAverage: stats.threeDartAverage,
-  threeDartAverageUntil170: stats.threeDartAverageUntil170,
-  threeDartAverageUntilDouble: stats.threeDartAverageUntilDouble,
-  thrown180: stats.thrown180,
-  thrown140Plus: stats.thrown140Plus,
-  thrown100Plus: stats.thrown100Plus,
-  doubleCheckout: stats.doubleCheckout,
-  doubleCheckoutUnavailable: stats.doubleCheckoutUnavailable,
-  checkouts100Plus: stats.checkouts100Plus,
-  highestCheckout: stats.highestCheckout,
-  highestVisit: stats.highestVisit,
-})
-
-export const formatStatsPageRowValue = (rowId: MatchStatRowId, stats: X01LegStats): string => {
-  if (rowId === MatchStatRowId.BestLegAverage) {
-    return formatAverage(stats.bestLegAverage)
-  }
-
-  if (rowId === MatchStatRowId.AvgDarts) {
-    return formatCount(stats.avgDarts)
-  }
-
-  return (
-    sharedMatchStatRows
-      .find((row) => row.id === rowId)
-      ?.formatValue(x01LegStatsToPlayerMatchStats(stats)) ?? '—'
-  )
-}

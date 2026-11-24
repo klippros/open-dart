@@ -20,7 +20,7 @@ import {
   jdcChallengeGradeColor,
   jdcChallengeGradeTextColor,
 } from '../../lib/jdcChallenge/jdcChallengeGradeColors'
-import { StatCard } from '../StatsPageSections/StatCard'
+import { StatCard } from './StatCard'
 
 export interface JdcChallengeSummaryPanelProps {
   session: GameSession

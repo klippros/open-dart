@@ -18,7 +18,7 @@ import {
 } from '../../lib/profile/x01ProfileFilter'
 import { ProfileModeSection } from '../ProfileStatCards/ProfileModeSection'
 import { ProfileStatCardGrid } from '../ProfileStatCards/ProfileStatCardGrid'
-import { StatsVariantToggle } from '../StatsPageSections/StatsVariantToggle'
+import { StatsVariantToggle } from '../ProfileStatCards/StatsVariantToggle'
 import { ProfileDisclosure } from './ProfileDisclosure'
 import { X01DetailTable } from './X01DetailTable'
 

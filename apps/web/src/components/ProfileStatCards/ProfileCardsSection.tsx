@@ -1,6 +1,6 @@
 import type { StatTimelineSelection } from '../../lib/analytics/statTimelines'
 import type { ProfileBestSource, ProfileStatCardModel } from '../../lib/profile/profileCards'
-import { StatsCountLabel } from '../StatsPageSections/StatsCountLabel'
+import { StatsCountLabel } from './StatsCountLabel'
 import { ProfileModeSection } from './ProfileModeSection'
 import { ProfileStatCardGrid } from './ProfileStatCardGrid'
 
