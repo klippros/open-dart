@@ -1,6 +1,6 @@
 import { Box, Button, Heading, HStack, Stack, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import type { PlayerProfileStats } from '@open-dart/analytics'
 import { ContentContainer } from '../components/ContentContainer'
 import { HistoryList } from '../components/HistoryList/HistoryList'
@@ -17,7 +17,7 @@ import { SignInDialog } from '../components/SignInDialog/SignInDialog'
 import { useAuth } from '../hooks/authContext'
 import { isSignInEnabled } from '../lib/klipprosHost'
 import { OTHER_PROFILE_WINDOW_LABEL } from '../lib/profile/profileDateRange'
-import { OWN_PROFILE_PATH, isOwnProfileUserId } from '../lib/profile/profileRoutes'
+import { isOwnProfileUserId } from '../lib/profile/profileRoutes'
 import { getOnlineMatchCompletedAt, HistoryEntrySource } from '../lib/history/onlineHistorySummary'
 import { HISTORY_PAGE_SIZE } from '../lib/history/historyPager'
 import { decorateOnlineSessionForViewer } from '../lib/matchServer/onlinePlay'
@@ -32,6 +32,7 @@ import {
 import { AuthStatus } from '../types/auth'
 import type { GameSession } from '@open-dart/game/types/gameSession'
 import { resolveHumanPlayerName } from '@open-dart/game/game/playerFactory'
+import { ProfilePage } from './ProfilePage'
 
 export const PlayerProfilePage = () => {
   const { userId: routeUserId } = useParams()
@@ -188,12 +189,12 @@ export const PlayerProfilePage = () => {
     [profile?.displayName, user],
   )
 
-  if (isOwnProfile) {
-    return <Navigate to={OWN_PROFILE_PATH} replace />
-  }
-
   if (authStatus === AuthStatus.Loading) {
     return null
+  }
+
+  if (isOwnProfile) {
+    return <ProfilePage />
   }
 
   if (!validUserId) {
