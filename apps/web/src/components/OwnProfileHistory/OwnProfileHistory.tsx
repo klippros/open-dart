@@ -128,7 +128,7 @@ export const OwnProfileHistory = ({
         {storedSessions.length > 0 ? (
           <Button
             variant="destructive"
-            alignSelf="start"
+            w="full"
             onClick={() => {
               setResetDialogOpen(true)
             }}

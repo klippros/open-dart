@@ -1,4 +1,4 @@
-import { Button, Popover, Portal, Stack, Text, chakra } from '@chakra-ui/react'
+import { Button, Popover, Portal, Stack, Text } from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react'
 import {
   FollowApiError,
@@ -8,25 +8,8 @@ import {
 } from '../../lib/social/followApi'
 import { createRequestGeneration } from '../../lib/social/requestGeneration'
 import { darkDialogContentProps } from '../darkDialogContentProps'
-import {
-  profileDropdownControlHoverStyle,
-  profileDropdownControlStyle,
-} from '../ProfilePageHeader/profileDropdownControlStyle'
+import { DropdownTrigger } from '../DropdownSelect/DropdownTrigger'
 import { SettingsDismissBackdrop } from '../SettingsMenu/SettingsDismissBackdrop'
-
-const followingTriggerStyle = {
-  ...profileDropdownControlStyle,
-  fontFamily: 'inherit',
-  fontWeight: 400,
-  lineHeight: 'inherit',
-  textAlign: 'left',
-  cursor: 'pointer',
-  '&:hover:not(:disabled), &[data-state="open"]': profileDropdownControlHoverStyle,
-  '&:disabled': {
-    opacity: 0.6,
-    cursor: 'default',
-  },
-} as const
 
 export interface ProfileFollowButtonProps {
   profileUserId: string
@@ -127,9 +110,7 @@ export const ProfileFollowButton = ({ profileUserId }: ProfileFollowButtonProps)
         }}
       >
         <Popover.Trigger asChild>
-          <chakra.button type="button" disabled={busy} css={followingTriggerStyle}>
-            Following
-          </chakra.button>
+          <DropdownTrigger disabled={busy}>Following</DropdownTrigger>
         </Popover.Trigger>
         <Portal>
           {menuOpen && (

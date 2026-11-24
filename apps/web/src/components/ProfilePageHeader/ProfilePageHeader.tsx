@@ -26,7 +26,7 @@ export const ProfilePageHeader = ({
       <Box
         display="grid"
         gridTemplateColumns={
-          jersey !== null ? 'auto minmax(0, max-content)' : 'minmax(0, max-content)'
+          jersey !== null ? 'max-content minmax(0, max-content)' : 'minmax(0, max-content)'
         }
         alignItems="center"
         columnGap={2}
