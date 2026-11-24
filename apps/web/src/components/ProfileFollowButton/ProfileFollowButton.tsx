@@ -1,8 +1,5 @@
-import { Button, HStack, Popover, Portal, Stack, Text } from '@chakra-ui/react'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Button, Popover, Portal, Stack, Text, chakra } from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react'
-import { toolbarControlSize } from '../../layout'
 import {
   FollowApiError,
   followUser,
@@ -11,7 +8,25 @@ import {
 } from '../../lib/social/followApi'
 import { createRequestGeneration } from '../../lib/social/requestGeneration'
 import { darkDialogContentProps } from '../darkDialogContentProps'
+import {
+  profileDropdownControlHoverStyle,
+  profileDropdownControlStyle,
+} from '../ProfilePageHeader/profileDropdownControlStyle'
 import { SettingsDismissBackdrop } from '../SettingsMenu/SettingsDismissBackdrop'
+
+const followingTriggerStyle = {
+  ...profileDropdownControlStyle,
+  fontFamily: 'inherit',
+  fontWeight: 400,
+  lineHeight: 'inherit',
+  textAlign: 'left',
+  cursor: 'pointer',
+  '&:hover:not(:disabled), &[data-state="open"]': profileDropdownControlHoverStyle,
+  '&:disabled': {
+    opacity: 0.6,
+    cursor: 'default',
+  },
+} as const
 
 export interface ProfileFollowButtonProps {
   profileUserId: string
@@ -104,80 +119,57 @@ export const ProfileFollowButton = ({ profileUserId }: ProfileFollowButtonProps)
 
   return (
     <Stack gap={2} align="start">
-      <HStack gap={0} align="stretch">
-        <Button
-          variant="cancel"
-          asChild
-          h={toolbarControlSize}
-          borderRightRadius={0}
-          borderRightWidth={0}
-          px={4}
-          pointerEvents="none"
-          _hover={{ transform: 'scale(1)', bg: 'transparent', borderColor: 'whiteAlpha.600' }}
-        >
-          <span role="status">Following</span>
-        </Button>
-        <Popover.Root
-          open={menuOpen}
-          positioning={{ placement: 'bottom-end' }}
-          onOpenChange={(details) => {
-            setMenuOpen(details.open)
-          }}
-        >
-          <Popover.Trigger asChild>
-            <Button
-              aria-label="Follow options"
-              variant="cancel"
-              h={toolbarControlSize}
-              minW={toolbarControlSize}
-              w={toolbarControlSize}
+      <Popover.Root
+        open={menuOpen}
+        positioning={{ placement: 'bottom-start' }}
+        onOpenChange={(details) => {
+          setMenuOpen(details.open)
+        }}
+      >
+        <Popover.Trigger asChild>
+          <chakra.button type="button" disabled={busy} css={followingTriggerStyle}>
+            Following
+          </chakra.button>
+        </Popover.Trigger>
+        <Portal>
+          {menuOpen && (
+            <SettingsDismissBackdrop
+              onDismiss={() => {
+                setMenuOpen(false)
+              }}
+            />
+          )}
+          <Popover.Positioner css={{ '--z-index': 'zIndex.popover' }}>
+            <Popover.Content
+              bg={darkDialogContentProps.bg}
+              borderWidth={darkDialogContentProps.borderWidth}
+              borderColor={darkDialogContentProps.borderColor}
+              color={darkDialogContentProps.color}
+              borderRadius="xl"
+              shadow="2xl"
+              minW="160px"
+              overflow="hidden"
               p={0}
-              borderLeftRadius={0}
-              disabled={busy}
+              _focusVisible={{ outline: 'none' }}
             >
-              <FontAwesomeIcon icon={faChevronDown} />
-            </Button>
-          </Popover.Trigger>
-          <Portal>
-            {menuOpen && (
-              <SettingsDismissBackdrop
-                onDismiss={() => {
-                  setMenuOpen(false)
-                }}
-              />
-            )}
-            <Popover.Positioner css={{ '--z-index': 'zIndex.popover' }}>
-              <Popover.Content
-                bg={darkDialogContentProps.bg}
-                borderWidth={darkDialogContentProps.borderWidth}
-                borderColor={darkDialogContentProps.borderColor}
-                color={darkDialogContentProps.color}
-                borderRadius="xl"
-                shadow="2xl"
-                minW="160px"
-                overflow="hidden"
-                p={0}
-                _focusVisible={{ outline: 'none' }}
-              >
-                <Popover.Body px={3} py={3}>
-                  <Button
-                    variant="cancel"
-                    w="full"
-                    justifyContent="flex-start"
-                    disabled={busy}
-                    onClick={() => {
-                      setMenuOpen(false)
-                      void runFollowChange(false)
-                    }}
-                  >
-                    Unfollow
-                  </Button>
-                </Popover.Body>
-              </Popover.Content>
-            </Popover.Positioner>
-          </Portal>
-        </Popover.Root>
-      </HStack>
+              <Popover.Body px={3} py={3}>
+                <Button
+                  variant="cancel"
+                  w="full"
+                  justifyContent="flex-start"
+                  disabled={busy}
+                  onClick={() => {
+                    setMenuOpen(false)
+                    void runFollowChange(false)
+                  }}
+                >
+                  Unfollow
+                </Button>
+              </Popover.Body>
+            </Popover.Content>
+          </Popover.Positioner>
+        </Portal>
+      </Popover.Root>
       {errorText}
     </Stack>
   )
