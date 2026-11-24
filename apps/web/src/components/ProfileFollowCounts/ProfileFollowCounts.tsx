@@ -63,6 +63,18 @@ export const ProfileFollowCounts = () => {
         onClose={() => {
           setOpenList(null)
         }}
+        onUnfollowed={() => {
+          setCounts((current) => {
+            if (current === null) {
+              return null
+            }
+
+            return {
+              ...current,
+              followingCount: Math.max(0, current.followingCount - 1),
+            }
+          })
+        }}
       />
     </>
   )
