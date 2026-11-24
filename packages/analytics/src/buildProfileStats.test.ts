@@ -140,8 +140,8 @@ describe('buildProfileStats', () => {
     expect(stats.window.endAt).toBe(NOW.toISOString())
     expect(stats.x01.fiveOhOneOnline.legsPlayed).toBe(1)
     expect(stats.x01.fiveOhOne.legsPlayed).toBe(1)
-    expect(stats.x01.all.legsPlayed).toBe(1)
-    expect(stats.x01.oneSeventy.legsPlayed).toBe(0)
+    expect(stats.x01).not.toHaveProperty('oneSeventy')
+    expect(stats.x01).not.toHaveProperty('all')
     expect(stats.x01.fiveOhOne.legWinRate).toBe(100)
     expect(stats.x01.fiveOhOne.bestDarts).toBe(6)
     expect(stats.x01.fiveOhOne.thrown180).toBe(1)
@@ -158,7 +158,7 @@ describe('buildProfileStats', () => {
     expect(serialized).not.toMatch(/"legNumber"/u)
   })
 
-  it('keeps local 501 out of the online group and 170 out of 501', () => {
+  it('counts online 501 inside 501 and leaves 170 out of both groups', () => {
     const local501 = sampleSession({ id: 'local-501' })
     const online501 = sampleSession({
       id: 'online-501',
@@ -188,8 +188,8 @@ describe('buildProfileStats', () => {
 
     expect(stats.x01.fiveOhOneOnline.legsPlayed).toBe(1)
     expect(stats.x01.fiveOhOne.legsPlayed).toBe(2)
-    expect(stats.x01.oneSeventy.legsPlayed).toBe(1)
-    expect(stats.x01.all.legsPlayed).toBe(3)
+    expect(stats.x01).not.toHaveProperty('oneSeventy')
+    expect(stats.x01).not.toHaveProperty('all')
   })
 
   it('omits empty mode blocks', () => {
@@ -203,8 +203,8 @@ describe('buildProfileStats', () => {
 
     expect(stats.x01.fiveOhOne.legsPlayed).toBe(0)
     expect(stats.x01.fiveOhOneOnline.legsPlayed).toBe(0)
-    expect(stats.x01.oneSeventy.legsPlayed).toBe(0)
-    expect(stats.x01.all.legsPlayed).toBe(0)
+    expect(stats.x01).not.toHaveProperty('oneSeventy')
+    expect(stats.x01).not.toHaveProperty('all')
     expect(stats.bob27).toBeNull()
     expect(stats.ninetyNineDarts).toBeNull()
     expect(stats.bigNumbers).toBeNull()

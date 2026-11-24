@@ -29,17 +29,29 @@ export interface PublicProfileStatsProps {
   stats: PlayerProfileStats | null
 }
 
+/** Other players only switch 501 online and 501. 501 includes online legs. */
+const PUBLIC_X01_VARIANTS = X01_PROFILE_VARIANTS.filter(
+  (variant) =>
+    variant.id === X01StatsFilterId.FiveOhOneOnline || variant.id === X01StatsFilterId.FiveOhOne,
+)
+
+const isPublicX01Variant = (
+  id: X01StatsFilterId,
+): id is X01StatsFilterId.FiveOhOneOnline | X01StatsFilterId.FiveOhOne =>
+  id === X01StatsFilterId.FiveOhOneOnline || id === X01StatsFilterId.FiveOhOne
+
 const renderSection = (
   sectionId: ProfileSectionId,
   model: PublicProfileStatsModel,
-  x01VariantId: X01StatsFilterId,
+  x01VariantId: X01StatsFilterId.FiveOhOneOnline | X01StatsFilterId.FiveOhOne,
   onX01VariantChange: (value: string) => void,
 ): ReactNode => {
   switch (sectionId) {
     case ProfileSectionId.X01: {
       const variant =
-        X01_PROFILE_VARIANTS.find((candidate) => candidate.id === x01VariantId) ??
-        X01_PROFILE_VARIANTS[X01_PROFILE_VARIANTS.length - 1]
+        PUBLIC_X01_VARIANTS.find((candidate) => candidate.id === x01VariantId) ??
+        PUBLIC_X01_VARIANTS[1] ??
+        PUBLIC_X01_VARIANTS[0]
       const group = getPublicX01Group(model.x01, variant.id)
       const empty = group.summary.legCount === 0
       const context = { scope: variant.scope, scopeLabel: variant.label }
@@ -49,7 +61,7 @@ const renderSection = (
           title="x01"
           trailing={
             <StatsVariantToggle
-              items={X01_PROFILE_VARIANTS.map((candidate) => ({
+              items={PUBLIC_X01_VARIANTS.map((candidate) => ({
                 value: candidate.id,
                 label: candidate.label,
                 count: getPublicX01Group(model.x01, candidate.id).summary.legCount,
@@ -109,7 +121,9 @@ const renderSection = (
 
 export const PublicProfileStats = ({ stats }: PublicProfileStatsProps) => {
   const model = useMemo(() => buildPublicProfileStatsModel(stats), [stats])
-  const [x01VariantId, setX01VariantId] = useState(X01StatsFilterId.All)
+  const [x01VariantId, setX01VariantId] = useState<
+    X01StatsFilterId.FiveOhOneOnline | X01StatsFilterId.FiveOhOne
+  >(X01StatsFilterId.FiveOhOne)
 
   return (
     <Stack gap={8}>
@@ -117,7 +131,7 @@ export const PublicProfileStats = ({ stats }: PublicProfileStatsProps) => {
         <Fragment key={sectionId}>
           {renderSection(sectionId, model, x01VariantId, (value) => {
             const next = parseX01ProfileVariant(value)
-            if (next !== null) {
+            if (next !== null && isPublicX01Variant(next)) {
               setX01VariantId(next)
             }
           })}

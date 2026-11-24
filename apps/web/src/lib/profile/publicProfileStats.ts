@@ -18,8 +18,6 @@ export interface PublicX01GroupModel {
 export interface PublicProfileX01Model {
   fiveOhOneOnline: PublicX01GroupModel
   fiveOhOne: PublicX01GroupModel
-  oneSeventy: PublicX01GroupModel
-  all: PublicX01GroupModel
 }
 
 export interface PublicProfileStatsModel {
@@ -85,27 +83,13 @@ const mapX01Group = (group: ProfileX01GroupStats | null | undefined): PublicX01G
 const emptyX01 = (): PublicProfileX01Model => ({
   fiveOhOneOnline: emptyX01Group(),
   fiveOhOne: emptyX01Group(),
-  oneSeventy: emptyX01Group(),
-  all: emptyX01Group(),
 })
 
 export const getPublicX01Group = (
   x01: PublicProfileX01Model,
   id: X01StatsFilterId,
-): PublicX01GroupModel => {
-  switch (id) {
-    case X01StatsFilterId.FiveOhOneOnline:
-      return x01.fiveOhOneOnline
-    case X01StatsFilterId.FiveOhOne:
-      return x01.fiveOhOne
-    case X01StatsFilterId.OneSeventy:
-      return x01.oneSeventy
-    case X01StatsFilterId.All:
-      return x01.all
-    default:
-      return x01.all
-  }
-}
+): PublicX01GroupModel =>
+  id === X01StatsFilterId.FiveOhOneOnline ? x01.fiveOhOneOnline : x01.fiveOhOne
 
 /** Missing sections become empty inputs so every core card still renders. */
 export const buildPublicProfileStatsModel = (
@@ -124,8 +108,6 @@ export const buildPublicProfileStatsModel = (
         : {
             fiveOhOneOnline: mapX01Group(x01.fiveOhOneOnline),
             fiveOhOne: mapX01Group(x01.fiveOhOne),
-            oneSeventy: mapX01Group(x01.oneSeventy),
-            all: mapX01Group(x01.all),
           },
     jdcChallenge: {
       sessionCount: jdc?.sessionsPlayed ?? 0,

@@ -11,6 +11,7 @@ import {
 import { computeJdcChallengeSingleSessionStats } from './jdcChallengeVisitStats.ts'
 import {
   filterBigNumbersSessions,
+  filterFiveOhOneSessions,
   filterJdcChallengeSessions,
   filterNinetyNineDartsSessions,
 } from './sessionScope.ts'
@@ -49,11 +50,10 @@ export interface ProfileX01GroupStats {
   highestCheckout: number | null
 }
 
+/** 501 online, and 501 including those online legs. 170 and All stay on the owner's profile. */
 export interface ProfileX01Stats {
   fiveOhOneOnline: ProfileX01GroupStats
   fiveOhOne: ProfileX01GroupStats
-  oneSeventy: ProfileX01GroupStats
-  all: ProfileX01GroupStats
 }
 
 export interface ProfileBob27Stats {
@@ -234,14 +234,14 @@ const buildX01Stats = (
   window: ProfileStatWindow,
 ): ProfileX01Stats => {
   const stats = computeX01Stats(
-    sessionsInWindow(mergeX01Sessions(onlineSessions, localX01Sessions), window),
+    filterFiveOhOneSessions(
+      sessionsInWindow(mergeX01Sessions(onlineSessions, localX01Sessions), window),
+    ),
   )
 
   return {
     fiveOhOneOnline: toX01Group(stats.fiveOhOneOnline),
     fiveOhOne: toX01Group(stats.fiveOhOne),
-    oneSeventy: toX01Group(stats.oneSeventy),
-    all: toX01Group(stats.all),
   }
 }
 

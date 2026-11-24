@@ -73,6 +73,6 @@ Deno.test('501 and practice reads use absolute cutoffs and errors stay generic',
     source.includes(".eq('mode', GameModeId.X01)"),
     'local x01 should be read from game_sessions',
   )
-  assert(!source.includes('startScore: 501'), 'online x01 query must include every start score')
+  assert(source.includes('startScore: 501'), 'public x01 query should stay on 501')
   assert(!source.includes('error.message'), 'database errors must not be reflected')
 })

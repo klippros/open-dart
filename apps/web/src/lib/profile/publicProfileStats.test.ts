@@ -33,8 +33,6 @@ const x01Group = (legsPlayed: number): ProfileX01GroupStats => ({
 const emptyX01 = {
   fiveOhOneOnline: x01Group(0),
   fiveOhOne: x01Group(0),
-  oneSeventy: x01Group(0),
-  all: x01Group(0),
 }
 
 const emptyStats: PlayerProfileStats = {
@@ -54,8 +52,10 @@ describe('buildPublicProfileStatsModel', () => {
       buildPublicProfileStatsModel(null),
       buildPublicProfileStatsModel(emptyStats),
     ]) {
-      expect(model.x01.all.summary.legCount).toBe(0)
+      expect(model.x01.fiveOhOne.summary.legCount).toBe(0)
       expect(model.x01.fiveOhOneOnline.summary.legCount).toBe(0)
+      expect(model.x01).not.toHaveProperty('all')
+      expect(model.x01).not.toHaveProperty('oneSeventy')
       expect(model.x01.fiveOhOne.summary).not.toHaveProperty('bestLegSource')
       expect(model.jdcChallenge.sessionCount).toBe(0)
       expect(model.bigNumbers.sessionCount).toBe(0)
@@ -74,8 +74,6 @@ describe('buildPublicProfileStatsModel', () => {
       x01: {
         fiveOhOneOnline: x01Group(3),
         fiveOhOne: x01Group(5),
-        oneSeventy: x01Group(1),
-        all: x01Group(8),
       },
       ninetyNineDarts: {
         groups: [
@@ -113,24 +111,24 @@ describe('buildPublicProfileStatsModel', () => {
       },
     })
 
-    expect(model.x01.all.summary.legCount).toBe(8)
-    expect(model.x01.all.summary.avgDarts).toBe(24)
-    expect(model.x01.all.summary.bestDarts).toBe(18)
-    expect(model.x01.fiveOhOneOnline.summary.legCount).toBe(3)
     expect(model.x01.fiveOhOne.summary.legCount).toBe(5)
-    expect(model.x01.oneSeventy.summary.legCount).toBe(1)
-    expect(model.x01.all.summary).not.toHaveProperty('bestLegSource')
-    expect(model.x01.all.summary).not.toHaveProperty('bestDartsSource')
+    expect(model.x01.fiveOhOne.summary.avgDarts).toBe(24)
+    expect(model.x01.fiveOhOne.summary.bestDarts).toBe(18)
+    expect(model.x01.fiveOhOneOnline.summary.legCount).toBe(3)
+    expect(model.x01).not.toHaveProperty('all')
+    expect(model.x01).not.toHaveProperty('oneSeventy')
+    expect(model.x01.fiveOhOne.summary).not.toHaveProperty('bestLegSource')
+    expect(model.x01.fiveOhOne.summary).not.toHaveProperty('bestDartsSource')
     expect(
-      buildX01SummaryCards(model.x01.all.summary, {
-        scope: { type: 'x01-all' },
-        scopeLabel: 'All',
+      buildX01SummaryCards(model.x01.fiveOhOne.summary, {
+        scope: { type: 'x01-501' },
+        scopeLabel: '501',
       })[0]?.details[0]?.source,
     ).toBeNull()
     expect(
-      buildX01DetailRows(model.x01.all.detail, {
-        scope: { type: 'x01-all' },
-        scopeLabel: 'All',
+      buildX01DetailRows(model.x01.fiveOhOne.detail, {
+        scope: { type: 'x01-501' },
+        scopeLabel: '501',
       }).map((row) => row.label),
     ).toContain('180s')
 

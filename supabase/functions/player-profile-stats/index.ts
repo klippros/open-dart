@@ -143,6 +143,7 @@ Deno.serve(async (req: Request) => {
       .eq('online_match_players.user_id', profileUserId)
       .eq('mode', GameModeId.X01)
       .eq('status', 'completed')
+      .contains('config', { startScore: 501 })
       .gte('completed_at', windowStart)
       .order('completed_at', { ascending: false })
 

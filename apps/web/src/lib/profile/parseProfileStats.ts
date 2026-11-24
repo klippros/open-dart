@@ -93,16 +93,18 @@ const readX01 = (value: unknown): ProfileX01Stats | null => {
     return null
   }
 
-  const fiveOhOneOnline = readX01Group(value.fiveOhOneOnline)
-  const fiveOhOne = readX01Group(value.fiveOhOne)
-  const oneSeventy = readX01Group(value.oneSeventy)
-  const all = readX01Group(value.all)
-
-  if (fiveOhOneOnline === null || fiveOhOne === null || oneSeventy === null || all === null) {
+  if ('oneSeventy' in value || 'all' in value) {
     return null
   }
 
-  return { fiveOhOneOnline, fiveOhOne, oneSeventy, all }
+  const fiveOhOneOnline = readX01Group(value.fiveOhOneOnline)
+  const fiveOhOne = readX01Group(value.fiveOhOne)
+
+  if (fiveOhOneOnline === null || fiveOhOne === null) {
+    return null
+  }
+
+  return { fiveOhOneOnline, fiveOhOne }
 }
 
 const readBob27 = (value: unknown): ProfileBob27Stats | null => {

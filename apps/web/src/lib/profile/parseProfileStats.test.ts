@@ -36,8 +36,6 @@ describe('parsePlayerProfileStats', () => {
       x01: {
         fiveOhOneOnline: x01Group(1),
         fiveOhOne: x01Group(2),
-        oneSeventy: x01Group(0),
-        all: x01Group(3),
       },
       bob27: null,
       ninetyNineDarts: {
@@ -78,7 +76,8 @@ describe('parsePlayerProfileStats', () => {
     expect(parsed?.version).toBe(PROFILE_STATS_VERSION)
     expect(parsed?.x01.fiveOhOne.bestLegAverage).toBe(100)
     expect(parsed?.x01.fiveOhOne.bestDarts).toBe(12)
-    expect(parsed?.x01.all.legsPlayed).toBe(3)
+    expect(parsed?.x01.fiveOhOne.legsPlayed).toBe(2)
+    expect(parsed?.x01).not.toHaveProperty('all')
     expect(parsed?.x01.fiveOhOne).not.toHaveProperty('bestLegSource')
     expect(parsed?.ninetyNineDarts?.groups[0]?.sessionsPlayed).toBe(1)
     expect(parsed?.ninetyNineDarts?.groups[0]?.bestFinalScore).toBe(120)
@@ -104,8 +103,20 @@ describe('parsePlayerProfileStats', () => {
         ...payload,
         x01: {
           ...payload.x01,
-          all: { ...payload.x01.all, visits: [] },
+          fiveOhOne: { ...payload.x01.fiveOhOne, visits: [] },
         },
+      }),
+    ).toBeNull()
+    expect(
+      parsePlayerProfileStats({
+        ...payload,
+        x01: { ...payload.x01, all: x01Group(3) },
+      }),
+    ).toBeNull()
+    expect(
+      parsePlayerProfileStats({
+        ...payload,
+        x01: { ...payload.x01, oneSeventy: x01Group(1) },
       }),
     ).toBeNull()
   })
