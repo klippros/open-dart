@@ -173,6 +173,37 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    const localX01Sessions: GameSession[] = []
+    const localX01Result = await admin
+      .from('game_sessions')
+      .select('payload, completed_at')
+      .eq('user_id', profileUserId)
+      .eq('mode', GameModeId.X01)
+      .eq('status', 'completed')
+      .gte('completed_at', windowStart)
+      .order('completed_at', { ascending: false })
+
+    if (localX01Result.error !== null) {
+      return jsonResponse(500, { error: 'server_error' }, origin)
+    }
+
+    for (const row of localX01Result.data ?? []) {
+      if (!isRecord(row)) {
+        continue
+      }
+
+      const nextTotalBytes = addStoredValueToBudget(totalBytes, row.payload)
+      if (nextTotalBytes === null) {
+        return jsonResponse(500, { error: 'server_error' }, origin)
+      }
+      totalBytes = nextTotalBytes
+
+      const session = parseStoredSession(row.payload)
+      if (session !== null) {
+        localX01Sessions.push(session)
+      }
+    }
+
     const practiceSessions: GameSession[] = []
     for (const mode of PRACTICE_MODES) {
       const sessionsResult = await admin
@@ -210,6 +241,7 @@ Deno.serve(async (req: Request) => {
       displayName,
       profileUserId,
       onlineSessions,
+      localX01Sessions,
       practiceSessions,
       now,
     })

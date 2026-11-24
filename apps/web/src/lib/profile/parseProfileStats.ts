@@ -2,13 +2,15 @@ import type {
   PlayerProfileStats,
   ProfileBigNumbersStats,
   ProfileBob27Stats,
-  ProfileFiveOhOneStats,
   ProfileJdcChallengeBadge,
   ProfileJdcChallengeStats,
   ProfileNinetyNineDartsGroupStats,
   ProfileNinetyNineDartsStats,
   ProfileStatWindow,
+  ProfileX01GroupStats,
+  ProfileX01Stats,
 } from '@open-dart/analytics'
+import { PROFILE_STATS_VERSION } from '@open-dart/analytics'
 import { NinetyNineDartsStatGroup } from '@open-dart/analytics/ninetyNineVisitStats'
 import { JdcChallengeGrade } from '@open-dart/game/types/jdcChallenge'
 
@@ -28,21 +30,81 @@ const readWindow = (value: unknown): ProfileStatWindow | null => {
   return { startAt: value.startAt, endAt: value.endAt }
 }
 
-const readFiveOhOne = (value: unknown): ProfileFiveOhOneStats | null => {
-  if (!isRecord(value) || typeof value.legsPlayed !== 'number') {
+const X01_FORBIDDEN_KEYS = [
+  'visits',
+  'payload',
+  'sessionId',
+  'legNumber',
+  'bestLegSource',
+  'bestDartsSource',
+] as const
+
+const hasForbiddenX01Key = (value: Record<string, unknown>): boolean =>
+  X01_FORBIDDEN_KEYS.some((key) => key in value)
+
+const readRequiredNumber = (value: unknown): number | null =>
+  typeof value === 'number' && Number.isFinite(value) ? value : null
+
+const readX01Group = (value: unknown): ProfileX01GroupStats | null => {
+  if (!isRecord(value) || hasForbiddenX01Key(value)) {
     return null
   }
+
+  const legsPlayed = readRequiredNumber(value.legsPlayed)
+  const dartsThrown = readRequiredNumber(value.dartsThrown)
+  const thrown180 = readRequiredNumber(value.thrown180)
+  const thrown140Plus = readRequiredNumber(value.thrown140Plus)
+  const thrown100Plus = readRequiredNumber(value.thrown100Plus)
+  const checkouts100Plus = readRequiredNumber(value.checkouts100Plus)
+
+  if (
+    legsPlayed === null ||
+    dartsThrown === null ||
+    thrown180 === null ||
+    thrown140Plus === null ||
+    thrown100Plus === null ||
+    checkouts100Plus === null
+  ) {
+    return null
+  }
+
   return {
-    legsPlayed: value.legsPlayed,
+    legsPlayed,
     threeDartAverage: readNumber(value.threeDartAverage),
     threeDartAverageUntil170: readNumber(value.threeDartAverageUntil170),
+    threeDartAverageUntilDouble: readNumber(value.threeDartAverageUntilDouble),
     checkoutPercent: readNumber(value.checkoutPercent),
     avgDarts: readNumber(value.avgDarts),
     bestDarts: readNumber(value.bestDarts),
     bestLegAverage: readNumber(value.bestLegAverage),
-    bestLegDarts: readNumber(value.bestLegDarts),
+    dartsThrown,
     legWinRate: readNumber(value.legWinRate),
+    thrown180,
+    thrown140Plus,
+    thrown100Plus,
+    checkouts100Plus,
+    highestVisit: readNumber(value.highestVisit),
+    highestCheckout: readNumber(value.highestCheckout),
   }
+}
+
+const readX01 = (value: unknown): ProfileX01Stats | null => {
+  if (!isRecord(value) || hasForbiddenX01Key(value)) {
+    return null
+  }
+
+  if ('oneSeventy' in value || 'all' in value) {
+    return null
+  }
+
+  const fiveOhOneOnline = readX01Group(value.fiveOhOneOnline)
+  const fiveOhOne = readX01Group(value.fiveOhOne)
+
+  if (fiveOhOneOnline === null || fiveOhOne === null) {
+    return null
+  }
+
+  return { fiveOhOneOnline, fiveOhOne }
 }
 
 const readBob27 = (value: unknown): ProfileBob27Stats | null => {
@@ -157,20 +219,25 @@ const readBigNumbers = (value: unknown): ProfileBigNumbersStats | null => {
 }
 
 export const parsePlayerProfileStats = (value: unknown): PlayerProfileStats | null => {
-  if (!isRecord(value) || value.version !== 2 || typeof value.displayName !== 'string') {
+  if (
+    !isRecord(value) ||
+    value.version !== PROFILE_STATS_VERSION ||
+    typeof value.displayName !== 'string'
+  ) {
     return null
   }
 
   const window = readWindow(value.window)
-  if (window === null) {
+  const x01 = readX01(value.x01)
+  if (window === null || x01 === null) {
     return null
   }
 
   return {
-    version: 2,
+    version: PROFILE_STATS_VERSION,
     displayName: value.displayName,
     window,
-    fiveOhOne: value.fiveOhOne === null ? null : readFiveOhOne(value.fiveOhOne),
+    x01,
     bob27: value.bob27 === null ? null : readBob27(value.bob27),
     ninetyNineDarts: value.ninetyNineDarts === null ? null : readNinetyNine(value.ninetyNineDarts),
     bigNumbers:

@@ -1,19 +1,45 @@
 import { describe, expect, it } from 'vitest'
 import { PROFILE_STATS_VERSION } from '@open-dart/analytics'
-import type { PlayerProfileStats } from '@open-dart/analytics'
+import type { PlayerProfileStats, ProfileX01GroupStats } from '@open-dart/analytics'
 import { NinetyNineDartsStatGroup } from '@open-dart/analytics/ninetyNineVisitStats'
 import {
   buildBob27SummaryCards,
   buildJdcChallengeSegmentCards,
   buildNinetyNineDartsHitCards,
+  buildX01DetailRows,
+  buildX01SummaryCards,
 } from './profileCards'
 import { buildPublicProfileStatsModel } from './publicProfileStats'
+
+const x01Group = (legsPlayed: number): ProfileX01GroupStats => ({
+  legsPlayed,
+  threeDartAverage: legsPlayed === 0 ? null : 55,
+  threeDartAverageUntil170: legsPlayed === 0 ? null : 58,
+  threeDartAverageUntilDouble: legsPlayed === 0 ? null : 52,
+  checkoutPercent: legsPlayed === 0 ? null : 30,
+  avgDarts: legsPlayed === 0 ? null : 24,
+  bestDarts: legsPlayed === 0 ? null : 18,
+  bestLegAverage: legsPlayed === 0 ? null : 70,
+  dartsThrown: legsPlayed * 24,
+  legWinRate: legsPlayed === 0 ? null : 50,
+  thrown180: legsPlayed,
+  thrown140Plus: legsPlayed,
+  thrown100Plus: legsPlayed * 2,
+  checkouts100Plus: 1,
+  highestVisit: legsPlayed === 0 ? null : 180,
+  highestCheckout: legsPlayed === 0 ? null : 120,
+})
+
+const emptyX01 = {
+  fiveOhOneOnline: x01Group(0),
+  fiveOhOne: x01Group(0),
+}
 
 const emptyStats: PlayerProfileStats = {
   version: PROFILE_STATS_VERSION,
   displayName: 'Alex',
   window: { startAt: '2026-07-26T12:00:00.000Z', endAt: '2026-08-25T12:00:00.000Z' },
-  fiveOhOne: null,
+  x01: emptyX01,
   bob27: null,
   ninetyNineDarts: null,
   bigNumbers: null,
@@ -26,7 +52,11 @@ describe('buildPublicProfileStatsModel', () => {
       buildPublicProfileStatsModel(null),
       buildPublicProfileStatsModel(emptyStats),
     ]) {
-      expect(model.x01.legCount).toBe(0)
+      expect(model.x01.fiveOhOne.summary.legCount).toBe(0)
+      expect(model.x01.fiveOhOneOnline.summary.legCount).toBe(0)
+      expect(model.x01).not.toHaveProperty('all')
+      expect(model.x01).not.toHaveProperty('oneSeventy')
+      expect(model.x01.fiveOhOne.summary).not.toHaveProperty('bestLegSource')
       expect(model.jdcChallenge.sessionCount).toBe(0)
       expect(model.bigNumbers.sessionCount).toBe(0)
       expect(model.bob27.sessionCount).toBe(0)
@@ -41,16 +71,9 @@ describe('buildPublicProfileStatsModel', () => {
   it('maps payload fields onto the shared card inputs', () => {
     const model = buildPublicProfileStatsModel({
       ...emptyStats,
-      fiveOhOne: {
-        legsPlayed: 8,
-        threeDartAverage: 55,
-        threeDartAverageUntil170: 58,
-        checkoutPercent: 30,
-        avgDarts: 24,
-        bestDarts: 18,
-        bestLegAverage: 70,
-        bestLegDarts: 21,
-        legWinRate: 50,
+      x01: {
+        fiveOhOneOnline: x01Group(3),
+        fiveOhOne: x01Group(5),
       },
       ninetyNineDarts: {
         groups: [
@@ -88,9 +111,26 @@ describe('buildPublicProfileStatsModel', () => {
       },
     })
 
-    expect(model.x01.legCount).toBe(8)
-    expect(model.x01.avgDarts).toBe(24)
-    expect(model.x01.bestDarts).toBe(18)
+    expect(model.x01.fiveOhOne.summary.legCount).toBe(5)
+    expect(model.x01.fiveOhOne.summary.avgDarts).toBe(24)
+    expect(model.x01.fiveOhOne.summary.bestDarts).toBe(18)
+    expect(model.x01.fiveOhOneOnline.summary.legCount).toBe(3)
+    expect(model.x01).not.toHaveProperty('all')
+    expect(model.x01).not.toHaveProperty('oneSeventy')
+    expect(model.x01.fiveOhOne.summary).not.toHaveProperty('bestLegSource')
+    expect(model.x01.fiveOhOne.summary).not.toHaveProperty('bestDartsSource')
+    expect(
+      buildX01SummaryCards(model.x01.fiveOhOne.summary, {
+        scope: { type: 'x01-501' },
+        scopeLabel: '501',
+      })[0]?.details[0]?.source,
+    ).toBeNull()
+    expect(
+      buildX01DetailRows(model.x01.fiveOhOne.detail, {
+        scope: { type: 'x01-501' },
+        scopeLabel: '501',
+      }).map((row) => row.label),
+    ).toContain('180s')
 
     const bull = model.ninetyNineDarts.find(
       (group) => group.group === NinetyNineDartsStatGroup.Bull,

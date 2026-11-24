@@ -4,7 +4,7 @@ import type { ProfileStatCardModel } from '../../lib/profile/profileCards'
 
 export interface X01DetailTableProps {
   rows: ProfileStatCardModel[]
-  onStatSelect: (selection: StatTimelineSelection) => void
+  onStatSelect?: (selection: StatTimelineSelection) => void
 }
 
 export const X01DetailTable = ({ rows, onStatSelect }: X01DetailTableProps) => (
@@ -29,7 +29,7 @@ export const X01DetailTable = ({ rows, onStatSelect }: X01DetailTableProps) => (
       )
       const borderTop = index === 0 ? undefined : '1px solid'
 
-      if (row.timeline === null) {
+      if (row.timeline === null || onStatSelect === undefined) {
         return (
           <Box key={row.id} borderTop={borderTop} borderColor="whiteAlpha.100">
             {content}

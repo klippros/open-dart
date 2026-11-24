@@ -165,8 +165,20 @@ export const buildX01SummaryCards = (
   }),
 ]
 
+export interface X01DetailInput {
+  legWinRate: number | null
+  dartsThrown: number
+  highestVisit: number | null
+  thrown180: number
+  thrown140Plus: number
+  thrown100Plus: number
+  threeDartAverageUntilDouble: number | null
+  checkouts100Plus: number
+  highestCheckout: number | null
+}
+
 export const buildX01DetailRows = (
-  stats: X01LegStats,
+  stats: X01DetailInput,
   context: ProfileTimelineContext,
 ): ProfileStatCardModel[] => [
   card('leg-win-rate', 'Leg win rate', formatRate(stats.legWinRate)),

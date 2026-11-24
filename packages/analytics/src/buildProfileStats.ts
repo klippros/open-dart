@@ -17,12 +17,12 @@ import {
 } from './sessionScope.ts'
 import type { JdcChallengeGrade } from '@open-dart/game/types/jdcChallenge.ts'
 import { getSessionCompletedAt } from './sessionLabels.ts'
-import { expandX01SessionsLegs } from './x01LegSlices.ts'
 import { computeX01Stats } from './x01Stats.ts'
+import type { X01LegStats } from './x01Stats.ts'
 import { NinetyNineDartsStatGroup } from './ninetyNineVisitStats.ts'
 import { getDateRangeCutoff } from './sessionFilters.ts'
 
-export const PROFILE_STATS_VERSION = 2
+export const PROFILE_STATS_VERSION = 3
 export const PROFILE_ACTIVE_DAYS = 30
 
 export interface ProfileStatWindow {
@@ -30,16 +30,30 @@ export interface ProfileStatWindow {
   endAt: string
 }
 
-export interface ProfileFiveOhOneStats {
+/** Scalar x01 aggregates. No session ids, leg numbers, or visits. */
+export interface ProfileX01GroupStats {
   legsPlayed: number
   threeDartAverage: number | null
   threeDartAverageUntil170: number | null
+  threeDartAverageUntilDouble: number | null
   checkoutPercent: number | null
   avgDarts: number | null
   bestDarts: number | null
   bestLegAverage: number | null
-  bestLegDarts: number | null
+  dartsThrown: number
   legWinRate: number | null
+  thrown180: number
+  thrown140Plus: number
+  thrown100Plus: number
+  checkouts100Plus: number
+  highestVisit: number | null
+  highestCheckout: number | null
+}
+
+/** 501 online, and 501 including those online legs. 170 and All stay on the owner's profile. */
+export interface ProfileX01Stats {
+  fiveOhOneOnline: ProfileX01GroupStats
+  fiveOhOne: ProfileX01GroupStats
 }
 
 export interface ProfileBob27Stats {
@@ -94,7 +108,7 @@ export interface PlayerProfileStats {
   version: typeof PROFILE_STATS_VERSION
   displayName: string
   window: ProfileStatWindow
-  fiveOhOne: ProfileFiveOhOneStats | null
+  x01: ProfileX01Stats
   bob27: ProfileBob27Stats | null
   ninetyNineDarts: ProfileNinetyNineDartsStats | null
   bigNumbers: ProfileBigNumbersStats | null
@@ -104,6 +118,8 @@ export interface PlayerProfileStats {
 export interface BuildProfileStatsInput {
   displayName: string
   onlineSessions: GameSession[]
+  /** Completed local x01 sessions. Not oriented, so hotseat games stay offline. */
+  localX01Sessions?: GameSession[]
   practiceSessions: GameSession[]
   profileUserId: string
   /** Override "now" for the absolute 30-day window and jersey badge (tests). */
@@ -144,33 +160,6 @@ export const orientSessionForProfileUser = (
   })),
 })
 
-const computeLegWinRate = (sessions: GameSession[], profileUserId: string): number | null => {
-  let wins = 0
-  let hasRecordedWins = false
-  let legsPlayed = 0
-
-  for (const session of sessions) {
-    const progress = session.matchProgress
-    if (progress === undefined) {
-      continue
-    }
-
-    const playerWins = progress.legWins[profileUserId]
-    if (typeof playerWins === 'number') {
-      hasRecordedWins = true
-      wins += playerWins
-    }
-
-    legsPlayed += expandX01SessionsLegs([session]).length
-  }
-
-  if (!hasRecordedWins || legsPlayed === 0) {
-    return null
-  }
-
-  return (wins / legsPlayed) * 100
-}
-
 const checkoutPercent = (stats: {
   doubleCheckout: { attempts: number; successes: number }
   doubleCheckoutUnavailable: boolean
@@ -182,32 +171,77 @@ const checkoutPercent = (stats: {
   return (stats.doubleCheckout.successes / stats.doubleCheckout.attempts) * 100
 }
 
-const buildFiveOhOneStats = (
-  onlineSessions: GameSession[],
-  profileUserId: string,
-  window: ProfileStatWindow,
-): ProfileFiveOhOneStats | null => {
-  const fiveOhOne = sessionsInWindow(
-    filterFiveOhOneSessions(onlineSessions.filter(isCompleted)),
-    window,
-  )
-  if (fiveOhOne.length === 0) {
-    return null
-  }
+const emptyX01Group = (): ProfileX01GroupStats => ({
+  legsPlayed: 0,
+  threeDartAverage: null,
+  threeDartAverageUntil170: null,
+  threeDartAverageUntilDouble: null,
+  checkoutPercent: null,
+  avgDarts: null,
+  bestDarts: null,
+  bestLegAverage: null,
+  dartsThrown: 0,
+  legWinRate: null,
+  thrown180: 0,
+  thrown140Plus: 0,
+  thrown100Plus: 0,
+  checkouts100Plus: 0,
+  highestVisit: null,
+  highestCheckout: null,
+})
 
-  const oriented = fiveOhOne.map((session) => orientSessionForProfileUser(session, profileUserId))
-  const stats = computeX01Stats(oriented).fiveOhOne
+const toX01Group = (stats: X01LegStats): ProfileX01GroupStats => {
+  if (stats.legCount === 0) {
+    return emptyX01Group()
+  }
 
   return {
     legsPlayed: stats.legCount,
     threeDartAverage: stats.threeDartAverage,
     threeDartAverageUntil170: stats.threeDartAverageUntil170,
+    threeDartAverageUntilDouble: stats.threeDartAverageUntilDouble,
     checkoutPercent: checkoutPercent(stats),
     avgDarts: stats.avgDarts,
     bestDarts: stats.bestDarts,
     bestLegAverage: stats.bestLegAverage,
-    bestLegDarts: stats.bestLegDarts,
-    legWinRate: computeLegWinRate(oriented, profileUserId),
+    dartsThrown: stats.dartsThrown,
+    legWinRate: stats.legWinRate,
+    thrown180: stats.thrown180,
+    thrown140Plus: stats.thrown140Plus,
+    thrown100Plus: stats.thrown100Plus,
+    checkouts100Plus: stats.checkouts100Plus,
+    highestVisit: stats.highestVisit,
+    highestCheckout: stats.highestCheckout,
+  }
+}
+
+/**
+ * Online sessions are already oriented. A shared id keeps the online copy so a
+ * synced local save cannot reclassify an online match as offline.
+ */
+const mergeX01Sessions = (
+  onlineSessions: GameSession[],
+  localX01Sessions: GameSession[],
+): GameSession[] => {
+  const onlineIds = new Set(onlineSessions.map((session) => session.id))
+
+  return [...onlineSessions, ...localX01Sessions.filter((session) => !onlineIds.has(session.id))]
+}
+
+const buildX01Stats = (
+  onlineSessions: GameSession[],
+  localX01Sessions: GameSession[],
+  window: ProfileStatWindow,
+): ProfileX01Stats => {
+  const stats = computeX01Stats(
+    filterFiveOhOneSessions(
+      sessionsInWindow(mergeX01Sessions(onlineSessions, localX01Sessions), window),
+    ),
+  )
+
+  return {
+    fiveOhOneOnline: toX01Group(stats.fiveOhOneOnline),
+    fiveOhOne: toX01Group(stats.fiveOhOne),
   }
 }
 
@@ -388,13 +422,14 @@ export const buildProfileStats = (input: BuildProfileStatsInput): PlayerProfileS
   const online = input.onlineSessions
     .filter(isCompleted)
     .map((session) => orientSessionForProfileUser(session, input.profileUserId))
+  const localX01 = (input.localX01Sessions ?? []).filter(isCompleted)
   const practice = input.practiceSessions.filter(isCompleted)
 
   return {
     version: PROFILE_STATS_VERSION,
     displayName: input.displayName,
     window,
-    fiveOhOne: buildFiveOhOneStats(online, input.profileUserId, window),
+    x01: buildX01Stats(online, localX01, window),
     bob27: buildBob27Stats(practice, window),
     ninetyNineDarts: buildNinetyNineDartsStats(practice, window),
     bigNumbers: buildBigNumbersStats(practice, window),
