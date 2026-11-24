@@ -247,7 +247,7 @@ export const PlayerProfilePage = () => {
           <ProfilePageHeader
             jersey={stats?.jdcChallenge?.badge ?? null}
             identity={
-              <HStack gap={1} minW={0} align="center">
+              <HStack gap={1} minW={0} w="full" align="center">
                 <ProfileDisplayName name={displayName} />
                 <ProfileNameMenu
                   onReportName={() => {

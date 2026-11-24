@@ -1,7 +1,7 @@
 import { Button, Heading, HStack } from '@chakra-ui/react'
 import { faPen } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { toolbarControlSize } from '../../layout'
+import { profileNameHeight, toolbarControlSize } from '../../layout'
 
 export interface ProfileDisplayNameProps {
   name: string
@@ -9,13 +9,17 @@ export interface ProfileDisplayNameProps {
 }
 
 export const ProfileDisplayName = ({ name, onEdit }: ProfileDisplayNameProps) => (
-  <HStack gap={1} minW={0}>
+  <HStack gap={1} minW={0} maxW="full" flex="1 1 auto">
     <Heading
       as="h1"
       size="2xl"
       color="white"
       fontFamily="Archivo Black, sans-serif"
-      overflowWrap="anywhere"
+      lineHeight={profileNameHeight}
+      title={name}
+      truncate
+      minW={0}
+      flex="0 1 auto"
     >
       {name}
     </Heading>
@@ -28,6 +32,7 @@ export const ProfileDisplayName = ({ name, onEdit }: ProfileDisplayNameProps) =>
         w={toolbarControlSize}
         h={toolbarControlSize}
         p={0}
+        flexShrink={0}
         _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
         onClick={onEdit}
       >

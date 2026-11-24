@@ -4,6 +4,7 @@ import {
   getJdcChallengeGradeBand,
   getJdcChallengeGradeLabel,
 } from '@open-dart/game/jdcChallenge/jdcChallengeRules'
+import { profileNameHeight } from '../../layout'
 import { jdcChallengeGradeColor } from '../../lib/jdcChallenge/jdcChallengeGradeColors'
 
 export interface ProfileJdcJerseyProps {
@@ -34,13 +35,13 @@ export const ProfileJdcJersey = ({ badge }: ProfileJdcJerseyProps) => {
           display="inline-flex"
           alignItems="center"
           justifyContent="center"
-          w="44px"
-          h="44px"
+          w={profileNameHeight}
+          h={profileNameHeight}
           flexShrink={0}
           borderRadius="md"
           _focusVisible={{ outline: '2px solid', outlineColor: 'orange.300', outlineOffset: '2px' }}
         >
-          <svg viewBox="0 0 24 24" width="44" height="44" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="100%" height="100%" aria-hidden="true">
             <path
               d={JERSEY_PATH}
               fill={fill}
