@@ -5,6 +5,7 @@ import type { AnalyticsResult } from '@open-dart/analytics/computeAnalytics'
 import { computeBigNumbersSummary } from '@open-dart/analytics/practiceStats'
 import type { GameSession } from '@open-dart/game/types/gameSession'
 import type { StatTimelineSelection } from '../../lib/analytics/statTimelines'
+import type { ProfileBestSource } from '../../lib/profile/profileCards'
 import { buildOwnProfileStatsModel } from '../../lib/profile/ownProfileStats'
 import type { OwnProfileStatsModel } from '../../lib/profile/ownProfileStats'
 import {
@@ -27,6 +28,7 @@ export interface OwnProfileStatsProps {
   sessions: GameSession[]
   analytics: AnalyticsResult
   onStatSelect: (selection: StatTimelineSelection) => void
+  onOpenBest: (source: ProfileBestSource) => void
 }
 
 const renderSection = (
@@ -34,18 +36,32 @@ const renderSection = (
   model: OwnProfileStatsModel,
   sessions: GameSession[],
   onStatSelect: (selection: StatTimelineSelection) => void,
+  onOpenBest: (source: ProfileBestSource) => void,
 ): ReactNode => {
   switch (sectionId) {
     case ProfileSectionId.X01:
-      return <X01ProfileSection sessions={sessions} onStatSelect={onStatSelect} />
+      return (
+        <X01ProfileSection
+          sessions={sessions}
+          onStatSelect={onStatSelect}
+          onOpenBest={onOpenBest}
+        />
+      )
     case ProfileSectionId.JdcChallenge:
-      return <JdcChallengeProfileSection stats={model.jdcChallenge} onStatSelect={onStatSelect} />
+      return (
+        <JdcChallengeProfileSection
+          stats={model.jdcChallenge}
+          onStatSelect={onStatSelect}
+          onOpenBest={onOpenBest}
+        />
+      )
     case ProfileSectionId.NinetyNineDarts:
       return (
         <NinetyNineDartsProfileSection
           groups={model.ninetyNineDarts}
           selectable
           onStatSelect={onStatSelect}
+          onOpenBest={onOpenBest}
         />
       )
     case ProfileSectionId.BigNumbers:
@@ -56,6 +72,7 @@ const renderSection = (
           empty={model.bigNumbers.sessionCount === 0}
           sessionCount={model.bigNumbers.sessionCount}
           onStatSelect={onStatSelect}
+          onOpenBest={onOpenBest}
         />
       )
     case ProfileSectionId.Bob27:
@@ -66,6 +83,7 @@ const renderSection = (
           empty={model.bob27.sessionCount === 0}
           sessionCount={model.bob27.sessionCount}
           onStatSelect={onStatSelect}
+          onOpenBest={onOpenBest}
         />
       )
     case ProfileSectionId.OneTwentyOne:
@@ -75,6 +93,7 @@ const renderSection = (
           cards={buildOneTwentyOneCards(model.oneTwentyOne)}
           sessionCount={model.oneTwentyOne.gameCount}
           onStatSelect={onStatSelect}
+          onOpenBest={onOpenBest}
         />
       )
     case ProfileSectionId.TenUpOneDown:
@@ -84,6 +103,7 @@ const renderSection = (
           cards={buildTenUpOneDownCards(model.tenUpOneDown)}
           sessionCount={model.tenUpOneDown.gameCount}
           onStatSelect={onStatSelect}
+          onOpenBest={onOpenBest}
         />
       )
     case ProfileSectionId.ClaimTheBoard:
@@ -91,12 +111,17 @@ const renderSection = (
         <ProfileCardsSection
           title="Claim the Board"
           cards={buildClaimTheBoardCards(model.claimTheBoard)}
+          columns={3}
           sessionCount={model.claimTheBoard.gameCount}
         />
       )
     case ProfileSectionId.AroundTheClock:
       return (
-        <AroundTheClockProfileSection variants={model.aroundTheClock} onStatSelect={onStatSelect} />
+        <AroundTheClockProfileSection
+          variants={model.aroundTheClock}
+          onStatSelect={onStatSelect}
+          onOpenBest={onOpenBest}
+        />
       )
     case ProfileSectionId.BullRun:
       return model.bullRun === null ? null : (
@@ -105,6 +130,7 @@ const renderSection = (
           cards={buildBullRunCards(model.bullRun)}
           sessionCount={model.bullRun.gameCount}
           onStatSelect={onStatSelect}
+          onOpenBest={onOpenBest}
         />
       )
     case ProfileSectionId.Hunter:
@@ -115,6 +141,7 @@ const renderSection = (
           empty={model.hunter.sessionCount === 0}
           sessionCount={model.hunter.sessionCount}
           onStatSelect={onStatSelect}
+          onOpenBest={onOpenBest}
         />
       )
     default:
@@ -122,7 +149,12 @@ const renderSection = (
   }
 }
 
-export const OwnProfileStats = ({ sessions, analytics, onStatSelect }: OwnProfileStatsProps) => {
+export const OwnProfileStats = ({
+  sessions,
+  analytics,
+  onStatSelect,
+  onOpenBest,
+}: OwnProfileStatsProps) => {
   const model = useMemo(
     () => buildOwnProfileStatsModel(analytics, computeBigNumbersSummary(sessions)),
     [analytics, sessions],
@@ -132,7 +164,7 @@ export const OwnProfileStats = ({ sessions, analytics, onStatSelect }: OwnProfil
     <Stack gap={8}>
       {getVisibleOwnProfileSections(model.playedSections).map((sectionId) => (
         <Fragment key={sectionId}>
-          {renderSection(sectionId, model, sessions, onStatSelect)}
+          {renderSection(sectionId, model, sessions, onStatSelect, onOpenBest)}
         </Fragment>
       ))}
     </Stack>

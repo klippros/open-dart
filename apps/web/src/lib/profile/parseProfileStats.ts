@@ -38,6 +38,7 @@ const readFiveOhOne = (value: unknown): ProfileFiveOhOneStats | null => {
     threeDartAverageUntil170: readNumber(value.threeDartAverageUntil170),
     checkoutPercent: readNumber(value.checkoutPercent),
     avgDarts: readNumber(value.avgDarts),
+    bestDarts: readNumber(value.bestDarts),
     bestLegAverage: readNumber(value.bestLegAverage),
     bestLegDarts: readNumber(value.bestLegDarts),
     legWinRate: readNumber(value.legWinRate),

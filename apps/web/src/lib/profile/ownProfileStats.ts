@@ -16,7 +16,11 @@ import {
 } from '@open-dart/analytics/practiceStats'
 import type { BigNumbersSummaryStats } from '@open-dart/analytics/practiceStats'
 import { GameModeId } from '@open-dart/game/types/gameMode'
-import { NINETY_NINE_DARTS_GROUPS, emptyNinetyNineDartsGroup } from './profileCards'
+import {
+  NINETY_NINE_DARTS_GROUPS,
+  emptyNinetyNineDartsGroup,
+  sessionBestSource,
+} from './profileCards'
 import type {
   BigNumbersSummaryInput,
   Bob27SummaryInput,
@@ -78,6 +82,7 @@ export const buildOwnProfileStatsModel = (
       avgScore: jdc?.avgFinalScore ?? null,
       avgShanghais: jdc?.avgShanghaisPerGame ?? null,
       bestScore: jdc?.bestFinalScore ?? null,
+      bestScoreSource: sessionBestSource(jdc?.bestSessionId),
       avgShanghaiLowScore: jdc?.avgShanghaiLowScore ?? null,
       avgDoublesScore: jdc?.avgDoublesScore ?? null,
       avgShanghaiHighScore: jdc?.avgShanghaiHighScore ?? null,
@@ -92,6 +97,7 @@ export const buildOwnProfileStatsModel = (
         sessionCount: stats.gameCount,
         avgScore: stats.avgFinalScore,
         bestScore: stats.bestFinalScore,
+        bestScoreSource: sessionBestSource(stats.bestSessionId),
         hitRate: stats.hitRate,
         avgSingles: stats.avgSinglesPerGame,
         avgDoubles: stats.avgDoublesPerGame,
@@ -102,6 +108,7 @@ export const buildOwnProfileStatsModel = (
       sessionCount: bigNumbers.gameCount,
       hitRate: bigNumbers.hitRate,
       bestHitRate: bigNumbers.bestHitRate,
+      bestHitRateSource: sessionBestSource(bigNumbers.bestHitRateSessionId),
     },
     bob27: {
       sessionCount: bob27?.gameCount ?? 0,
@@ -110,6 +117,7 @@ export const buildOwnProfileStatsModel = (
       avgHitsPerVisit: bob27?.avgHitsPerVisit ?? null,
       avgDoublesPerGame: bob27?.avgDoublesPerGame ?? null,
       bestScore: bob27?.bestFinalScore ?? null,
+      bestScoreSource: sessionBestSource(bob27?.bestSessionId),
       bestHitsPerVisit: bob27?.bestHitsPerVisit ?? null,
       bestDoublesPerGame: bob27?.bestDoublesPerGame ?? null,
     },

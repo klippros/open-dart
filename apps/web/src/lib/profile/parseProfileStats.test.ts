@@ -18,6 +18,7 @@ describe('parsePlayerProfileStats', () => {
         threeDartAverageUntil170: 62,
         checkoutPercent: 40,
         avgDarts: 18,
+        bestDarts: 12,
         bestLegAverage: 100,
         bestLegDarts: 15,
         legWinRate: 50,
@@ -60,6 +61,7 @@ describe('parsePlayerProfileStats', () => {
     const parsed = parsePlayerProfileStats(payload)
     expect(parsed?.version).toBe(2)
     expect(parsed?.fiveOhOne?.bestLegAverage).toBe(100)
+    expect(parsed?.fiveOhOne?.bestDarts).toBe(12)
     expect(parsed?.ninetyNineDarts?.groups[0]?.sessionsPlayed).toBe(1)
     expect(parsed?.ninetyNineDarts?.groups[0]?.bestFinalScore).toBe(120)
     expect(parsed?.jdcChallenge?.badge).toEqual({

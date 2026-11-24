@@ -1,5 +1,4 @@
 import { SegmentGroup } from '@chakra-ui/react'
-import { StatsCountLabel } from './StatsCountLabel'
 
 export interface StatsVariantToggleItem {
   value: string
@@ -11,23 +10,11 @@ export interface StatsVariantToggleProps {
   items: StatsVariantToggleItem[]
   value: string
   onChange: (value: string) => void
-  countUnit?: 'Session' | 'Leg'
 }
 
-export const StatsVariantToggle = ({
-  items,
-  value,
-  onChange,
-  countUnit = 'Session',
-}: StatsVariantToggleProps) => {
-  if (items.length <= 1) {
-    const [onlyItem] = items
-
-    if (onlyItem === undefined) {
-      return null
-    }
-
-    return <StatsCountLabel count={onlyItem.count} unit={countUnit} />
+export const StatsVariantToggle = ({ items, value, onChange }: StatsVariantToggleProps) => {
+  if (items.length === 0) {
+    return null
   }
 
   return (

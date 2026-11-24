@@ -46,15 +46,22 @@ export const getThreeDartAverage = (visits: Visit[]): number | null => {
 export interface BestThreeDartAverageLeg {
   average: number
   darts: number
+  checkedOut: boolean
+}
+
+export interface BestThreeDartAverageMatch<T> extends BestThreeDartAverageLeg {
+  item: T
 }
 
 /** Highest 3-dart average; ties prefer the leg with fewer darts. */
-export const getBestThreeDartAverageLeg = (
-  visitGroups: Visit[][],
-): BestThreeDartAverageLeg | null => {
-  let best: BestThreeDartAverageLeg | null = null
+export const findBestThreeDartAverage = <T>(
+  items: readonly T[],
+  getVisits: (item: T) => Visit[],
+): BestThreeDartAverageMatch<T> | null => {
+  let best: BestThreeDartAverageMatch<T> | null = null
 
-  for (const visits of visitGroups) {
+  for (const item of items) {
+    const visits = getVisits(item)
     const average = getThreeDartAverage(visits)
 
     if (average === null) {
@@ -62,17 +69,31 @@ export const getBestThreeDartAverageLeg = (
     }
 
     const darts = visits.reduce((sum, visit) => sum + getVisitDartCount(visit), 0)
+    const checkedOut = visits.some((visit) => visit.checkout)
 
     if (
       best === null ||
       average > best.average ||
       (average === best.average && darts < best.darts)
     ) {
-      best = { average, darts }
+      best = { item, average, darts, checkedOut }
     }
   }
 
   return best
+}
+
+/** Highest 3-dart average; ties prefer the leg with fewer darts. */
+export const getBestThreeDartAverageLeg = (
+  visitGroups: Visit[][],
+): BestThreeDartAverageLeg | null => {
+  const best = findBestThreeDartAverage(visitGroups, (visits) => visits)
+
+  if (best === null) {
+    return null
+  }
+
+  return { average: best.average, darts: best.darts, checkedOut: best.checkedOut }
 }
 
 export const getMaxThreeDartAverage = (visitGroups: Visit[][]): number | null =>

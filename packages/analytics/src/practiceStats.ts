@@ -14,6 +14,7 @@ import {
   getBigNumbersAvgHitsPerVisit,
   getBigNumbersBestSessionHitRate,
   getBigNumbersHitRate,
+  getBigNumbersSessionHitRate,
   getBigNumbersSessionVisitCount,
 } from './bigNumbersVisitStats.ts'
 import { computeHunterPracticeRollup } from './hunterVisitStats.ts'
@@ -39,7 +40,10 @@ import {
   getOneTwentyOneCheckoutRate,
   getSessionCheckoutCount,
 } from './oneTwentyOneVisitStats.ts'
-import { aggregateAroundTheClockSessionStats } from './aroundTheClockStats.ts'
+import {
+  aggregateAroundTheClockSessionStats,
+  computeAroundTheClockSingleSessionStats,
+} from './aroundTheClockStats.ts'
 import type { AroundTheClockPerTargetStats } from './aroundTheClockStats.ts'
 import { getLatestSessionStartedAt } from './pickLastPlayedVariant.ts'
 import {
@@ -51,7 +55,9 @@ import {
 import {
   countCheckoutVisits,
   getHighestCheckout,
+  countDartsInSession,
   getPrimaryPlayerVisits,
+  getSessionCheckoutRate,
   getSessionFinalScore,
   getThreeDartAverage,
 } from './visitStats.ts'
@@ -62,9 +68,19 @@ export interface CheckoutPracticeStats {
   gameCount: number
   visitCount: number
   checkoutRate: number | null
+  /** Best single-session checkout rate. */
+  bestCheckoutRate: number | null
+  /** Session that produced `bestCheckoutRate`. */
+  bestCheckoutRateSessionId?: string | null
   threeDartAverage: number | null
+  /** Best single-session 3-dart average. */
+  bestThreeDartAverage: number | null
+  /** Session that produced `bestThreeDartAverage`. */
+  bestThreeDartAverageSessionId?: string | null
   avgCheckoutsPerGame: number | null
   bestCheckoutsPerGame: number | null
+  /** Session that produced `bestCheckoutsPerGame`. */
+  bestCheckoutsSessionId?: string | null
   highestCheckout: number | null
   lastPlayedAt: string
 }
@@ -76,6 +92,8 @@ export interface Bob27PracticeStats {
   completedCount: number
   avgFinalScore: number | null
   bestFinalScore: number | null
+  /** Session that produced `bestFinalScore`. */
+  bestSessionId?: string | null
   hitRate: number | null
   avgHitsPerVisit: number | null
   bestHitsPerVisit: number | null
@@ -88,6 +106,8 @@ export interface BigNumbersSummaryStats {
   gameCount: number
   hitRate: number | null
   bestHitRate: number | null
+  /** Session that produced `bestHitRate`. */
+  bestHitRateSessionId?: string | null
 }
 
 export interface ClaimTheBoardPracticeStats {
@@ -111,8 +131,12 @@ export interface AroundTheClockPracticeStats {
   completionRate: number | null
   avgDartsFullRun: number | null
   bestDartsFullRun: number | null
+  /** Completed session that produced `bestDartsFullRun`. */
+  bestDartsSessionId?: string | null
   avgDartsPerField: number | null
   bestDartsPerField: number | null
+  /** Session that produced `bestDartsPerField`. */
+  bestDartsPerFieldSessionId?: string | null
   targets: AroundTheClockPerTargetStats[]
   lastPlayedAt: string
 }
@@ -125,6 +149,8 @@ export interface NinetyNineDartsPracticeStats {
   completedCount: number
   avgFinalScore: number | null
   bestFinalScore: number | null
+  /** Session that produced `bestFinalScore`. */
+  bestSessionId?: string | null
   hitRate: number | null
   avgSinglesPerGame: number | null
   avgDoublesPerGame: number | null
@@ -174,6 +200,8 @@ export interface JdcChallengePracticeStats {
   completedCount: number
   avgFinalScore: number | null
   bestFinalScore: number | null
+  /** Session that produced `bestFinalScore`. */
+  bestSessionId?: string | null
   avgShanghaiLowScore: number | null
   avgDoublesScore: number | null
   avgShanghaiHighScore: number | null
@@ -230,6 +258,35 @@ const getSessionLabel = (sessions: GameSession[], mode: GameModeId): string => {
 const averageOrNull = (values: number[]): number | null =>
   values.length === 0 ? null : values.reduce((sum, value) => sum + value, 0) / values.length
 
+/** First session with the winning score. Ties keep the earlier session. */
+const pickBestSession = (
+  sessions: readonly GameSession[],
+  score: (session: GameSession) => number | null,
+  prefer: 'max' | 'min',
+): GameSession | null => {
+  let winner: GameSession | null = null
+  let winnerScore: number | null = null
+
+  for (const session of sessions) {
+    const value = score(session)
+
+    if (value === null) {
+      continue
+    }
+
+    if (
+      winner === null ||
+      winnerScore === null ||
+      (prefer === 'max' ? value > winnerScore : value < winnerScore)
+    ) {
+      winner = session
+      winnerScore = value
+    }
+  }
+
+  return winner
+}
+
 const computeCheckoutPracticeStats = (
   mode: GameModeId.OneTwentyOne | GameModeId.TenUpOneDown,
   sessions: GameSession[],
@@ -243,6 +300,16 @@ const computeCheckoutPracticeStats = (
   const visits = modeSessions.flatMap((session) => getPrimaryPlayerVisits(session))
   const checkoutVisits = countCheckoutVisits(visits)
   const checkoutsPerGame = modeSessions.map((session) => getSessionCheckoutCount(session))
+  const checkoutRateForSession = (session: GameSession): number | null =>
+    mode === GameModeId.OneTwentyOne
+      ? getOneTwentyOneCheckoutRate(getPrimaryPlayerVisits(session))
+      : getSessionCheckoutRate(session)
+  const bestCheckoutRateSession = pickBestSession(modeSessions, checkoutRateForSession, 'max')
+  const bestThreeDartAverageSession = pickBestSession(
+    modeSessions,
+    (session) => getThreeDartAverage(getPrimaryPlayerVisits(session)),
+    'max',
+  )
 
   const lastPlayedAt = getLatestSessionStartedAt(modeSessions)
 
@@ -261,12 +328,23 @@ const computeCheckoutPracticeStats = (
         : visits.length === 0
           ? null
           : (checkoutVisits / visits.length) * 100,
+    bestCheckoutRate:
+      bestCheckoutRateSession === null ? null : checkoutRateForSession(bestCheckoutRateSession),
+    bestCheckoutRateSessionId: bestCheckoutRateSession?.id ?? null,
     threeDartAverage: getThreeDartAverage(visits),
+    bestThreeDartAverage:
+      bestThreeDartAverageSession === null
+        ? null
+        : getThreeDartAverage(getPrimaryPlayerVisits(bestThreeDartAverageSession)),
+    bestThreeDartAverageSessionId: bestThreeDartAverageSession?.id ?? null,
     avgCheckoutsPerGame:
       checkoutsPerGame.length === 0
         ? null
         : checkoutsPerGame.reduce((sum, count) => sum + count, 0) / checkoutsPerGame.length,
     bestCheckoutsPerGame: checkoutsPerGame.length === 0 ? null : Math.max(...checkoutsPerGame),
+    bestCheckoutsSessionId:
+      pickBestSession(modeSessions, (session) => getSessionCheckoutCount(session), 'max')?.id ??
+      null,
     highestCheckout:
       mode === GameModeId.OneTwentyOne
         ? getHighestOneTwentyOneCheckoutTarget(visits)
@@ -302,6 +380,8 @@ const computeBob27Stats = (sessions: GameSession[]): Bob27PracticeStats | null =
         ? null
         : finalScores.reduce((sum, score) => sum + score, 0) / finalScores.length,
     bestFinalScore: finalScores.length === 0 ? null : Math.max(...finalScores),
+    bestSessionId:
+      pickBestSession(modeSessions, (session) => getSessionFinalScore(session), 'max')?.id ?? null,
     hitRate: getBob27VisitHitRate(visits),
     avgHitsPerVisit: getBob27AvgHitsPerVisit(visits),
     bestHitsPerVisit:
@@ -374,8 +454,17 @@ const computeAroundTheClockStatsForAimMode = (
     completionRate: aggregated.completionRate,
     avgDartsFullRun: aggregated.avgDartsFullRun,
     bestDartsFullRun: aggregated.bestDartsFullRun,
+    bestDartsSessionId:
+      pickBestSession(completedSessions, (session) => countDartsInSession(session), 'min')?.id ??
+      null,
     avgDartsPerField: aggregated.avgDartsPerField,
     bestDartsPerField: aggregated.bestDartsPerField,
+    bestDartsPerFieldSessionId:
+      pickBestSession(
+        aimModeSessions,
+        (session) => computeAroundTheClockSingleSessionStats(session)?.avgDartsPerField ?? null,
+        'min',
+      )?.id ?? null,
     targets: aggregated.targets,
     lastPlayedAt,
   }
@@ -398,17 +487,29 @@ const computeNinetyNineDartsStatsForGroup = (
     return null
   }
 
-  const sessionStats = groupSessions
-    .map((session) => computeNinetyNineDartsSingleSessionStats(session))
-    .filter((stats): stats is NonNullable<typeof stats> => stats !== null)
+  const sessionStats = groupSessions.flatMap((session) => {
+    const stats = computeNinetyNineDartsSingleSessionStats(session)
+
+    return stats === null ? [] : [{ session, stats }]
+  })
 
   const finalScores = sessionStats
-    .map((stats) => stats.score)
+    .map((item) => item.stats.score)
     .filter((score): score is number => score !== null)
 
   const totals = sessionStats.reduce(
-    (counts, stats) => mergeNinetyNineDartsOutcomeCounts(counts, stats.counts),
+    (counts, item) => mergeNinetyNineDartsOutcomeCounts(counts, item.stats.counts),
     emptyHitCounts(),
+  )
+  const bestScoreSession = sessionStats.reduce<{ sessionId: string; score: number } | null>(
+    (best, item) => {
+      if (item.stats.score === null || (best !== null && item.stats.score <= best.score)) {
+        return best
+      }
+
+      return { sessionId: item.session.id, score: item.stats.score }
+    },
+    null,
   )
 
   return {
@@ -419,13 +520,14 @@ const computeNinetyNineDartsStatsForGroup = (
     completedCount: completedSessions.length,
     avgFinalScore: averageOrNull(finalScores),
     bestFinalScore: finalScores.length === 0 ? null : Math.max(...finalScores),
+    bestSessionId: bestScoreSession?.sessionId ?? null,
     hitRate: getNinetyNineDartsHitRateFromCounts(totals),
-    avgSinglesPerGame: averageOrNull(sessionStats.map((stats) => stats.counts.singles)),
-    avgDoublesPerGame: averageOrNull(sessionStats.map((stats) => stats.counts.doubles)),
+    avgSinglesPerGame: averageOrNull(sessionStats.map((item) => item.stats.counts.singles)),
+    avgDoublesPerGame: averageOrNull(sessionStats.map((item) => item.stats.counts.doubles)),
     avgTreblesPerGame:
       group === NinetyNineDartsStatGroup.Bull
         ? null
-        : averageOrNull(sessionStats.map((stats) => stats.counts.trebles)),
+        : averageOrNull(sessionStats.map((item) => item.stats.counts.trebles)),
     lastPlayedAt,
   }
 }
@@ -515,6 +617,9 @@ export const computeBigNumbersSummary = (sessions: GameSession[]): BigNumbersSum
       modeSessions.flatMap((session) => getPrimaryPlayerVisits(session)),
     ),
     bestHitRate: getBigNumbersBestSessionHitRate(modeSessions),
+    bestHitRateSessionId:
+      pickBestSession(modeSessions, (session) => getBigNumbersSessionHitRate(session), 'max')?.id ??
+      null,
   }
 }
 
@@ -557,15 +662,27 @@ const computeJdcChallengeStats = (sessions: GameSession[]): JdcChallengePractice
     return null
   }
 
-  const completedStats = completedSessions
-    .map((session) => computeJdcChallengeSingleSessionStats(session))
-    .filter((stats): stats is NonNullable<typeof stats> => stats !== null && stats.completed)
+  const completedStats = completedSessions.flatMap((session) => {
+    const stats = computeJdcChallengeSingleSessionStats(session)
 
-  const scores = completedStats.map((stats) => stats.score)
-  const shanghaiLowScores = completedStats.map((stats) => stats.shanghaiLowScore)
-  const doublesScores = completedStats.map((stats) => stats.doublesScore)
-  const shanghaiHighScores = completedStats.map((stats) => stats.shanghaiHighScore)
-  const shanghais = completedStats.map((stats) => stats.shanghaisHit)
+    return stats === null || !stats.completed ? [] : [{ session, stats }]
+  })
+
+  const scores = completedStats.map((item) => item.stats.score)
+  const shanghaiLowScores = completedStats.map((item) => item.stats.shanghaiLowScore)
+  const doublesScores = completedStats.map((item) => item.stats.doublesScore)
+  const shanghaiHighScores = completedStats.map((item) => item.stats.shanghaiHighScore)
+  const shanghais = completedStats.map((item) => item.stats.shanghaisHit)
+  const bestScoreSession = completedStats.reduce<{ sessionId: string; score: number } | null>(
+    (best, item) => {
+      if (best !== null && item.stats.score <= best.score) {
+        return best
+      }
+
+      return { sessionId: item.session.id, score: item.stats.score }
+    },
+    null,
+  )
 
   return {
     mode: GameModeId.JdcChallenge,
@@ -574,6 +691,7 @@ const computeJdcChallengeStats = (sessions: GameSession[]): JdcChallengePractice
     completedCount: completedSessions.length,
     avgFinalScore: averageOrNull(scores),
     bestFinalScore: scores.length === 0 ? null : Math.max(...scores),
+    bestSessionId: bestScoreSession?.sessionId ?? null,
     avgShanghaiLowScore: averageOrNull(shanghaiLowScores),
     avgDoublesScore: averageOrNull(doublesScores),
     avgShanghaiHighScore: averageOrNull(shanghaiHighScores),

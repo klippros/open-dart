@@ -31,10 +31,10 @@ export const buildPublicProfileStatsModel = (
       legCount: fiveOhOne?.legsPlayed ?? 0,
       threeDartAverage: fiveOhOne?.threeDartAverage ?? null,
       avgDarts: fiveOhOne?.avgDarts ?? null,
+      bestDarts: fiveOhOne?.bestDarts ?? null,
       threeDartAverageUntil170: fiveOhOne?.threeDartAverageUntil170 ?? null,
       checkoutPercent: fiveOhOne?.checkoutPercent ?? null,
       bestLegAverage: fiveOhOne?.bestLegAverage ?? null,
-      bestLegDarts: fiveOhOne?.bestLegDarts ?? null,
     },
     jdcChallenge: {
       sessionCount: jdc?.sessionsPlayed ?? 0,

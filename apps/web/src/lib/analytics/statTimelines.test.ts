@@ -5,7 +5,7 @@ import { PlayerKind } from '@open-dart/game/types/player'
 import { DartMultiplier } from '@open-dart/game/types/dart'
 import { BigNumbersRequiredHits } from '@open-dart/game/types/bigNumbers'
 import { numberDart } from '@open-dart/game/testHelpers'
-import { buildStatTimeline, hasPlottableTimeline } from './statTimelines'
+import { buildStatTimeline, formatTimelineSecondary, hasPlottableTimeline } from './statTimelines'
 
 const sampleVisit = (
   overrides: Partial<GameSession['visits'][number]> = {},
@@ -62,6 +62,7 @@ describe('statTimelines', () => {
         metric: 'threeDartAverage',
         metricLabel: '3-dart average',
         scopeLabel: '501',
+        secondary: [{ metric: 'avgDarts', suffix: ' darts', emptyLabel: '(not finished)' }],
       },
     )
 
@@ -72,6 +73,10 @@ describe('statTimelines', () => {
     ])
     expect(timeline.points[0]?.value).toBe(80)
     expect(timeline.points[1]?.value).toBe(75)
+    expect(timeline.points.map((point) => formatTimelineSecondary(point.secondaryValues))).toEqual([
+      '(not finished)',
+      '2 darts',
+    ])
     expect(hasPlottableTimeline(timeline)).toBe(true)
   })
 
@@ -232,7 +237,7 @@ describe('statTimelines', () => {
     expect(timeline.points[0]?.sessionLabel).toBe('501 · Leg 1')
   })
 
-  it('builds bob27 doubles-per-game timeline points', () => {
+  it('puts Bob 27 visit and game counts on the same timeline point', () => {
     const timeline = buildStatTimeline(
       [
         sampleSession({
@@ -264,14 +269,21 @@ describe('statTimelines', () => {
       ],
       {
         scope: { type: 'practice-bob27' },
-        metric: 'avgDoublesPerGame',
-        metricLabel: 'Doubles / game',
+        metric: 'hitRate',
+        metricLabel: 'Hit rate',
         scopeLabel: "Bob's 27",
+        secondary: [
+          { metric: 'avgHitsPerVisit', suffix: ' Visit /' },
+          { metric: 'avgDoublesPerGame', suffix: ' Game', digits: 1 },
+        ],
       },
     )
 
-    expect(timeline.format).toBe('average')
-    expect(timeline.points.map((point) => point.value)).toEqual([1, 5])
+    expect(timeline.format).toBe('percent')
+    expect(timeline.points.map((point) => formatTimelineSecondary(point.secondaryValues))).toEqual([
+      '0.50 Visit / 1.0 Game',
+      '2.50 Visit / 5.0 Game',
+    ])
   })
 
   it('builds big numbers hit-rate timeline points for pooled sessions', () => {

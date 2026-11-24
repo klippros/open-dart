@@ -87,6 +87,52 @@ describe('computeX01Stats best leg pairing', () => {
     expect(stats.fiveOhOne.bestLegDarts).toBe(6)
   })
 
+  it('leaves best-leg darts empty when that leg did not check out', () => {
+    const stats = computeX01Stats([
+      sampleSession({
+        id: 'unfinished-hot',
+        visits: [
+          sampleVisit({
+            visitScore: 180,
+            scoreBefore: 501,
+            scoreAfter: 321,
+            darts: [
+              numberDart(20, DartMultiplier.Triple),
+              numberDart(20, DartMultiplier.Triple),
+              numberDart(20, DartMultiplier.Triple),
+            ],
+          }),
+        ],
+      }),
+      sampleSession({
+        id: 'finished-cold',
+        visits: [
+          sampleVisit({
+            visitScore: 40,
+            scoreBefore: 501,
+            scoreAfter: 461,
+            darts: [numberDart(20, DartMultiplier.Single)],
+          }),
+          sampleVisit({
+            visitIndex: 1,
+            checkout: true,
+            visitScore: 40,
+            scoreBefore: 40,
+            scoreAfter: 0,
+            darts: [numberDart(20, DartMultiplier.Double)],
+          }),
+        ],
+      }),
+    ])
+
+    expect(stats.fiveOhOne.bestLegAverage).toBe(180)
+    expect(stats.fiveOhOne.bestLegDarts).toBeNull()
+    expect(stats.fiveOhOne.bestLegSource).toEqual({ sessionId: 'unfinished-hot', legNumber: 1 })
+    expect(stats.fiveOhOne.avgDarts).toBe(2)
+    expect(stats.fiveOhOne.bestDarts).toBe(2)
+    expect(stats.fiveOhOne.bestDartsSource).toEqual({ sessionId: 'finished-cold', legNumber: 1 })
+  })
+
   it('breaks equal averages by preferring fewer darts', () => {
     const stats = computeX01Stats([
       sampleSession({

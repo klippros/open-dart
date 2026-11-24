@@ -186,6 +186,7 @@ describe('computeBigNumbersSummary', () => {
       gameCount: 0,
       hitRate: null,
       bestHitRate: null,
+      bestHitRateSessionId: null,
     })
   })
 })

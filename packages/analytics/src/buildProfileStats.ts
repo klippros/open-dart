@@ -36,6 +36,7 @@ export interface ProfileFiveOhOneStats {
   threeDartAverageUntil170: number | null
   checkoutPercent: number | null
   avgDarts: number | null
+  bestDarts: number | null
   bestLegAverage: number | null
   bestLegDarts: number | null
   legWinRate: number | null
@@ -203,6 +204,7 @@ const buildFiveOhOneStats = (
     threeDartAverageUntil170: stats.threeDartAverageUntil170,
     checkoutPercent: checkoutPercent(stats),
     avgDarts: stats.avgDarts,
+    bestDarts: stats.bestDarts,
     bestLegAverage: stats.bestLegAverage,
     bestLegDarts: stats.bestLegDarts,
     legWinRate: computeLegWinRate(oriented, profileUserId),

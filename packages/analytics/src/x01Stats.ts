@@ -21,7 +21,7 @@ import {
   countThrown180,
   getHighestCheckout,
   getHighestVisit,
-  getBestThreeDartAverageLeg,
+  findBestThreeDartAverage,
   getScoringVisits,
   getThreeDartAverage,
   getVisitsBeforeDouble,
@@ -52,9 +52,18 @@ export interface X01LegStats {
   threeDartAverageUntil170: number | null
   threeDartAverageUntilDouble: number | null
   bestLegAverage: number | null
-  /** Dart count for the same leg as `bestLegAverage` (highest 3-dart avg; tie = fewer darts). */
+  /** Leg behind `bestLegAverage`, when one exists. */
+  bestLegSource: { sessionId: string; legNumber: number } | null
+  /**
+   * Dart count for the same leg as `bestLegAverage`. Null when that leg did not
+   * check out, so the profile can say it was not finished.
+   */
   bestLegDarts: number | null
   avgDarts: number | null
+  /** Fewest darts among legs that checked out. Null when none did. */
+  bestDarts: number | null
+  /** Checked-out leg behind `bestDarts`, when one exists. */
+  bestDartsSource: { sessionId: string; legNumber: number } | null
   dartsThrown: number
   /** Share of legs won (checked out) in games with an opponent; null without one. */
   legWinRate: number | null
@@ -83,8 +92,11 @@ const emptyLegStats = (): X01LegStats => ({
   threeDartAverageUntil170: null,
   threeDartAverageUntilDouble: null,
   bestLegAverage: null,
+  bestLegSource: null,
   bestLegDarts: null,
   avgDarts: null,
+  bestDarts: null,
+  bestDartsSource: null,
   dartsThrown: 0,
   legWinRate: null,
   thrown180: 0,
@@ -144,7 +156,14 @@ const computeX01LegStats = (
     return mergeDoubleCheckoutStats(totals, result.stats)
   }, emptyDoubleCheckoutStats())
 
-  const bestLeg = getBestThreeDartAverageLeg(legs.map((leg) => leg.visits))
+  const bestLeg = findBestThreeDartAverage(legs, (leg) => leg.visits)
+  const bestDartsLeg = checkoutLegs.reduce<(typeof checkoutLegs)[number] | null>((best, leg) => {
+    if (best === null || countDartsInVisits(leg.visits) < countDartsInVisits(best.visits)) {
+      return leg
+    }
+
+    return best
+  }, null)
   const contestedLegs = legs.filter((leg) => leg.session.players.length > 1)
   const contestedWins = contestedLegs.filter((leg) => legFinishedWithCheckout(leg.visits)).length
 
@@ -155,12 +174,21 @@ const computeX01LegStats = (
     threeDartAverageUntil170: getThreeDartAverage(scoringVisits),
     threeDartAverageUntilDouble: getThreeDartAverage(visitsBeforeDouble),
     bestLegAverage: bestLeg?.average ?? null,
-    bestLegDarts: bestLeg?.darts ?? null,
+    bestLegSource:
+      bestLeg === null
+        ? null
+        : { sessionId: bestLeg.item.session.id, legNumber: bestLeg.item.legNumber },
+    bestLegDarts: bestLeg !== null && bestLeg.checkedOut ? bestLeg.darts : null,
     avgDarts:
       checkoutLegs.length === 0
         ? null
         : checkoutLegs.reduce((sum, leg) => sum + countDartsInVisits(leg.visits), 0) /
           checkoutLegs.length,
+    bestDarts: bestDartsLeg === null ? null : countDartsInVisits(bestDartsLeg.visits),
+    bestDartsSource:
+      bestDartsLeg === null
+        ? null
+        : { sessionId: bestDartsLeg.session.id, legNumber: bestDartsLeg.legNumber },
     dartsThrown: countDartsInVisits(allVisits),
     legWinRate: contestedLegs.length === 0 ? null : (contestedWins / contestedLegs.length) * 100,
     thrown180: countThrown180(allVisits),

@@ -47,6 +47,7 @@ describe('buildPublicProfileStatsModel', () => {
         threeDartAverageUntil170: 58,
         checkoutPercent: 30,
         avgDarts: 24,
+        bestDarts: 18,
         bestLegAverage: 70,
         bestLegDarts: 21,
         legWinRate: 50,
@@ -88,7 +89,8 @@ describe('buildPublicProfileStatsModel', () => {
     })
 
     expect(model.x01.legCount).toBe(8)
-    expect(model.x01.bestLegDarts).toBe(21)
+    expect(model.x01.avgDarts).toBe(24)
+    expect(model.x01.bestDarts).toBe(18)
 
     const bull = model.ninetyNineDarts.find(
       (group) => group.group === NinetyNineDartsStatGroup.Bull,
@@ -101,9 +103,11 @@ describe('buildPublicProfileStatsModel', () => {
       '250',
       '400',
     ])
-    expect(buildBob27SummaryCards(model.bob27)[2]?.details.map((detail) => detail.text)).toEqual([
-      '1.50 best / visit',
-      '10 best doubles / game',
+    expect(buildBob27SummaryCards(model.bob27)[0]?.details.map((detail) => detail.text)).toEqual([
+      'Best 250',
+    ])
+    expect(buildBob27SummaryCards(model.bob27)[1]?.details.map((detail) => detail.text)).toEqual([
+      '1.10 Visit / 7.0 Game',
     ])
   })
 })

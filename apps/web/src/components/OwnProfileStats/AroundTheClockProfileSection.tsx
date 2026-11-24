@@ -3,6 +3,7 @@ import type { AroundTheClockPracticeStats } from '@open-dart/analytics/computeAn
 import { getAroundTheClockAimModeLabel } from '@open-dart/game/aroundTheClock/aroundTheClockConfig'
 import type { StatTimelineSelection } from '../../lib/analytics/statTimelines'
 import { buildAroundTheClockCards } from '../../lib/profile/profileCards'
+import type { ProfileBestSource } from '../../lib/profile/profileCards'
 import { ProfileModeSection } from '../ProfileStatCards/ProfileModeSection'
 import { ProfileStatCardGrid } from '../ProfileStatCards/ProfileStatCardGrid'
 import { AroundTheClockHeatmap } from '../StatsPageSections/AroundTheClockHeatmap/AroundTheClockHeatmap'
@@ -13,6 +14,7 @@ import { ProfileDisclosure } from './ProfileDisclosure'
 export interface AroundTheClockProfileSectionProps {
   variants: AroundTheClockPracticeStats[]
   onStatSelect: (selection: StatTimelineSelection) => void
+  onOpenBest?: (source: ProfileBestSource) => void
 }
 
 const getVariantKey = (stats: AroundTheClockPracticeStats): string => stats.aimMode
@@ -21,6 +23,7 @@ const getLastPlayedAt = (stats: AroundTheClockPracticeStats): string => stats.la
 export const AroundTheClockProfileSection = ({
   variants,
   onStatSelect,
+  onOpenBest,
 }: AroundTheClockProfileSectionProps) => {
   const { selectedKey, setSelectedKey, selected } = useLastPlayedVariantSelection(
     variants,
@@ -51,6 +54,7 @@ export const AroundTheClockProfileSection = ({
         <ProfileStatCardGrid
           cards={buildAroundTheClockCards(selected)}
           onStatSelect={onStatSelect}
+          onOpenBest={onOpenBest}
         />
         <ProfileDisclosure label="Heatmap">
           <Box pt={2}>

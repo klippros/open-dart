@@ -24,6 +24,7 @@ import { useOwnProfileSessions } from '../hooks/useOwnProfileSessions'
 import { buildStatTimeline } from '../lib/analytics/statTimelines'
 import type { StatTimelinePoint, StatTimelineSelection } from '../lib/analytics/statTimelines'
 import { formatInteger } from '../lib/analytics/formatAnalytics'
+import type { ProfileBestSource } from '../lib/profile/profileCards'
 import { isSignInEnabled } from '../lib/klipprosHost'
 import { DEFAULT_PROFILE_DATE_RANGE } from '../lib/profile/profileDateRange'
 import { AuthStatus } from '../types/auth'
@@ -49,6 +50,18 @@ export const ProfilePage = () => {
     () =>
       timelineSelection === null ? null : buildStatTimeline(filteredSessions, timelineSelection),
     [filteredSessions, timelineSelection],
+  )
+
+  const openBestSource = useCallback(
+    (source: ProfileBestSource) => {
+      const session = allSessions.find((candidate) => candidate.id === source.sessionId) ?? null
+
+      if (session !== null) {
+        setSelectedSession(session)
+        setSelectedLegNumber(source.legNumber)
+      }
+    },
+    [allSessions],
   )
 
   const handleTimelinePointClick = useCallback(
@@ -111,6 +124,7 @@ export const ProfilePage = () => {
             sessions={filteredSessions}
             analytics={analytics}
             onStatSelect={setTimelineSelection}
+            onOpenBest={openBestSource}
           />
           <OwnProfileHistory
             storedSessions={storedSessions}

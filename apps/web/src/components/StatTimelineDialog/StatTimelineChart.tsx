@@ -1,6 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
-import { Box } from '@chakra-ui/react'
+import { Box, Flex, Text } from '@chakra-ui/react'
+import {
+  averageTimelineSecondary,
+  formatTimelineSecondary,
+} from '../../lib/analytics/statTimelines'
 import type { StatTimelineFormat, StatTimelinePoint } from '../../lib/analytics/statTimelines'
 import {
   formatAverage,
@@ -13,7 +17,7 @@ import { formatSessionDate } from '../../lib/history/sessionSummary'
 import {
   getLatestTrend,
   getTrailingAverages,
-  getTrendSampleCount,
+  STAT_TREND_WINDOW,
 } from '../../lib/analytics/statTrend'
 import { findNearestIndexByX } from './findNearestIndexByX'
 
@@ -25,9 +29,11 @@ export interface StatTimelineChartProps {
 
 const DEFAULT_CHART_WIDTH = 640
 const CHART_HEIGHT = 220
-const PADDING = { top: 16, right: 128, bottom: 28, left: 56 }
+const PADDING = { top: 16, right: 72, bottom: 28, left: 56 }
+const SECONDARY_AXIS_PADDING = 168
 const TOOLTIP_WIDTH = 184
-const TOOLTIP_HEIGHT = 80
+const SECONDARY_TOOLTIP_WIDTH = 248
+const TOOLTIP_HEIGHT = 86
 const ACTIVE_DOT_RADIUS = 2.5
 const GRID_DIVISIONS = 4
 const SERIES_COLOR = '#f6ad55'
@@ -52,22 +58,38 @@ const formatTimelineValue = (value: number, format: StatTimelineFormat): string 
   return formatAverage(value)
 }
 
-const formatTrendLabel = (sampleCount: number, value: number, format: StatTimelineFormat): string =>
-  `${formatTimelineValue(value, format)} (∅ last ${sampleCount})`
+const formatTrendLegend = (sampleCount: number): string => `Trend (∅ last ${sampleCount})`
 
 const getPlotValues = (points: StatTimelinePoint[]): number[] =>
   points.flatMap((point) => (point.value === null ? [] : [point.value]))
+
+const getTrendWindow = (points: StatTimelinePoint[], index: number): StatTimelinePoint[] => {
+  const included: StatTimelinePoint[] = []
+
+  for (let lookback = 0; lookback <= index; lookback += 1) {
+    const point = points[lookback]
+
+    if (point !== undefined && point.value !== null) {
+      included.push(point)
+    }
+  }
+
+  return included.slice(-STAT_TREND_WINDOW)
+}
 
 const getTooltipPosition = (
   x: number,
   y: number,
   chartWidth: number,
+  tooltipWidth: number,
+  tooltipHeight: number,
+  paddingRight: number,
 ): { tooltipX: number; tooltipY: number } => {
   const tooltipX = Math.min(
-    Math.max(x - TOOLTIP_WIDTH / 2, PADDING.left),
-    chartWidth - PADDING.right - TOOLTIP_WIDTH,
+    Math.max(x - tooltipWidth / 2, PADDING.left),
+    chartWidth - paddingRight - tooltipWidth,
   )
-  const aboveY = y - ACTIVE_DOT_RADIUS - 8 - TOOLTIP_HEIGHT
+  const aboveY = y - ACTIVE_DOT_RADIUS - 8 - tooltipHeight
   const tooltipY = aboveY >= PADDING.top ? aboveY : y + ACTIVE_DOT_RADIUS + 8
 
   return { tooltipX, tooltipY }
@@ -190,7 +212,9 @@ export const StatTimelineChart = ({ points, format, onPointClick }: StatTimeline
     return null
   }
 
-  const plotWidth = chartWidth - PADDING.left - PADDING.right
+  const hasSecondary = points.some((point) => point.secondaryValues.length > 0)
+  const paddingRight = hasSecondary ? SECONDARY_AXIS_PADDING : PADDING.right
+  const plotWidth = chartWidth - PADDING.left - paddingRight
   const plotHeight = CHART_HEIGHT - PADDING.top - PADDING.bottom
   const minValue = Math.min(...plotValues)
   const maxValue = Math.max(...plotValues)
@@ -307,7 +331,21 @@ export const StatTimelineChart = ({ points, format, onPointClick }: StatTimeline
       ? (() => {
           const x = getX(selectedIndex)
           const y = getY(selectedPoint.value)
-          const { tooltipX, tooltipY } = getTooltipPosition(x, y, chartWidth)
+          const currentSecondary = formatTimelineSecondary(selectedPoint.secondaryValues)
+          const trendText =
+            selectedTrend === null ? null : formatTimelineValue(selectedTrend, format)
+          const trendSecondary = formatTimelineSecondary(
+            averageTimelineSecondary(getTrendWindow(points, selectedIndex)),
+          )
+          const tooltipWidth = hasSecondary ? SECONDARY_TOOLTIP_WIDTH : TOOLTIP_WIDTH
+          const { tooltipX, tooltipY } = getTooltipPosition(
+            x,
+            y,
+            chartWidth,
+            tooltipWidth,
+            TOOLTIP_HEIGHT,
+            paddingRight,
+          )
           const canOpenSummary = onPointClick !== undefined && tooltipInteractive
 
           return (
@@ -383,7 +421,7 @@ export const StatTimelineChart = ({ points, format, onPointClick }: StatTimeline
               <rect
                 x={tooltipX}
                 y={tooltipY}
-                width={TOOLTIP_WIDTH}
+                width={tooltipWidth}
                 height={TOOLTIP_HEIGHT}
                 rx={6}
                 fill="rgba(0, 0, 0, 0.88)"
@@ -400,40 +438,37 @@ export const StatTimelineChart = ({ points, format, onPointClick }: StatTimeline
               <text x={tooltipX + 10} y={tooltipY + 34} fill="white" fontSize="12" fontWeight="600">
                 {selectedPoint.sessionLabel}
               </text>
-              <text
-                x={tooltipX + 10}
-                y={tooltipY + 52}
-                fill={SERIES_COLOR}
-                fontSize="13"
-                fontWeight="700"
-              >
-                {formatTimelineValue(selectedPoint.value, format)}
+              <text x={tooltipX + 10} y={tooltipY + 52} fontSize="13" fontWeight="700">
+                <tspan fill={SERIES_COLOR}>
+                  {formatTimelineValue(selectedPoint.value, format)}
+                </tspan>
+                {currentSecondary === null ? null : (
+                  <tspan dx="8" fill="rgba(255, 255, 255, 0.85)" fontSize="12" fontWeight="600">
+                    {currentSecondary}
+                  </tspan>
+                )}
               </text>
-              {selectedTrend !== null ? (
-                <text
-                  x={tooltipX + 10}
-                  y={tooltipY + 70}
-                  fill={TREND_COLOR}
-                  fontSize="12"
-                  fontWeight="600"
-                >
-                  {formatTrendLabel(
-                    getTrendSampleCount(points, selectedIndex),
-                    selectedTrend,
-                    format,
+              {trendText === null ? null : (
+                <text x={tooltipX + 10} y={tooltipY + 70} fontSize="12" fontWeight="600">
+                  <tspan fill={TREND_COLOR}>{trendText}</tspan>
+                  {trendSecondary === null ? null : (
+                    <tspan dx="8" fill="rgba(255, 255, 255, 0.85)">
+                      {trendSecondary}
+                    </tspan>
                   )}
                 </text>
-              ) : null}
+              )}
             </g>
           )
         })()
       : null
 
   const trendReferenceY = latestTrend === null ? null : getY(latestTrend.value)
-  const trendLabel =
-    latestTrend === null
+  const latestTrendIndex = points.findLastIndex((point) => point.value !== null)
+  const latestTrendSecondary =
+    latestTrendIndex === -1
       ? null
-      : formatTrendLabel(latestTrend.sampleCount, latestTrend.value, format)
+      : formatTimelineSecondary(averageTimelineSecondary(getTrendWindow(points, latestTrendIndex)))
 
   const activeDot =
     selectedPoint !== null && selectedPoint.value !== null && selectedIndex !== null ? (
@@ -516,13 +551,24 @@ export const StatTimelineChart = ({ points, format, onPointClick }: StatTimeline
             />
             <text
               x={PADDING.left + plotWidth + 6}
-              y={trendReferenceY + 4}
+              y={trendReferenceY + (latestTrendSecondary === null ? 4 : -4)}
               fill={TREND_COLOR}
               fontSize="11"
               fontWeight="600"
             >
-              {trendLabel}
+              {formatTimelineValue(latestTrend.value, format)}
             </text>
+            {latestTrendSecondary === null ? null : (
+              <text
+                x={PADDING.left + plotWidth + 6}
+                y={trendReferenceY + 12}
+                fill="rgba(255, 255, 255, 0.85)"
+                fontSize="11"
+                fontWeight="600"
+              >
+                {latestTrendSecondary}
+              </text>
+            )}
           </g>
         ) : null}
         {trendSegments.map((segment) => (
@@ -553,6 +599,14 @@ export const StatTimelineChart = ({ points, format, onPointClick }: StatTimeline
         {activeDot}
         {tooltip}
       </svg>
+      {latestTrend === null ? null : (
+        <Flex align="center" justify="center" gap={2} pt={2}>
+          <Box w="18px" h="2px" bg={TREND_COLOR} borderRadius="full" flexShrink={0} />
+          <Text fontSize="xs" color="whiteAlpha.700">
+            {formatTrendLegend(latestTrend.sampleCount)}
+          </Text>
+        </Flex>
+      )}
     </Box>
   )
 }

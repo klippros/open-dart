@@ -55,9 +55,14 @@ export const StatTimelineDialog = ({
             mx="auto"
             overflow="hidden"
           >
-            <Dialog.Header px={{ base: 4, md: 6 }}>
+            <Dialog.Header
+              px={{ base: 4, md: 6 }}
+              flexDirection="column"
+              alignItems="flex-start"
+              gap={1}
+            >
               <Dialog.Title color="white">{timeline.metricLabel}</Dialog.Title>
-              <Dialog.Description color="whiteAlpha.700">
+              <Dialog.Description color="whiteAlpha.700" fontSize="sm">
                 {timeline.scopeLabel} · {plottablePoints.length} {unitLabel} with data · select a
                 point for details, then tap the card to open the session
               </Dialog.Description>

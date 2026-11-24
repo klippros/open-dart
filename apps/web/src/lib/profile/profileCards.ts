@@ -18,14 +18,27 @@ import {
 import type {
   StatMetricId,
   StatTimelineScope,
+  StatTimelineSecondaryMetric,
   StatTimelineSelection,
 } from '../analytics/statTimelines'
+
+export interface ProfileBestSource {
+  sessionId: string
+  legNumber: number | null
+}
 
 export interface ProfileStatDetail {
   id: string
   text: string
   timeline: StatTimelineSelection | null
+  /** Own-profile session behind a Best line. Absent on other players' profiles. */
+  source?: ProfileBestSource | null
 }
+
+export const sessionBestSource = (
+  sessionId: string | null | undefined,
+): ProfileBestSource | null =>
+  sessionId === null || sessionId === undefined ? null : { sessionId, legNumber: null }
 
 export interface ProfileStatCardModel {
   id: string
@@ -46,13 +59,21 @@ const selection = (
   context: ProfileTimelineContext,
   metric: StatMetricId,
   metricLabel: string,
+  secondary?: readonly StatTimelineSecondaryMetric[],
 ): StatTimelineSelection => ({
   scope: context.scope,
   scopeLabel: context.scopeLabel,
   metric,
   metricLabel,
   ...(context.checkedOutOnly === true ? { checkedOutOnly: true } : {}),
+  ...(secondary === undefined ? {} : { secondary }),
 })
+
+const formatBob27Subline = (
+  perVisit: number | null,
+  perGame: number | null,
+  perGameDigits: number,
+): string => `${formatAverage(perVisit)} Visit / ${formatAverage(perGame, perGameDigits)} Game`
 
 const card = (
   id: string,
@@ -72,6 +93,12 @@ const card = (
   grade: options.grade ?? null,
 })
 
+const bestDetail = (
+  value: string | null,
+  source: ProfileBestSource | null = null,
+): ProfileStatDetail[] =>
+  value === null ? [] : [{ id: 'best', text: `Best ${value}`, timeline: null, source }]
+
 const formatRate = (rate: number | null): string => formatPercent(rate, 1)
 
 const formatPerGame = (value: number | null): string => formatAverage(value, 1)
@@ -85,22 +112,31 @@ export interface X01SummaryInput {
   legCount: number
   threeDartAverage: number | null
   avgDarts: number | null
+  bestDarts: number | null
   threeDartAverageUntil170: number | null
   checkoutPercent: number | null
   bestLegAverage: number | null
-  bestLegDarts: number | null
+  bestLegSource?: ProfileBestSource | null
+  bestDartsSource?: ProfileBestSource | null
 }
 
 export const x01SummaryFromLegStats = (stats: X01LegStats): X01SummaryInput => ({
   legCount: stats.legCount,
   threeDartAverage: stats.threeDartAverage,
   avgDarts: stats.avgDarts,
+  bestDarts: stats.bestDarts,
   threeDartAverageUntil170: stats.threeDartAverageUntil170,
   checkoutPercent: stats.doubleCheckoutUnavailable
     ? null
     : getDoubleCheckoutRate(stats.doubleCheckout),
   bestLegAverage: stats.bestLegAverage,
-  bestLegDarts: stats.bestLegDarts,
+  bestLegSource: stats.bestLegSource,
+  bestDartsSource: stats.bestDartsSource,
+})
+
+const averageDartsSelection = (context: ProfileTimelineContext): StatTimelineSelection => ({
+  ...selection(context, 'avgDarts', 'Average darts'),
+  checkedOutOnly: true,
 })
 
 export const buildX01SummaryCards = (
@@ -109,29 +145,23 @@ export const buildX01SummaryCards = (
 ): ProfileStatCardModel[] => [
   card('average', 'Average', formatAverage(input.threeDartAverage), {
     timeline: selection(context, 'threeDartAverage', 'Average'),
-    details:
-      input.avgDarts === null
-        ? []
-        : [
-            {
-              id: 'avg-darts',
-              text: `${formatAverage(input.avgDarts, 1)} darts`,
-              timeline: selection(context, 'avgDarts', 'Avg darts'),
-            },
-          ],
+    details: bestDetail(
+      input.bestLegAverage === null ? null : formatAverage(input.bestLegAverage),
+      input.bestLegSource ?? null,
+    ),
+  }),
+  card('avg-darts', 'Average Darts', formatAverage(input.avgDarts, 1), {
+    timeline: averageDartsSelection(context),
+    details: bestDetail(
+      input.bestDarts === null ? null : formatInteger(input.bestDarts),
+      input.bestDartsSource ?? null,
+    ),
   }),
   card('to-170', 'To 170', formatAverage(input.threeDartAverageUntil170), {
     timeline: selection(context, 'threeDartAverageUntil170', 'Average to 170'),
   }),
   card('checkouts', 'Checkouts', formatCheckoutPercent(input.checkoutPercent), {
     timeline: selection(context, 'doubleCheckoutRate', 'Checkouts'),
-  }),
-  card('best-leg', 'Best Leg', formatAverage(input.bestLegAverage), {
-    timeline: selection(context, 'bestLegAverage', 'Best leg average'),
-    details:
-      input.bestLegDarts === null
-        ? []
-        : [{ id: 'best-leg-darts', text: `${input.bestLegDarts} darts`, timeline: null }],
   }),
 ]
 
@@ -174,6 +204,7 @@ export interface JdcChallengeSummaryInput {
   avgShanghaiLowScore: number | null
   avgDoublesScore: number | null
   avgShanghaiHighScore: number | null
+  bestScoreSource?: ProfileBestSource | null
 }
 
 const JDC_CONTEXT: ProfileTimelineContext = {
@@ -187,13 +218,13 @@ export const buildJdcChallengeSummaryCards = (
   card('score', 'Score', formatInteger(input.avgScore), {
     timeline: selection(JDC_CONTEXT, 'avgFinalScore', 'Score'),
     grade: gradeFor(input.avgScore),
+    details: bestDetail(
+      input.bestScore === null ? null : formatInteger(input.bestScore),
+      input.bestScoreSource ?? null,
+    ),
   }),
   card('shanghais', 'Shanghais', formatPerGame(input.avgShanghais), {
     timeline: selection(JDC_CONTEXT, 'avgShanghaisPerGame', 'Shanghais'),
-  }),
-  card('high-score', 'High Score', formatInteger(input.bestScore), {
-    timeline: selection(JDC_CONTEXT, 'bestFinalScore', 'Score'),
-    grade: gradeFor(input.bestScore),
   }),
 ]
 
@@ -222,6 +253,7 @@ export interface NinetyNineDartsGroupInput {
   avgSingles: number | null
   avgDoubles: number | null
   avgTrebles: number | null
+  bestScoreSource?: ProfileBestSource | null
 }
 
 export const NINETY_NINE_DARTS_GROUPS: readonly NinetyNineDartsStatGroup[] = [
@@ -283,14 +315,15 @@ export const buildNinetyNineDartsSummaryCards = (
   return [
     card('score', 'Score', formatInteger(input.avgScore), {
       timeline: selection(context, 'avgFinalScore', 'Score'),
+      details: bestDetail(
+        input.bestScore === null ? null : formatInteger(input.bestScore),
+        input.bestScoreSource ?? null,
+      ),
     }),
     card('hit-rate', 'Hit Rate', formatRate(input.hitRate), {
       timeline: selection(context, 'hitRate', 'Hit rate'),
     }),
     ...(trebles === null ? [] : [trebles]),
-    card('high-score', 'High Score', formatInteger(input.bestScore), {
-      timeline: selection(context, 'bestFinalScore', 'Score'),
-    }),
   ]
 }
 
@@ -315,6 +348,7 @@ export interface BigNumbersSummaryInput {
   sessionCount: number
   hitRate: number | null
   bestHitRate: number | null
+  bestHitRateSource?: ProfileBestSource | null
 }
 
 const BIG_NUMBERS_CONTEXT: ProfileTimelineContext = {
@@ -327,9 +361,10 @@ export const buildBigNumbersSummaryCards = (
 ): ProfileStatCardModel[] => [
   card('hit-rate', 'Hit Rate', formatRate(input.hitRate), {
     timeline: selection(BIG_NUMBERS_CONTEXT, 'hitRate', 'Hit rate'),
-  }),
-  card('best-hit-rate', 'Best Hit Rate', formatRate(input.bestHitRate), {
-    timeline: selection(BIG_NUMBERS_CONTEXT, 'bestHitRate', 'Hit rate'),
+    details: bestDetail(
+      input.bestHitRate === null ? null : formatRate(input.bestHitRate),
+      input.bestHitRateSource ?? null,
+    ),
   }),
 ]
 
@@ -344,6 +379,7 @@ export interface Bob27SummaryInput {
   bestScore: number | null
   bestHitsPerVisit: number | null
   bestDoublesPerGame: number | null
+  bestScoreSource?: ProfileBestSource | null
 }
 
 const BOB27_CONTEXT: ProfileTimelineContext = {
@@ -351,37 +387,26 @@ const BOB27_CONTEXT: ProfileTimelineContext = {
   scopeLabel: "Bob's 27",
 }
 
+const BOB27_SUBSTATS: readonly StatTimelineSecondaryMetric[] = [
+  { metric: 'avgHitsPerVisit', suffix: ' Visit /' },
+  { metric: 'avgDoublesPerGame', suffix: ' Game', digits: 1 },
+]
+
 export const buildBob27SummaryCards = (input: Bob27SummaryInput): ProfileStatCardModel[] => [
   card('score', 'Score', formatInteger(input.avgScore), {
     timeline: selection(BOB27_CONTEXT, 'avgFinalScore', 'Score'),
+    details: bestDetail(
+      input.bestScore === null ? null : formatInteger(input.bestScore),
+      input.bestScoreSource ?? null,
+    ),
   }),
   card('hit-rate', 'Hit Rate', formatRate(input.hitRate), {
-    timeline: selection(BOB27_CONTEXT, 'hitRate', 'Hit rate'),
+    timeline: selection(BOB27_CONTEXT, 'hitRate', 'Hit rate', BOB27_SUBSTATS),
     details: [
       {
-        id: 'avg-per-visit',
-        text: `${formatAverage(input.avgHitsPerVisit)} / visit`,
-        timeline: selection(BOB27_CONTEXT, 'avgHitsPerVisit', 'Hits / visit'),
-      },
-      {
-        id: 'avg-doubles',
-        text: `${formatPerGame(input.avgDoublesPerGame)} doubles / game`,
-        timeline: selection(BOB27_CONTEXT, 'avgDoublesPerGame', 'Doubles / game'),
-      },
-    ],
-  }),
-  card('high-score', 'High Score', formatInteger(input.bestScore), {
-    timeline: selection(BOB27_CONTEXT, 'bestFinalScore', 'Score'),
-    details: [
-      {
-        id: 'best-per-visit',
-        text: `${formatAverage(input.bestHitsPerVisit)} best / visit`,
-        timeline: selection(BOB27_CONTEXT, 'avgHitsPerVisit', 'Hits / visit'),
-      },
-      {
-        id: 'best-doubles',
-        text: `${formatInteger(input.bestDoublesPerGame)} best doubles / game`,
-        timeline: selection(BOB27_CONTEXT, 'bestDoublesPerGame', 'Doubles / game'),
+        id: 'per-visit-game',
+        text: formatBob27Subline(input.avgHitsPerVisit, input.avgDoublesPerGame, 1),
+        timeline: null,
       },
     ],
   }),
@@ -401,8 +426,8 @@ const HUNTER_CONTEXT: ProfileTimelineContext = {
 }
 
 export const buildHunterSummaryCards = (input: HunterSummaryInput): ProfileStatCardModel[] => [
-  card('advances-per-visit', 'Advances/Visit', formatAverage(input.avgAdvancesPerVisit), {
-    timeline: selection(HUNTER_CONTEXT, 'avgAdvancesPerVisit', 'Advances / visit'),
+  card('advances-per-visit', 'Advances / Visit', formatAverage(input.avgAdvancesPerVisit), {
+    timeline: selection(HUNTER_CONTEXT, 'avgAdvancesPerVisit', 'Advances / Visit'),
   }),
   card('hit-rate', 'Hit Rate', formatRate(input.hitRate), {
     timeline: selection(HUNTER_CONTEXT, 'hitRate', 'Hit rate'),
@@ -414,21 +439,36 @@ const checkoutContext = (stats: CheckoutPracticeStats): ProfileTimelineContext =
   scopeLabel: stats.label,
 })
 
+const bestCheckoutRateDetail = (stats: CheckoutPracticeStats): ProfileStatDetail[] =>
+  bestDetail(
+    stats.bestCheckoutRate === null ? null : formatCheckoutPercent(stats.bestCheckoutRate),
+    sessionBestSource(stats.bestCheckoutRateSessionId),
+  )
+
+const bestCheckoutsPerGameDetail = (stats: CheckoutPracticeStats): ProfileStatDetail[] =>
+  bestDetail(
+    stats.bestCheckoutsPerGame === null ? null : formatInteger(stats.bestCheckoutsPerGame),
+    sessionBestSource(stats.bestCheckoutsSessionId),
+  )
+
 export const buildOneTwentyOneCards = (stats: CheckoutPracticeStats): ProfileStatCardModel[] => {
   const context = checkoutContext(stats)
 
   return [
     card('checkouts', 'Checkouts', formatCheckoutPercent(stats.checkoutRate), {
       timeline: selection(context, 'checkoutRate', 'Checkouts'),
+      details: bestCheckoutRateDetail(stats),
     }),
-    card('average', 'Average', formatAverage(stats.threeDartAverage), {
-      timeline: selection(context, 'threeDartAverage', 'Average'),
+    card('average', '3 dart Average', formatAverage(stats.threeDartAverage), {
+      timeline: selection(context, 'threeDartAverage', '3 dart Average'),
+      details: bestDetail(
+        stats.bestThreeDartAverage === null ? null : formatAverage(stats.bestThreeDartAverage),
+        sessionBestSource(stats.bestThreeDartAverageSessionId),
+      ),
     }),
-    card('avg-per-game', 'Avg / game', formatAverage(stats.avgCheckoutsPerGame), {
-      timeline: selection(context, 'avgCheckoutsPerGame', 'Checkouts / game'),
-    }),
-    card('best-per-game', 'Best / game', formatInteger(stats.bestCheckoutsPerGame), {
-      timeline: selection(context, 'bestCheckoutsPerGame', 'Checkouts / game'),
+    card('avg-per-game', 'Checkouts / Game', formatAverage(stats.avgCheckoutsPerGame), {
+      timeline: selection(context, 'avgCheckoutsPerGame', 'Checkouts / Game'),
+      details: bestCheckoutsPerGameDetail(stats),
     }),
     card('highest', 'Highest', formatInteger(stats.highestCheckout), {
       timeline: selection(context, 'highestCheckout', 'Highest checkout'),
@@ -442,12 +482,11 @@ export const buildTenUpOneDownCards = (stats: CheckoutPracticeStats): ProfileSta
   return [
     card('checkouts', 'Checkouts', formatCheckoutPercent(stats.checkoutRate), {
       timeline: selection(context, 'checkoutRate', 'Checkouts'),
+      details: bestCheckoutRateDetail(stats),
     }),
-    card('avg-checkouts', 'Avg Checkouts', formatAverage(stats.avgCheckoutsPerGame), {
-      timeline: selection(context, 'avgCheckoutsPerGame', 'Checkouts / game'),
-    }),
-    card('best-checkouts', 'Best Checkouts', formatInteger(stats.bestCheckoutsPerGame), {
-      timeline: selection(context, 'bestCheckoutsPerGame', 'Checkouts / game'),
+    card('avg-checkouts', 'Checkouts / Game', formatAverage(stats.avgCheckoutsPerGame), {
+      timeline: selection(context, 'avgCheckoutsPerGame', 'Checkouts / Game'),
+      details: bestCheckoutsPerGameDetail(stats),
     }),
     card('highest-checkout', 'Highest Checkout', formatInteger(stats.highestCheckout), {
       timeline: selection(context, 'highestCheckout', 'Highest checkout'),
@@ -458,12 +497,12 @@ export const buildTenUpOneDownCards = (stats: CheckoutPracticeStats): ProfileSta
 export const buildClaimTheBoardCards = (
   stats: ClaimTheBoardPracticeStats,
 ): ProfileStatCardModel[] => [
-  card('hits-per-visit', 'Hits / visit', formatAverage(stats.avgHitsPerVisit)),
+  card('score', 'Score', formatInteger(stats.avgFinalScore)),
+  card('hits-per-visit', 'Hits / Visit', formatAverage(stats.avgHitsPerVisit)),
   card('fields', 'Fields', formatPerGame(stats.avgFieldsClaimedPerGame)),
   card('one-hit', '1 hit', formatPerGame(stats.avgFieldsHitOncePerGame)),
   card('two-hits', '2 hits', formatPerGame(stats.avgFieldsHitTwicePerGame)),
   card('three-hits', '3 hits', formatPerGame(stats.avgFieldsHitThricePerGame)),
-  card('score', 'Score', formatInteger(stats.avgFinalScore)),
 ]
 
 export const buildAroundTheClockCards = (
@@ -477,9 +516,17 @@ export const buildAroundTheClockCards = (
   return [
     card('score', 'Score', formatAverage(stats.avgDartsFullRun, 1), {
       timeline: selection(context, 'avgDarts', 'Darts to finish'),
+      details: bestDetail(
+        stats.bestDartsFullRun === null ? null : formatInteger(stats.bestDartsFullRun),
+        sessionBestSource(stats.bestDartsSessionId),
+      ),
     }),
-    card('high-score', 'High Score', formatInteger(stats.bestDartsFullRun), {
-      timeline: selection(context, 'bestDarts', 'Darts to finish'),
+    card('dart-per-target', 'Darts / Target', formatAverage(stats.avgDartsPerField, 1), {
+      timeline: selection(context, 'avgDartsPerField', 'Darts / Target'),
+      details: bestDetail(
+        stats.bestDartsPerField === null ? null : formatAverage(stats.bestDartsPerField, 1),
+        sessionBestSource(stats.bestDartsPerFieldSessionId),
+      ),
     }),
   ]
 }

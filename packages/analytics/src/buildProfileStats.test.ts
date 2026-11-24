@@ -142,6 +142,7 @@ describe('buildProfileStats', () => {
     expect(stats.fiveOhOne?.legsPlayed).toBe(1)
     expect(stats.fiveOhOne?.legWinRate).toBe(100)
     expect(stats.fiveOhOne?.bestLegDarts).toBe(6)
+    expect(stats.fiveOhOne?.bestDarts).toBe(6)
     expect(stats.fiveOhOne).not.toHaveProperty('dartsThrown')
     expect(stats.fiveOhOne).not.toHaveProperty('thrown180')
     expect(stats.bob27?.sessionsPlayed).toBe(1)

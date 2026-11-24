@@ -4,6 +4,7 @@ import type { GameSession } from '@open-dart/game/types/gameSession'
 import { computeX01Stats } from '@open-dart/analytics/x01Stats'
 import type { X01StatsFilterId } from '@open-dart/analytics/x01Stats'
 import type { StatTimelineSelection } from '../../lib/analytics/statTimelines'
+import type { ProfileBestSource } from '../../lib/profile/profileCards'
 import {
   buildX01DetailRows,
   buildX01SummaryCards,
@@ -24,9 +25,14 @@ import { X01DetailTable } from './X01DetailTable'
 export interface X01ProfileSectionProps {
   sessions: GameSession[]
   onStatSelect: (selection: StatTimelineSelection) => void
+  onOpenBest?: (source: ProfileBestSource) => void
 }
 
-export const X01ProfileSection = ({ sessions, onStatSelect }: X01ProfileSectionProps) => {
+export const X01ProfileSection = ({
+  sessions,
+  onStatSelect,
+  onOpenBest,
+}: X01ProfileSectionProps) => {
   const [checkedOutOnly, setCheckedOutOnly] = useState(false)
   const [chosenVariant, setChosenVariant] = useState<X01StatsFilterId | null>(null)
   const allX01 = useMemo(() => computeX01Stats(sessions), [sessions])
@@ -82,7 +88,6 @@ export const X01ProfileSection = ({ sessions, onStatSelect }: X01ProfileSectionP
                 setChosenVariant(next)
               }
             }}
-            countUnit="Leg"
           />
         </HStack>
       }
@@ -92,6 +97,7 @@ export const X01ProfileSection = ({ sessions, onStatSelect }: X01ProfileSectionP
           cards={buildX01SummaryCards(x01SummaryFromLegStats(stats), context)}
           empty={empty}
           onStatSelect={onStatSelect}
+          onOpenBest={onOpenBest}
         />
         {empty ? null : (
           <ProfileDisclosure label="More x01 stats">
