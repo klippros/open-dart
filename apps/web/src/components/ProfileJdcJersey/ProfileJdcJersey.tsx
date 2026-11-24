@@ -1,4 +1,5 @@
 import { Box, Portal, Stack, Text, Tooltip } from '@chakra-ui/react'
+import { useRef, useState } from 'react'
 import type { ProfileJdcChallengeBadge } from '@open-dart/analytics'
 import {
   getJdcChallengeGradeBand,
@@ -15,6 +16,8 @@ const JERSEY_PATH =
   'M8 2 L3.5 4.2 L1 9.5 L4.4 11.2 L5.5 9.6 L5.5 22 L18.5 22 L18.5 9.6 L19.6 11.2 L23 9.5 L20.5 4.2 L16 2 C15 4.2 9 4.2 8 2 Z'
 
 export const ProfileJdcJersey = ({ badge }: ProfileJdcJerseyProps) => {
+  const [open, setOpen] = useState(false)
+  const pointerTypeRef = useRef('mouse')
   const fill = jdcChallengeGradeColor(badge.grade)
   const gradeLabel = getJdcChallengeGradeLabel(badge.grade)
   const gradeBand = getJdcChallengeGradeBand(badge.grade)
@@ -25,7 +28,18 @@ export const ProfileJdcJersey = ({ badge }: ProfileJdcJerseyProps) => {
   const description = `${gradeLabel} ${gradeRange}. High Score ${badge.score}. last 30 days`
 
   return (
-    <Tooltip.Root openDelay={150} closeDelay={50}>
+    <Tooltip.Root
+      open={open}
+      onOpenChange={(details) => {
+        setOpen(details.open)
+      }}
+      openDelay={150}
+      closeDelay={50}
+      // Touch has no hover. A press toggles the tooltip, so pointerdown must
+      // not dismiss it before that click runs.
+      closeOnClick={false}
+      closeOnPointerDown={false}
+    >
       <Tooltip.Trigger asChild>
         <Box
           as="span"
@@ -39,7 +53,19 @@ export const ProfileJdcJersey = ({ badge }: ProfileJdcJerseyProps) => {
           h={profileNameHeight}
           flexShrink={0}
           borderRadius="md"
+          cursor="pointer"
           _focusVisible={{ outline: '2px solid', outlineColor: 'orange.300', outlineOffset: '2px' }}
+          onPointerDown={(event) => {
+            pointerTypeRef.current = event.pointerType
+          }}
+          onClick={(event) => {
+            if (pointerTypeRef.current !== 'touch') {
+              return
+            }
+
+            event.preventDefault()
+            setOpen((current) => !current)
+          }}
         >
           <svg viewBox="0 0 24 24" width="100%" height="100%" aria-hidden="true">
             <path
