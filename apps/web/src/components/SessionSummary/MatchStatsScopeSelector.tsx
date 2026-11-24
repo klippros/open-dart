@@ -1,4 +1,5 @@
 import { Button, HStack, Stack, Text } from '@chakra-ui/react'
+import { DropdownSelect } from '../DropdownSelect/DropdownSelect'
 
 export type MatchStatsScope = 'match' | number
 
@@ -36,28 +37,18 @@ export const MatchStatsScopeSelector = ({
         <Text fontSize="sm" color="whiteAlpha.700">
           Stats for
         </Text>
-        <select
+        <DropdownSelect
+          label="Stats for"
+          fullWidth
           value={String(selectedScope)}
-          onChange={(event) => {
-            const { value } = event.target
+          options={options.map((option) => ({
+            value: String(option.scope),
+            label: option.label,
+          }))}
+          onChange={(value) => {
             onScopeChange(value === 'match' ? 'match' : Number(value))
           }}
-          style={{
-            width: '100%',
-            padding: '8px 12px',
-            borderRadius: '6px',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            background: 'rgba(255, 255, 255, 0.1)',
-            color: 'white',
-            fontSize: '0.875rem',
-          }}
-        >
-          {options.map((option) => (
-            <option key={String(option.scope)} value={String(option.scope)}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        />
       </Stack>
     )
   }
