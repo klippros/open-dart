@@ -1,6 +1,7 @@
-import { Stack, Text } from '@chakra-ui/react'
+import { HStack, Stack, Text } from '@chakra-ui/react'
 import { inviteStatusLabel } from '../../lib/social/inviteApi'
 import type { OnlineMatchInviteHostRow } from '../../lib/social/types'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 
 export interface HostInviteStatusListProps {
   invites: OnlineMatchInviteHostRow[]
@@ -17,9 +18,12 @@ export const HostInviteStatusList = ({ invites }: HostInviteStatusListProps) => 
         Invited
       </Text>
       {invites.map((invite) => (
-        <Text key={invite.inviteId} color="whiteAlpha.800" fontSize="sm">
-          {invite.inviteeDisplayName} — {inviteStatusLabel(invite.status)}
-        </Text>
+        <HStack key={invite.inviteId} gap={1} minW={0}>
+          <TruncatedName name={invite.inviteeDisplayName} color="whiteAlpha.800" fontSize="sm" />
+          <Text color="whiteAlpha.800" fontSize="sm" flexShrink={0}>
+            — {inviteStatusLabel(invite.status)}
+          </Text>
+        </HStack>
       ))}
     </Stack>
   )

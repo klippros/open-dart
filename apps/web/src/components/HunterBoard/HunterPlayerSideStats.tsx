@@ -5,6 +5,7 @@ import type { Visit } from '@open-dart/game/types/visit'
 import { getHunterStandingFieldNumber } from '@open-dart/game/hunter/hunterClock'
 import { formatCount, formatPercent } from '../../lib/analytics/formatAnalytics'
 import { computeHunterPlayerStats } from '../../lib/hunter/hunterVisitStats'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 
 export interface HunterPlayerSideStatsProps {
   player: ScoreboardPlayerEntry
@@ -45,17 +46,15 @@ export const HunterPlayerSideStats = ({
       textAlign={textAlign}
       align={align === 'start' ? 'flex-start' : 'flex-end'}
     >
-      <HStack gap={2} flexDirection={align === 'end' ? 'row-reverse' : 'row'}>
+      <HStack gap={2} minW={0} w="full" flexDirection={align === 'end' ? 'row-reverse' : 'row'}>
         <Box w="10px" h="10px" borderRadius="full" bg={color} flexShrink={0} />
-        <Text
+        <TruncatedName
+          name={player.name}
           fontSize="sm"
           fontWeight="semibold"
           color={player.isActive ? color : 'white'}
-          truncate
-          maxW="100%"
-        >
-          {player.name}
-        </Text>
+          textAlign={textAlign}
+        />
       </HStack>
       <Text fontSize="xs" color="whiteAlpha.700">
         On {standingFieldNumber} · hit {aimFieldNumber}

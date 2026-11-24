@@ -1,5 +1,6 @@
 import { Button, Stack, Text } from '@chakra-ui/react'
 import { LiveIndicator } from '../LiveIndicator/LiveIndicator'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 
 export interface SetupOptionCardProps {
   label: string
@@ -41,10 +42,8 @@ export const SetupOptionCard = ({
     _focusVisible={{ outline: '2px solid', outlineColor: 'orange.300', outlineOffset: '2px' }}
   >
     <LiveIndicator show={showLiveIndicator} />
-    <Stack gap={1}>
-      <Text fontWeight="semibold" color="white">
-        {label}
-      </Text>
+    <Stack gap={1} minW={0} w="full">
+      <TruncatedName name={label} w="full" fontWeight="semibold" color="white" />
       <Text fontSize="sm" color={selected ? 'whiteAlpha.800' : 'whiteAlpha.700'} lineHeight="1.5">
         {description}
       </Text>

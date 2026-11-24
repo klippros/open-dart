@@ -2,6 +2,7 @@ import { Button, Stack, Text } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { SetupPageHeader } from '../components/SetupPageLayout/SetupPageHeader'
+import { TruncatedName } from '../components/TruncatedName/TruncatedName'
 import { SetupPageLayout } from '../components/SetupPageLayout/SetupPageLayout'
 import { SignInDialog } from '../components/SignInDialog/SignInDialog'
 import { useAuth } from '../hooks/authContext'
@@ -261,9 +262,12 @@ export const OnlineMatchJoinPage = () => {
             px={4}
             py={4}
           >
-            <Text color="white" fontWeight="semibold">
-              {invite.creatorDisplayName}
-            </Text>
+            <TruncatedName
+              name={invite.creatorDisplayName}
+              w="full"
+              color="white"
+              fontWeight="semibold"
+            />
             <Text color="whiteAlpha.700" fontSize="sm">
               {invite.legsToWin <= 1
                 ? `${getInviteModeLabel(invite)} · ${invite.playerCount}/2 players`

@@ -1,4 +1,4 @@
-import { Badge, Dialog, Stack, Text } from '@chakra-ui/react'
+import { Badge, Dialog, HStack, Stack, Text } from '@chakra-ui/react'
 import {
   getOnlineMatchEndingLabel,
   getOnlineMatchSummaryHeader,
@@ -6,6 +6,7 @@ import {
 import type { OnlineMatchHistoryRow } from '../../lib/matchServer/types'
 import { darkDialogContentProps } from '../darkDialogContentProps'
 import { MatchSummaryTitle } from '../SessionSummary/MatchSummaryTitle'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 
 export interface OnlineMatchSummaryDialogProps {
   open: boolean
@@ -63,9 +64,23 @@ export const OnlineMatchSummaryDialog = ({
           <Dialog.Body>
             <Stack gap={1}>
               {opponentName !== null && (
-                <Text fontSize="sm" color="whiteAlpha.900" lineHeight="1.55">
-                  vs {opponentName}
-                </Text>
+                <HStack gap={1} minW={0}>
+                  <Text
+                    as="span"
+                    flexShrink={0}
+                    fontSize="sm"
+                    color="whiteAlpha.900"
+                    lineHeight="1.55"
+                  >
+                    vs
+                  </Text>
+                  <TruncatedName
+                    name={opponentName}
+                    fontSize="sm"
+                    color="whiteAlpha.900"
+                    lineHeight="1.55"
+                  />
+                </HStack>
               )}
               <Text fontSize="sm" color="whiteAlpha.700" lineHeight="1.55">
                 {endingLabel} · {legsLabel}

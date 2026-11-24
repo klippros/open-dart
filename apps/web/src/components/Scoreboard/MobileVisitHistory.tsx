@@ -61,7 +61,7 @@ export const MobileVisitHistory = ({
 
   if (players.length > 1) {
     return (
-      <SimpleGrid columns={2} gap={3} w="full" alignItems="start">
+      <SimpleGrid columns={2} gap={3} w="full" minW={0} alignItems="start">
         {columns}
       </SimpleGrid>
     )

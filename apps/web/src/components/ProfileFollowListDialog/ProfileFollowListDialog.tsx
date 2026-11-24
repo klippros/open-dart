@@ -7,6 +7,7 @@ import type { MyFollowListEntry } from '../../lib/social/followApi'
 import { FollowListKind } from '../../lib/social/followListKind'
 import { createRequestGeneration } from '../../lib/social/requestGeneration'
 import { darkDialogContentProps } from '../darkDialogContentProps'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 
 const FOLLOW_LIST_PAGE_SIZE = 50
 
@@ -108,13 +109,21 @@ export const ProfileFollowListDialog = ({ kind, onClose }: ProfileFollowListDial
                   <Link
                     key={entry.userId}
                     asChild
+                    display="block"
+                    minW={0}
+                    maxW="full"
                     color="white"
                     fontWeight="semibold"
                     py={1}
                     _hover={{ color: 'orange.200' }}
                   >
                     <RouterLink to={getPlayerProfilePath(entry.userId)} onClick={onClose}>
-                      {entry.displayName}
+                      <TruncatedName
+                        name={entry.displayName}
+                        w="full"
+                        color="inherit"
+                        fontWeight="inherit"
+                      />
                     </RouterLink>
                   </Link>
                 ))}

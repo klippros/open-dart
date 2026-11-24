@@ -54,6 +54,7 @@ export const MobileNavDrawer = ({
                   flex="1"
                   minW={0}
                   truncate
+                  title={playerName}
                 >
                   {playerName}
                 </Drawer.Title>

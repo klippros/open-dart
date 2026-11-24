@@ -1,4 +1,4 @@
-import { Box, Button, Stack, Text } from '@chakra-ui/react'
+import { Box, Button, HStack, Stack, Text } from '@chakra-ui/react'
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePendingOnlineMatchInvites } from '../../hooks/usePendingOnlineMatchInvites'
@@ -13,6 +13,7 @@ import { getInviteModeLabel } from '../../lib/social/inviteModeLabel'
 import { selectVisiblePendingInvites } from '../../lib/social/pendingInviteVisibility'
 import { OnlineMatchInviteOutcome } from '../../lib/social/types'
 import type { PendingOnlineMatchInvite } from '../../lib/social/types'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 
 const InviteCard = ({
   invite,
@@ -38,10 +39,13 @@ const InviteCard = ({
     py={4}
   >
     <Stack gap={3} direction={{ base: 'column', sm: 'row' }} align={{ sm: 'center' }}>
-      <Stack gap={1} flex="1">
-        <Text fontWeight="semibold" color="white">
-          {invite.inviterDisplayName} invited you
-        </Text>
+      <Stack gap={1} flex="1" minW={0}>
+        <HStack gap={1} minW={0}>
+          <TruncatedName name={invite.inviterDisplayName} fontWeight="semibold" color="white" />
+          <Text fontWeight="semibold" color="white" flexShrink={0}>
+            invited you
+          </Text>
+        </HStack>
         <Text fontSize="sm" color="whiteAlpha.700">
           {getInviteModeLabel(invite.mode, invite.config)}
           {invite.legsToWin > 1 ? ` · first to ${String(invite.legsToWin)}` : ''}

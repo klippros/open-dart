@@ -1,9 +1,10 @@
-import { Badge, Box, Button, HStack, Stack, Text } from '@chakra-ui/react'
+import { Badge, Box, Button, HStack, Link, Stack, Text } from '@chakra-ui/react'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link as RouterLink } from 'react-router-dom'
 import type { MatchSummaryHeader } from '../../lib/history/sessionSummary'
 import { MatchSummaryTitle } from '../SessionSummary/MatchSummaryTitle'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 
 export interface HistoryListItemProps {
   header: MatchSummaryHeader
@@ -35,16 +36,29 @@ export const HistoryListItem = ({
         }
       />
       {opponentProfileTo !== undefined && opponentName !== undefined ? (
-        <Text fontSize="sm" color="orange.200">
+        <Link
+          asChild
+          display="block"
+          minW={0}
+          maxW="full"
+          fontSize="sm"
+          color="orange.200"
+          _hover={{ color: 'orange.100' }}
+        >
           <RouterLink
             to={opponentProfileTo}
             onClick={(event) => {
               event.stopPropagation()
             }}
           >
-            View {opponentName}
+            <HStack gap={1} minW={0}>
+              <Text as="span" flexShrink={0}>
+                View
+              </Text>
+              <TruncatedName name={opponentName} color="inherit" />
+            </HStack>
           </RouterLink>
-        </Text>
+        </Link>
       ) : null}
     </Stack>
   )
