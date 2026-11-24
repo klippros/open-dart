@@ -38,7 +38,7 @@ describe('profileCards', () => {
       { scope: { type: 'x01-501-online' }, scopeLabel: '501 online' },
     )
 
-    expect(labels(cards)).toEqual(['Average', 'Average Darts', 'To 170', 'Checkouts'])
+    expect(labels(cards)).toEqual(['Average', 'Darts', 'Avg to 170', 'Checkouts'])
     expect(cards[0]?.value).toBe('61.23')
     expect(cards[0]?.details[0]?.text).toBe('Best 83.50')
     expect(cards[0]?.details[0]?.source).toEqual({ sessionId: 'hot-leg', legNumber: 1 })
@@ -88,11 +88,7 @@ describe('profileCards', () => {
     expect(cards[0]?.grade).not.toBeNull()
     expect(cards[0]?.details[0]?.text).toBe('Best 1200')
     expect(Object.values(JdcChallengeGrade)).toContain(cards[0]?.grade)
-    expect(labels(buildJdcChallengeSegmentCards(input))).toEqual([
-      'Shanghai 10–15',
-      'Doubles',
-      'Shanghai 15–20',
-    ])
+    expect(labels(buildJdcChallengeSegmentCards(input))).toEqual(['10–15', 'Doubles', '15–20'])
   })
 
   it('uses trebles copy for 99 Darts and omits trebles on bull', () => {
@@ -189,12 +185,7 @@ describe('profileCards', () => {
       label: '10 Up 1 Down',
     })
 
-    expect(labels(oneTwentyOne)).toEqual([
-      'Checkouts',
-      '3 dart Average',
-      'Checkouts / Game',
-      'Highest',
-    ])
+    expect(labels(oneTwentyOne)).toEqual(['Checkouts', '3 dart Avg', 'Checkouts / Game', 'Highest'])
     expect(oneTwentyOne[0]?.details[0]?.text).toBe('Best 80%')
     expect(oneTwentyOne[0]?.details[0]?.source).toEqual({
       sessionId: 'hot-checkouts',

@@ -135,7 +135,7 @@ export const x01SummaryFromLegStats = (stats: X01LegStats): X01SummaryInput => (
 })
 
 const averageDartsSelection = (context: ProfileTimelineContext): StatTimelineSelection => ({
-  ...selection(context, 'avgDarts', 'Average darts'),
+  ...selection(context, 'avgDarts', 'Darts'),
   checkedOutOnly: true,
 })
 
@@ -150,15 +150,15 @@ export const buildX01SummaryCards = (
       input.bestLegSource ?? null,
     ),
   }),
-  card('avg-darts', 'Average Darts', formatAverage(input.avgDarts, 1), {
+  card('avg-darts', 'Darts', formatAverage(input.avgDarts, 1), {
     timeline: averageDartsSelection(context),
     details: bestDetail(
       input.bestDarts === null ? null : formatInteger(input.bestDarts),
       input.bestDartsSource ?? null,
     ),
   }),
-  card('to-170', 'To 170', formatAverage(input.threeDartAverageUntil170), {
-    timeline: selection(context, 'threeDartAverageUntil170', 'Average to 170'),
+  card('to-170', 'Avg to 170', formatAverage(input.threeDartAverageUntil170), {
+    timeline: selection(context, 'threeDartAverageUntil170', 'Avg to 170'),
   }),
   card('checkouts', 'Checkouts', formatCheckoutPercent(input.checkoutPercent), {
     timeline: selection(context, 'doubleCheckoutRate', 'Checkouts'),
@@ -243,14 +243,14 @@ export const buildJdcChallengeSummaryCards = (
 export const buildJdcChallengeSegmentCards = (
   input: JdcChallengeSummaryInput,
 ): ProfileStatCardModel[] => [
-  card('shanghai-low', 'Shanghai 10–15', formatInteger(input.avgShanghaiLowScore), {
-    timeline: selection(JDC_CONTEXT, 'avgShanghaiLowScore', 'Shanghai 10–15'),
+  card('shanghai-low', '10–15', formatInteger(input.avgShanghaiLowScore), {
+    timeline: selection(JDC_CONTEXT, 'avgShanghaiLowScore', '10–15'),
   }),
   card('doubles', 'Doubles', formatInteger(input.avgDoublesScore), {
     timeline: selection(JDC_CONTEXT, 'avgDoublesScore', 'Doubles'),
   }),
-  card('shanghai-high', 'Shanghai 15–20', formatInteger(input.avgShanghaiHighScore), {
-    timeline: selection(JDC_CONTEXT, 'avgShanghaiHighScore', 'Shanghai 15–20'),
+  card('shanghai-high', '15–20', formatInteger(input.avgShanghaiHighScore), {
+    timeline: selection(JDC_CONTEXT, 'avgShanghaiHighScore', '15–20'),
   }),
 ]
 
@@ -471,8 +471,8 @@ export const buildOneTwentyOneCards = (stats: CheckoutPracticeStats): ProfileSta
       timeline: selection(context, 'checkoutRate', 'Checkouts'),
       details: bestCheckoutRateDetail(stats),
     }),
-    card('average', '3 dart Average', formatAverage(stats.threeDartAverage), {
-      timeline: selection(context, 'threeDartAverage', '3 dart Average'),
+    card('average', '3 dart Avg', formatAverage(stats.threeDartAverage), {
+      timeline: selection(context, 'threeDartAverage', '3 dart Avg'),
       details: bestDetail(
         stats.bestThreeDartAverage === null ? null : formatAverage(stats.bestThreeDartAverage),
         sessionBestSource(stats.bestThreeDartAverageSessionId),
