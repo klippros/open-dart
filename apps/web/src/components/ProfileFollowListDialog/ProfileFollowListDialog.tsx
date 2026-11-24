@@ -1,19 +1,18 @@
-import { Button, Dialog, Link, Portal, Stack, Text } from '@chakra-ui/react'
+import { Button, Dialog, Portal, Stack, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Link as RouterLink } from 'react-router-dom'
-import { getPlayerProfilePath } from '../../lib/profile/profileRoutes'
 import { FollowApiError, listMyFollowers, listMyFollowing } from '../../lib/social/followApi'
 import type { MyFollowListEntry } from '../../lib/social/followApi'
 import { FollowListKind } from '../../lib/social/followListKind'
 import { createRequestGeneration } from '../../lib/social/requestGeneration'
 import { darkDialogContentProps } from '../darkDialogContentProps'
-import { TruncatedName } from '../TruncatedName/TruncatedName'
+import { ProfileFollowListRow } from './ProfileFollowListRow'
 
 const FOLLOW_LIST_PAGE_SIZE = 50
 
 export interface ProfileFollowListDialogProps {
   kind: FollowListKind | null
   onClose: () => void
+  onUnfollowed?: () => void
 }
 
 const loadPage = (kind: FollowListKind, after: MyFollowListEntry | undefined) => {
@@ -26,12 +25,20 @@ const loadPage = (kind: FollowListKind, after: MyFollowListEntry | undefined) =>
   return kind === FollowListKind.Followers ? listMyFollowers(options) : listMyFollowing(options)
 }
 
-export const ProfileFollowListDialog = ({ kind, onClose }: ProfileFollowListDialogProps) => {
+export const ProfileFollowListDialog = ({
+  kind,
+  onClose,
+  onUnfollowed,
+}: ProfileFollowListDialogProps) => {
   const [entries, setEntries] = useState<MyFollowListEntry[]>([])
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const requestGenerationRef = useRef(createRequestGeneration())
+  const entriesRef = useRef(entries)
+  const hasMoreRef = useRef(hasMore)
+  const kindRef = useRef(kind)
+  kindRef.current = kind
 
   const fetchPage = useCallback(
     async (listKind: FollowListKind, after: MyFollowListEntry | undefined) => {
@@ -44,12 +51,16 @@ export const ProfileFollowListDialog = ({ kind, onClose }: ProfileFollowListDial
         if (!requestGenerationRef.current.isCurrent(requestId)) {
           return
         }
-        setEntries((current) => (after === undefined ? page : [...current, ...page]))
-        setHasMore(page.length === FOLLOW_LIST_PAGE_SIZE)
+        const nextEntries = after === undefined ? page : [...entriesRef.current, ...page]
+        entriesRef.current = nextEntries
+        hasMoreRef.current = page.length === FOLLOW_LIST_PAGE_SIZE
+        setEntries(nextEntries)
+        setHasMore(hasMoreRef.current)
       } catch (loadError) {
         if (!requestGenerationRef.current.isCurrent(requestId)) {
           return
         }
+        hasMoreRef.current = false
         setHasMore(false)
         setError(
           loadError instanceof FollowApiError ? loadError.message : 'Unable to load this list.',
@@ -67,10 +78,27 @@ export const ProfileFollowListDialog = ({ kind, onClose }: ProfileFollowListDial
     if (kind === null) {
       return
     }
+    entriesRef.current = []
+    hasMoreRef.current = false
     setEntries([])
     setHasMore(false)
     void fetchPage(kind, undefined)
   }, [fetchPage, kind])
+
+  const handleUnfollowed = useCallback(
+    (userId: string) => {
+      const next = entriesRef.current.filter((entry) => entry.userId !== userId)
+      entriesRef.current = next
+      setEntries(next)
+      onUnfollowed?.()
+
+      const listKind = kindRef.current
+      if (next.length === 0 && hasMoreRef.current && listKind !== null) {
+        void fetchPage(listKind, undefined)
+      }
+    },
+    [fetchPage, onUnfollowed],
+  )
 
   const title = kind === FollowListKind.Following ? 'Following' : 'Followers'
   const emptyMessage =
@@ -106,26 +134,13 @@ export const ProfileFollowListDialog = ({ kind, onClose }: ProfileFollowListDial
             <Dialog.Body>
               <Stack gap={2}>
                 {entries.map((entry) => (
-                  <Link
+                  <ProfileFollowListRow
                     key={entry.userId}
-                    asChild
-                    display="block"
-                    minW={0}
-                    maxW="full"
-                    color="white"
-                    fontWeight="semibold"
-                    py={1}
-                    _hover={{ color: 'orange.200' }}
-                  >
-                    <RouterLink to={getPlayerProfilePath(entry.userId)} onClick={onClose}>
-                      <TruncatedName
-                        name={entry.displayName}
-                        w="full"
-                        color="inherit"
-                        fontWeight="inherit"
-                      />
-                    </RouterLink>
-                  </Link>
+                    entry={entry}
+                    canUnfollow={kind === FollowListKind.Following}
+                    onNavigate={onClose}
+                    onUnfollowed={handleUnfollowed}
+                  />
                 ))}
                 {!loading && error === null && entries.length === 0 ? (
                   <Text fontSize="sm" color="whiteAlpha.700">
