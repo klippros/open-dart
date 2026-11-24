@@ -1,4 +1,5 @@
 import { Badge, Button, Stack, Text } from '@chakra-ui/react'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 import type { MatchPlayerSnapshot } from '../../lib/matchServer/types'
 import { MatchPlayerSlot } from '../../lib/matchServer/types'
 
@@ -31,10 +32,12 @@ export const OnlineWaitingPlayerRow = ({
   >
     <Stack gap={0.5} minW={0} flex="1">
       <Stack direction="row" align="center" gap={2} minW={0}>
-        <Text color="white" fontWeight="semibold" truncate>
-          {displayName}
-          {isYou ? ' (you)' : ''}
-        </Text>
+        <TruncatedName name={displayName} color="white" fontWeight="semibold" />
+        {isYou ? (
+          <Text color="white" fontWeight="semibold" flexShrink={0}>
+            (you)
+          </Text>
+        ) : null}
         <Badge colorPalette={player.connected ? 'green' : 'gray'} variant="subtle" flexShrink={0}>
           {player.connected ? 'Connected' : 'Away'}
         </Badge>

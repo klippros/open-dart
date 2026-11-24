@@ -4,6 +4,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import { getPlayerProfilePath } from '../../lib/profile/profileRoutes'
 import { FollowApiError, unfollowUser } from '../../lib/social/followApi'
 import type { MyFollowListEntry } from '../../lib/social/followApi'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 
 export interface ProfileFollowListRowProps {
   entry: MyFollowListEntry
@@ -44,18 +45,19 @@ export const ProfileFollowListRow = ({
 
   return (
     <Stack gap={1}>
-      <HStack justify="space-between" gap={3} align="center">
+      <HStack justify="space-between" gap={3} align="center" minW={0}>
         <Link
           asChild
+          display="block"
+          flex="1"
+          minW={0}
           color="white"
           fontWeight="semibold"
           py={1}
-          minW={0}
-          truncate
           _hover={{ color: 'orange.200' }}
         >
           <RouterLink to={getPlayerProfilePath(entry.userId)} onClick={onNavigate}>
-            {entry.displayName}
+            <TruncatedName name={entry.displayName} w="full" color="inherit" fontWeight="inherit" />
           </RouterLink>
         </Link>
         {canUnfollow ? (

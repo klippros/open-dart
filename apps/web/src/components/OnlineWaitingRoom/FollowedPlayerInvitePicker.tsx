@@ -10,6 +10,7 @@ import {
 import { formatInvitePlayerMeta } from '../../lib/social/formatInvitePlayerMeta'
 import { createRequestGeneration } from '../../lib/social/requestGeneration'
 import type { FollowedPlayerForInvite, OnlineMatchInviteHostRow } from '../../lib/social/types'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 
 export interface FollowedPlayerInvitePickerProps {
   matchId: string
@@ -277,6 +278,7 @@ export const FollowedPlayerInvitePicker = ({
                         w="full"
                         h="full"
                         justifyContent="flex-start"
+                        overflow="hidden"
                         px={3}
                         borderRadius="md"
                         bg={active ? 'whiteAlpha.200' : 'transparent'}
@@ -290,10 +292,13 @@ export const FollowedPlayerInvitePicker = ({
                           void invitePlayer(player)
                         }}
                       >
-                        <Stack gap={0} align="start">
-                          <Text color="white" fontWeight="semibold">
-                            {player.displayName}
-                          </Text>
+                        <Stack gap={0} align="start" minW={0} w="full">
+                          <TruncatedName
+                            name={player.displayName}
+                            w="full"
+                            color="white"
+                            fontWeight="semibold"
+                          />
                           <Text color="whiteAlpha.600" fontSize="xs">
                             {formatInvitePlayerMeta(player.playCount, player.lastPlayedAt)}
                           </Text>

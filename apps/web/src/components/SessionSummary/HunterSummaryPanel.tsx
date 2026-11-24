@@ -1,4 +1,5 @@
-import { SimpleGrid, Stack, Text } from '@chakra-ui/react'
+import { SimpleGrid, Stack } from '@chakra-ui/react'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 import { formatCount, formatPercent } from '../../lib/analytics/formatAnalytics'
 import { computeHunterSingleSessionStats } from '../../lib/hunter/hunterVisitStats'
 import type { GameSession } from '@open-dart/game/types/gameSession'
@@ -19,9 +20,13 @@ export const HunterSummaryPanel = ({ session }: HunterSummaryPanelProps) => {
     <Stack gap={4}>
       {stats.players.map((player) => (
         <Stack key={player.playerId} gap={2}>
-          <Text fontSize="sm" color="whiteAlpha.700" fontWeight="semibold">
-            {player.name}
-          </Text>
+          <TruncatedName
+            name={player.name}
+            w="full"
+            fontSize="sm"
+            color="whiteAlpha.700"
+            fontWeight="semibold"
+          />
           <SimpleGrid columns={{ base: 1, sm: 2 }} gap={3}>
             <StatCard label="Hit rate" value={formatPercent(player.hitRate)} />
             <StatCard

@@ -6,6 +6,7 @@ import type { AroundTheClockConfig } from '@open-dart/game/types/aroundTheClock'
 import type { Player } from '@open-dart/game/types/player'
 import type { Visit } from '@open-dart/game/types/visit'
 import { visitHistorySidebarBreakpoint } from '../../layout'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 import { WaitingVisitHistoryCard } from './WaitingVisitHistoryCard'
 
 export type AroundTheClockHistoryLayoutVariant = 'sidebar' | 'stack'
@@ -49,18 +50,19 @@ export const AroundTheClockHistoryColumn = ({
       gap={3}
       align={isStack ? 'stretch' : isRight ? 'flex-end' : 'flex-start'}
       display={isStack ? 'flex' : { base: 'none', [visitHistorySidebarBreakpoint]: 'flex' }}
-      w={isStack ? 'full' : undefined}
+      w="full"
+      minW={0}
     >
       {showPlayerName && (
-        <Text
+        <TruncatedName
+          name={player.name}
+          w="full"
           fontSize="xs"
           color="whiteAlpha.500"
           textTransform="uppercase"
           letterSpacing="0.08em"
           textAlign={isRight ? 'right' : 'left'}
-        >
-          {player.name}
-        </Text>
+        />
       )}
 
       {showWaitingVisit && <WaitingVisitHistoryCard variant={variant} />}

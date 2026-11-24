@@ -5,6 +5,7 @@ import { getSyncStatusLabel } from '../../lib/auth/syncStatusLabel'
 import { darkDialogContentProps } from '../darkDialogContentProps'
 import { SettingsDismissBackdrop } from '../SettingsMenu/SettingsDismissBackdrop'
 import { SignOutConfirmDialog } from '../SignOutConfirmDialog/SignOutConfirmDialog'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 
 export const UserAccountMenu = () => {
   const { user, profile, syncStatus, signOut } = useAuth()
@@ -39,10 +40,14 @@ export const UserAccountMenu = () => {
             variant="ghost"
             color="whiteAlpha.700"
             fontWeight={400}
+            maxW="10rem"
+            minW={0}
+            overflow="hidden"
+            title={displayName}
             _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
             _expanded={{ color: 'white', bg: 'whiteAlpha.100' }}
           >
-            {displayName}
+            <TruncatedName name={displayName} color="inherit" fontWeight="inherit" />
           </Button>
         </Popover.Trigger>
         <Portal>
@@ -61,7 +66,8 @@ export const UserAccountMenu = () => {
               color={darkDialogContentProps.color}
               borderRadius="xl"
               shadow="2xl"
-              minW="280px"
+              w="280px"
+              maxW="calc(100vw - 2rem)"
               overflow="hidden"
               p={0}
               _focusVisible={{ outline: 'none' }}
@@ -73,12 +79,10 @@ export const UserAccountMenu = () => {
               </Popover.Header>
               <Popover.Body px={4} py={4}>
                 <Stack gap={4}>
-                  <Stack gap={1}>
-                    <Text fontWeight="semibold" color="white">
-                      {displayName}
-                    </Text>
+                  <Stack gap={1} minW={0} w="full">
+                    <TruncatedName name={displayName} fontWeight="semibold" color="white" />
                     {email !== undefined && email !== '' && (
-                      <Text fontSize="sm" color="whiteAlpha.700">
+                      <Text fontSize="sm" color="whiteAlpha.700" truncate minW={0} title={email}>
                         {email}
                       </Text>
                     )}

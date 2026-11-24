@@ -5,6 +5,7 @@ import type { CheckoutRules } from '@open-dart/game/types/checkout'
 import type { ChallengeLegStatus } from '@open-dart/game/types/match'
 import type { DoubleCheckoutStats } from '@open-dart/analytics/doubleCheckoutStats'
 import { LegStarterIcon } from '../LegStarterIcon/LegStarterIcon'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 import { ChallengeLegDots } from './ChallengeLegDots'
 import { LegWinDots } from './LegWinDots'
 import { OneTwentyOneLives } from './OneTwentyOneLives'
@@ -94,20 +95,23 @@ const PlayerNameWithLegStarter = ({
   isLegStarter: boolean
   nameFirst: boolean
 }) => (
-  <Flex align="center" gap={1} minW={0}>
+  <Flex
+    align="center"
+    gap={1}
+    minW={0}
+    maxW="100%"
+    flex="1"
+    justify={nameFirst ? 'flex-start' : 'flex-end'}
+  >
     {nameFirst ? (
       <>
-        <Text fontSize="sm" color="whiteAlpha.600" truncate>
-          {name}
-        </Text>
+        <TruncatedName name={name} fontSize="sm" color="whiteAlpha.600" />
         {isLegStarter && <LegStarterIcon direction="left" />}
       </>
     ) : (
       <>
         {isLegStarter && <LegStarterIcon direction="right" />}
-        <Text fontSize="sm" color="whiteAlpha.600" truncate>
-          {name}
-        </Text>
+        <TruncatedName name={name} fontSize="sm" color="whiteAlpha.600" textAlign="right" />
       </>
     )}
   </Flex>
@@ -165,7 +169,7 @@ const PlayerScorePanelHeader = ({
 
   if (!showLegDots) {
     return (
-      <Flex minH="5" justify={panelAlign === 'right' ? 'flex-end' : 'flex-start'}>
+      <Flex minH="5" minW={0} w="full" justify={panelAlign === 'right' ? 'flex-end' : 'flex-start'}>
         <PlayerNameWithLegStarter
           name={player.name}
           isLegStarter={isLegStarter}
@@ -176,15 +180,19 @@ const PlayerScorePanelHeader = ({
   }
 
   return (
-    <Flex align="center" justify="space-between" minH="5" gap={2}>
+    <Flex align="center" justify="space-between" minH="5" gap={2} minW={0} w="full">
       {panelAlign === 'left' ? (
         <>
           <PlayerNameWithLegStarter name={player.name} isLegStarter={isLegStarter} nameFirst />
-          <LegWinDots legsToWin={legsToWin} legsWon={legsWon} reverseOrder />
+          <Box flexShrink={0}>
+            <LegWinDots legsToWin={legsToWin} legsWon={legsWon} reverseOrder />
+          </Box>
         </>
       ) : (
         <>
-          <LegWinDots legsToWin={legsToWin} legsWon={legsWon} />
+          <Box flexShrink={0}>
+            <LegWinDots legsToWin={legsToWin} legsWon={legsWon} />
+          </Box>
           <PlayerNameWithLegStarter
             name={player.name}
             isLegStarter={isLegStarter}

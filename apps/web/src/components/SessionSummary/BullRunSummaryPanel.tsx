@@ -1,4 +1,5 @@
-import { SimpleGrid, Stack, Text } from '@chakra-ui/react'
+import { SimpleGrid, Stack } from '@chakra-ui/react'
+import { TruncatedName } from '../TruncatedName/TruncatedName'
 import { formatAverage, formatInteger, formatPercent } from '../../lib/analytics/formatAnalytics'
 import { computeBullRunPlayerSessionStats } from '@open-dart/analytics/bullRunVisitStats'
 import type { GameSession } from '@open-dart/game/types/gameSession'
@@ -30,9 +31,13 @@ export const BullRunSummaryPanel = ({ session }: BullRunSummaryPanelProps) => {
       {playerStats.map(({ player, stats }) => (
         <Stack key={player.id} gap={2}>
           {playerStats.length > 1 && (
-            <Text fontSize="sm" color="whiteAlpha.700" fontWeight="semibold">
-              {player.name}
-            </Text>
+            <TruncatedName
+              name={player.name}
+              w="full"
+              fontSize="sm"
+              color="whiteAlpha.700"
+              fontWeight="semibold"
+            />
           )}
           <SimpleGrid columns={{ base: 1, sm: 2 }} gap={3}>
             <StatCard

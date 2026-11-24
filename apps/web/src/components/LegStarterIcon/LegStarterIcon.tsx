@@ -9,7 +9,7 @@ export interface LegStarterIconProps {
 }
 
 export const LegStarterIcon = ({ direction = 'left' }: LegStarterIconProps) => (
-  <Box as="span" aria-label="Started the leg" color="whiteAlpha.600" lineHeight={0}>
+  <Box as="span" aria-label="Started the leg" color="whiteAlpha.600" lineHeight={0} flexShrink={0}>
     <FontAwesomeIcon
       icon={direction === 'right' ? faAnglesRight : faAnglesLeft}
       style={{ height: '0.85em' }}

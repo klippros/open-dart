@@ -78,7 +78,7 @@ export const StatsTable = ({
           <Grid templateColumns={gridTemplateColumns} px={4} py={2} columnGap={3}>
             <Box />
             {players.map((player) => (
-              <Box key={`name-${player.id}`} textAlign="right">
+              <Box key={`name-${player.id}`} minW={0} textAlign="right">
                 <PlayerMatchColumnHeader
                   name={player.name}
                   showTrophy={highlightPlayerIds.includes(player.id)}
