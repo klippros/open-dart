@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(35);
+SELECT plan(38);
 
 SELECT ok(
   NOT has_function_privilege('anon', 'public.list_user_online_matches(uuid,timestamptz,uuid,integer)', 'EXECUTE'),
@@ -33,6 +33,33 @@ SELECT ok(
 SELECT ok(
   NOT has_function_privilege('anon', 'public.list_my_online_match_history()', 'EXECUTE'),
   'anonymous users cannot list the legacy match history wrapper'
+);
+
+SELECT ok(
+  (
+    select prosecdef
+    from pg_proc
+    where oid = 'public.list_my_online_match_sessions(timestamptz,timestamptz,uuid,integer)'::regprocedure
+  ),
+  'list_my_online_match_sessions runs as security definer'
+);
+
+SELECT ok(
+  NOT has_function_privilege(
+    'anon',
+    'public.list_my_online_match_sessions(timestamptz,timestamptz,uuid,integer)',
+    'EXECUTE'
+  ),
+  'anonymous users cannot list their own match sessions'
+);
+
+SELECT ok(
+  has_function_privilege(
+    'authenticated',
+    'public.list_my_online_match_sessions(timestamptz,timestamptz,uuid,integer)',
+    'EXECUTE'
+  ),
+  'authenticated users can list their own match sessions'
 );
 
 SELECT ok(

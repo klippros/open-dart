@@ -351,9 +351,12 @@ export const getMyInProgressOnlineMatch = async (): Promise<InProgressOnlineMatc
 const readStringArray = (value: unknown): string[] =>
   Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 
+const readNullableStringArray = (value: unknown): (string | null)[] =>
+  Array.isArray(value) ? value.map((item) => (typeof item === 'string' ? item : null)) : []
+
 const resolveOpponent = (
   viewerUserId: string,
-  playerUserIds: string[],
+  playerUserIds: (string | null)[],
   playerDisplayNames: string[],
 ): { opponentUserId: string | null; opponentDisplayName: string | null } => {
   const opponentIndex = playerUserIds.findIndex((id) => id !== viewerUserId)
@@ -362,8 +365,9 @@ const resolveOpponent = (
     return { opponentUserId: null, opponentDisplayName: null }
   }
 
+  const opponentUserId = playerUserIds[opponentIndex]
   return {
-    opponentUserId: playerUserIds[opponentIndex] ?? null,
+    opponentUserId: typeof opponentUserId === 'string' ? opponentUserId : null,
     opponentDisplayName: playerDisplayNames[opponentIndex] ?? null,
   }
 }
@@ -390,7 +394,7 @@ const mapSummaryRow = (
     return null
   }
 
-  const playerUserIds = readStringArray(row.player_user_ids)
+  const playerUserIds = readNullableStringArray(row.player_user_ids)
   const playerDisplayNames = readStringArray(row.player_display_names)
   const opponent = resolveOpponent(viewerUserId, playerUserIds, playerDisplayNames)
 
@@ -408,7 +412,11 @@ const mapSummaryRow = (
     legsToWin: readNumber(row.legs_to_win, 1),
     endingKind: endingKindRaw,
     winnerUserId: typeof row.winner_user_id === 'string' ? row.winner_user_id : null,
-    creatorUserId: readString(row.creator_user_id),
+    winnerSlot:
+      typeof row.winner_slot === 'number' && Number.isInteger(row.winner_slot)
+        ? row.winner_slot
+        : null,
+    creatorUserId: typeof row.creator_user_id === 'string' ? row.creator_user_id : null,
     completedAt: typeof row.completed_at === 'string' ? row.completed_at : null,
     createdAt: readString(row.created_at),
     playerUserIds,
@@ -518,37 +526,113 @@ export const getMyOnlineMatchDetail = async (
   return { ...summary, scorecardVersion: 1, session }
 }
 
-export const listMyOnlineMatchSessions = async (
-  _viewerUserId: string,
-  completedAfter: string | null = null,
-): Promise<GameSession[]> => {
+export interface ListMyOnlineMatchSessionsOptions {
+  completedAfter?: string | null
+  beforeCompletedAt?: string | null
+  beforeId?: string | null
+  /** When set, SQL applies this page size (capped at 1000). Null means unlimited. */
+  limit?: number | null
+}
+
+export interface OnlineMatchSessionRow {
+  id: string
+  completedAt: string
+  session: GameSession
+}
+
+const EXPORT_SESSION_PAGE_SIZE = 1000
+
+const parseOnlineMatchSessionRow = (row: Record<string, unknown>): OnlineMatchSessionRow | null => {
+  if (typeof row.id !== 'string' || typeof row.completed_at !== 'string') {
+    return null
+  }
+
+  if (row.session === null || row.session === undefined) {
+    return null
+  }
+
+  try {
+    return {
+      id: row.id,
+      completedAt: row.completed_at,
+      session: parseGameSession(JSON.stringify(row.session)),
+    }
+  } catch {
+    return null
+  }
+}
+
+export const listMyOnlineMatchSessionPage = async (
+  options: ListMyOnlineMatchSessionsOptions = {},
+): Promise<OnlineMatchSessionRow[]> => {
   if (supabaseClient === null) {
     throw new MatchServerApiError('Supabase is not configured', 503, 'not_configured')
   }
 
   const result = await supabaseClient.rpc('list_my_online_match_sessions', {
-    p_completed_after: completedAfter,
+    p_completed_after: options.completedAfter ?? null,
+    p_before_completed_at: options.beforeCompletedAt ?? null,
+    p_before_id: options.beforeId ?? null,
+    p_limit: options.limit ?? null,
   })
 
   if (result.error !== null) {
     throw new MatchServerApiError(result.error.message, 500, result.error.code)
   }
 
-  const sessions: GameSession[] = []
+  return parseRpcRows(result.data)
+    .map(parseOnlineMatchSessionRow)
+    .filter((row): row is OnlineMatchSessionRow => row !== null)
+}
 
-  for (const row of parseRpcRows(result.data)) {
-    if (row.session === null || row.session === undefined) {
-      continue
+/** Loads every history match session for the caller, paging past the PostgREST row cap. */
+export const listAllMyOnlineMatchSessions = async (
+  completedAfter: string | null = null,
+): Promise<OnlineMatchSessionRow[]> => {
+  const rows: OnlineMatchSessionRow[] = []
+  let beforeCompletedAt: string | null = null
+  let beforeId: string | null = null
+
+  for (;;) {
+    const page = await listMyOnlineMatchSessionPage({
+      completedAfter,
+      beforeCompletedAt,
+      beforeId,
+      limit: EXPORT_SESSION_PAGE_SIZE,
+    })
+
+    if (page.length === 0) {
+      break
     }
 
-    try {
-      sessions.push(parseGameSession(JSON.stringify(row.session)))
-    } catch {
-      // Skip malformed stored sessions.
+    rows.push(...page)
+
+    if (page.length < EXPORT_SESSION_PAGE_SIZE) {
+      break
     }
+
+    const last = page[page.length - 1]
+    if (last === undefined) {
+      break
+    }
+
+    beforeCompletedAt = last.completedAt
+    beforeId = last.id
   }
 
-  return sessions
+  return rows
+}
+
+export const listMyOnlineMatchSessions = async (
+  _viewerUserId: string,
+  completedAfter: string | null = null,
+): Promise<GameSession[]> => {
+  const page = await listMyOnlineMatchSessionPage({
+    completedAfter,
+    limit: null,
+  })
+
+  return page.map((row) => row.session)
 }
 
 /** @deprecated Prefer listMyOnlineMatchSummaries / listMyOnlineMatchSessions. */
@@ -570,6 +654,7 @@ export const listMyOnlineMatchHistory = async (
       legsToWin: summary.legsToWin,
       endingKind: summary.endingKind,
       winnerUserId: summary.winnerUserId,
+      winnerSlot: summary.winnerSlot,
       creatorUserId: summary.creatorUserId,
       completedAt: summary.completedAt,
       createdAt: summary.createdAt,

@@ -4,6 +4,7 @@ import type { AnalyticsResult } from '@open-dart/analytics/computeAnalytics'
 import { filterSessions, getDateRangeCutoff } from '@open-dart/analytics/sessionFilters'
 import type { DateRangePreset } from '@open-dart/analytics/sessionFilters'
 import type { GameSession } from '@open-dart/game/types/gameSession'
+import { excludeMirroredOnlineMatchCopies } from '../lib/analytics/excludeMirroredOnlineMatchCopies'
 import { mergeSessionsForStats } from '../lib/analytics/mergeSessionsForStats'
 import { listMyOnlineMatchSessions } from '../lib/matchServer/api'
 import { isOnlineMatchesEnabled } from '../lib/matchServer/config'
@@ -14,6 +15,7 @@ import { useAuth } from './authContext'
 
 export interface OwnProfileSessions {
   storedSessions: GameSession[]
+  onlineMatchIds: ReadonlySet<string>
   allSessions: GameSession[]
   filteredSessions: GameSession[]
   analytics: AnalyticsResult
@@ -85,9 +87,17 @@ export const useOwnProfileSessions = (dateRange: DateRangePreset): OwnProfileSes
     }
   }, [dateRange, shouldLoadOnline, viewerDisplayName, viewerUserId])
 
+  const onlineMatchIds = useMemo(
+    () => new Set(onlineSessions.map((session) => session.id)),
+    [onlineSessions],
+  )
   const allSessions = useMemo(
-    () => mergeSessionsForStats(storedSessions, onlineSessions),
-    [onlineSessions, storedSessions],
+    () =>
+      mergeSessionsForStats(
+        excludeMirroredOnlineMatchCopies(storedSessions, onlineMatchIds),
+        onlineSessions,
+      ),
+    [onlineMatchIds, onlineSessions, storedSessions],
   )
   const filteredSessions = useMemo(
     () => filterSessions(allSessions, { dateRange }),
@@ -98,5 +108,12 @@ export const useOwnProfileSessions = (dateRange: DateRangePreset): OwnProfileSes
     [allSessions, dateRange],
   )
 
-  return { storedSessions, allSessions, filteredSessions, analytics, reloadStoredSessions }
+  return {
+    storedSessions,
+    onlineMatchIds,
+    allSessions,
+    filteredSessions,
+    analytics,
+    reloadStoredSessions,
+  }
 }

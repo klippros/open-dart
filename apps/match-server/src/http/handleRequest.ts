@@ -3,6 +3,7 @@ import { corsPreflight } from './cors'
 import { createMatch } from './createMatch'
 import { jsonResponse } from './json'
 import { joinMatch } from './joinMatch'
+import { releaseUserMatches } from './releaseUserMatches'
 import { issueMatchTicket, verifyMatchTicket } from '../auth/ticket'
 import { isUuid } from '../ids'
 import { MATCH_USER_HEADER } from '../match/constants'
@@ -10,6 +11,7 @@ import { MATCH_USER_HEADER } from '../match/constants'
 const matchTicketPath = /^\/v1\/matches\/([^/]+)\/ticket$/u
 const matchSocketPath = /^\/v1\/matches\/([^/]+)\/ws$/u
 const matchJoinPath = /^\/v1\/matches\/([^/]+)\/join$/u
+const releaseUserMatchesPath = /^\/v1\/admin\/users\/([^/]+)\/release-matches$/u
 
 const readMatchId = (pathname: string, pattern: RegExp): string | null => {
   const matched = pattern.exec(pathname)
@@ -112,6 +114,16 @@ export const handleRequest = async (request: Request, env: Env): Promise<Respons
 
     const created = await createMatch(request, env)
     return created
+  }
+
+  const releaseUserId = readMatchId(url.pathname, releaseUserMatchesPath)
+
+  if (releaseUserId !== null) {
+    if (request.method !== 'POST') {
+      return jsonResponse(request, { error: 'method_not_allowed' }, 405)
+    }
+
+    return releaseUserMatches(request, env, releaseUserId)
   }
 
   const joinMatchId = readMatchId(url.pathname, matchJoinPath)

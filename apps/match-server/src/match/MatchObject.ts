@@ -168,6 +168,44 @@ export class MatchObject extends DurableObject<Env> {
     return { kind: 'ok' }
   }
 
+  /**
+   * Account-deletion release: cancel lobbies the user owns, leave lobbies they
+   * joined, or abandon an active match so the opponent wins.
+   */
+  async releaseForAccountDeletion(userId: string): Promise<CommandResult> {
+    const sql = this.ctx.storage.sql
+    const state = loadPublicMatchState(sql)
+
+    if (state === null) {
+      return commandFailure(CommandErrorCode.NotFound, 'Match not found')
+    }
+
+    if (findPlayer(sql, userId) === null) {
+      return commandFailure(CommandErrorCode.Unauthorized, 'Not a member of this match')
+    }
+
+    if (TERMINAL_STATUSES.has(state.status)) {
+      return commandSuccess(state)
+    }
+
+    if (state.status === MatchStatus.Waiting) {
+      if (state.creatorUserId === userId) {
+        const cancelResult = await this.persistCancelWaiting(userId)
+        return cancelResult
+      }
+
+      const leaveResult = await this.persistLeaveWaiting(userId)
+      return leaveResult
+    }
+
+    if (state.status === MatchStatus.Active) {
+      const abandonResult = await this.persistAbandonMatch(userId)
+      return abandonResult
+    }
+
+    return commandFailure(CommandErrorCode.Invalid, 'Match cannot be released')
+  }
+
   async join(input: JoinMatchInput): Promise<CommandResult> {
     const sql = this.ctx.storage.sql
     const state = loadPublicMatchState(sql)

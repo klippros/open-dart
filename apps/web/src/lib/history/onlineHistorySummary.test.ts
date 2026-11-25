@@ -22,6 +22,7 @@ const sampleMatch = (overrides: Partial<OnlineMatchHistoryRow> = {}): OnlineMatc
   legsToWin: 3,
   endingKind: MatchEndingKind.Checkout,
   winnerUserId: 'viewer',
+  winnerSlot: 0,
   creatorUserId: 'viewer',
   completedAt: '2026-09-08T12:00:00.000Z',
   createdAt: '2026-09-08T11:00:00.000Z',
@@ -83,10 +84,35 @@ describe('onlineHistorySummary', () => {
         sampleMatch({
           endingKind: MatchEndingKind.MutualCancel,
           winnerUserId: null,
+          winnerSlot: null,
         }),
         'viewer',
       ),
     ).toBe('Draw')
+    expect(
+      getOnlineMatchSummaryTitle(
+        sampleMatch({
+          winnerUserId: null,
+          winnerSlot: 0,
+          playerUserIds: ['viewer', null],
+          opponentUserId: null,
+          opponentDisplayName: 'Deleted player',
+        }),
+        'viewer',
+      ),
+    ).toBe('Match won!')
+    expect(
+      getOnlineMatchSummaryTitle(
+        sampleMatch({
+          winnerUserId: null,
+          winnerSlot: 1,
+          playerUserIds: ['viewer', null],
+          opponentUserId: null,
+          opponentDisplayName: 'Deleted player',
+        }),
+        'viewer',
+      ),
+    ).toBe('Match lost')
   })
 
   it('builds an online match summary header from format, time, and result', () => {

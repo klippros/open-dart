@@ -13,6 +13,7 @@ import type { StorageAdapter } from './localStorageAdapter'
 import { browserLocalStorage } from './localStorageAdapter'
 import { parseAppSettings, saveSettings } from './settingsStore'
 import { StorageKey } from './storageKeys'
+import { HISTORY_EXPORT_VERSION } from './historyExport'
 
 export const LOCAL_EXPORT_VERSION = 1
 export const LOCAL_EXPORT_FILENAME = 'open-darts-export.json'
@@ -25,6 +26,18 @@ export interface LocalExportFile {
   syncQueue: string[] | null
   syncDeleteQueue: string[] | null
   lastSyncAt: string | null
+}
+
+export interface HistoryImportFile {
+  version: typeof HISTORY_EXPORT_VERSION
+  ownerUserId: string | null
+  sessions: GameSession[]
+  onlineMatches: GameSession[]
+}
+
+export interface ImportLocalExportOptions {
+  blockedOnlineMatchIds?: ReadonlySet<string> | readonly string[]
+  createSessionId?: () => string
 }
 
 const parseJson = (value: string): unknown => {
@@ -138,6 +151,35 @@ const parseLocalExport = (raw: string): LocalExportFile | null => {
   }
 }
 
+const parseHistoryExport = (raw: string): HistoryImportFile | null => {
+  const parsed = parseJson(raw)
+
+  if (typeof parsed !== 'object' || parsed === null) {
+    return null
+  }
+
+  const file = parsed as Partial<HistoryImportFile>
+
+  if (file.version !== HISTORY_EXPORT_VERSION) {
+    return null
+  }
+
+  if (file.ownerUserId !== null && typeof file.ownerUserId !== 'string') {
+    return null
+  }
+
+  if (!isSessionList(file.sessions) || !isSessionList(file.onlineMatches)) {
+    return null
+  }
+
+  return {
+    version: HISTORY_EXPORT_VERSION,
+    ownerUserId: file.ownerUserId ?? null,
+    sessions: file.sessions,
+    onlineMatches: file.onlineMatches,
+  }
+}
+
 const writeIdList = (key: StorageKey, ids: string[] | null, storage: StorageAdapter): void => {
   if (ids === null) {
     return
@@ -151,16 +193,103 @@ const writeIdList = (key: StorageKey, ids: string[] | null, storage: StorageAdap
   storage.setItem(key, JSON.stringify(ids))
 }
 
-export const importLocalExport = (
-  raw: string,
-  storage: StorageAdapter = browserLocalStorage,
-): boolean => {
-  const file = parseLocalExport(raw)
-
-  if (file === null) {
-    return false
+const toBlockedMatchIdSet = (
+  blockedOnlineMatchIds: ImportLocalExportOptions['blockedOnlineMatchIds'],
+): Set<string> => {
+  if (blockedOnlineMatchIds === undefined) {
+    return new Set<string>()
   }
 
+  if (blockedOnlineMatchIds instanceof Set) {
+    return new Set<string>([...blockedOnlineMatchIds])
+  }
+
+  return new Set<string>(blockedOnlineMatchIds)
+}
+
+const matchIdAlreadyPresent = (
+  matchId: string,
+  sessions: readonly GameSession[],
+  blockedOnlineMatchIds: ReadonlySet<string>,
+  seenMatchIds: ReadonlySet<string>,
+): boolean => {
+  if (blockedOnlineMatchIds.has(matchId) || seenMatchIds.has(matchId)) {
+    return true
+  }
+
+  return sessions.some(
+    (session) => session.id === matchId || session.sourceOnlineMatchId === matchId,
+  )
+}
+
+const convertOnlineMatchToLocalSession = (match: GameSession, sessionId: string): GameSession => ({
+  ...match,
+  id: sessionId,
+  sourceOnlineMatchId: match.id,
+})
+
+const importHistoryExport = (
+  file: HistoryImportFile,
+  storage: StorageAdapter,
+  options: ImportLocalExportOptions,
+): boolean => {
+  const blockedOnlineMatchIds = toBlockedMatchIdSet(options.blockedOnlineMatchIds)
+  const createSessionId = options.createSessionId ?? (() => crypto.randomUUID())
+  const existingSessions = loadStoredSessions(storage)
+  const nextSessions = [...existingSessions]
+  const seenMatchIds = new Set<string>()
+  const storedIds = new Set(existingSessions.map((session) => session.id))
+
+  for (const session of file.sessions) {
+    if (session.sourceOnlineMatchId !== undefined) {
+      if (
+        matchIdAlreadyPresent(
+          session.sourceOnlineMatchId,
+          nextSessions,
+          blockedOnlineMatchIds,
+          seenMatchIds,
+        )
+      ) {
+        continue
+      }
+
+      if (storedIds.has(session.id)) {
+        continue
+      }
+
+      nextSessions.push(session)
+      storedIds.add(session.id)
+      seenMatchIds.add(session.sourceOnlineMatchId)
+      continue
+    }
+
+    if (storedIds.has(session.id)) {
+      continue
+    }
+
+    nextSessions.push(session)
+    storedIds.add(session.id)
+  }
+
+  for (const match of file.onlineMatches) {
+    if (matchIdAlreadyPresent(match.id, nextSessions, blockedOnlineMatchIds, seenMatchIds)) {
+      continue
+    }
+
+    const localSession = convertOnlineMatchToLocalSession(match, createSessionId())
+    nextSessions.push(localSession)
+    storedIds.add(localSession.id)
+    seenMatchIds.add(match.id)
+  }
+
+  if (nextSessions.length > 0) {
+    replaceStoredSessions(nextSessions, storage)
+  }
+
+  return true
+}
+
+const importVersionOneExport = (file: LocalExportFile, storage: StorageAdapter): boolean => {
   const existingSessions = loadStoredSessions(storage)
   const incomingIds = new Set(file.sessions.map((session) => session.id))
   const mergedSessions = [
@@ -188,4 +317,23 @@ export const importLocalExport = (
   }
 
   return true
+}
+
+export const importLocalExport = (
+  raw: string,
+  storage: StorageAdapter = browserLocalStorage,
+  options: ImportLocalExportOptions = {},
+): boolean => {
+  const historyFile = parseHistoryExport(raw)
+  if (historyFile !== null) {
+    return importHistoryExport(historyFile, storage, options)
+  }
+
+  const file = parseLocalExport(raw)
+
+  if (file === null) {
+    return false
+  }
+
+  return importVersionOneExport(file, storage)
 }

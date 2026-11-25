@@ -37,8 +37,14 @@ export const ProfilePage = () => {
   const [timelineSelection, setTimelineSelection] = useState<StatTimelineSelection | null>(null)
   const [selectedSession, setSelectedSession] = useState<GameSession | null>(null)
   const [selectedLegNumber, setSelectedLegNumber] = useState<number | null>(null)
-  const { storedSessions, allSessions, filteredSessions, analytics, reloadStoredSessions } =
-    useOwnProfileSessions(dateRange)
+  const {
+    storedSessions,
+    onlineMatchIds,
+    allSessions,
+    filteredSessions,
+    analytics,
+    reloadStoredSessions,
+  } = useOwnProfileSessions(dateRange)
 
   const dartsThrown = countTotalDartsThrown(filteredSessions)
   const isSignedIn = authStatus === AuthStatus.Authenticated && user !== null
@@ -126,6 +132,7 @@ export const ProfilePage = () => {
           />
           <OwnProfileHistory
             storedSessions={storedSessions}
+            onlineMatchIds={onlineMatchIds}
             onStoredSessionsChange={reloadStoredSessions}
           />
         </Stack>

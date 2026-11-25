@@ -1,17 +1,40 @@
 import { Box, Button, Text } from '@chakra-ui/react'
 import { useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
+import { useAuth } from '../../hooks/authContext'
+import { listAllMyOnlineMatchSessions } from '../../lib/matchServer/api'
+import { isOnlineMatchesEnabled } from '../../lib/matchServer/config'
 import { importLocalExport } from '../../lib/storage/localExport'
+import { AuthStatus } from '../../types/auth'
 
 export const ImportStatsControl = () => {
   const inputRef = useRef<HTMLInputElement>(null)
+  const { authStatus, user } = useAuth()
   const [error, setError] = useState<string | null>(null)
+  const isSignedIn = authStatus === AuthStatus.Authenticated && user !== null
+
+  const loadBlockedOnlineMatchIds = async (): Promise<ReadonlySet<string>> => {
+    if (!isSignedIn || !isOnlineMatchesEnabled) {
+      return new Set()
+    }
+
+    const rows = await listAllMyOnlineMatchSessions(null)
+    return new Set(rows.map((row) => row.id))
+  }
 
   const readImportFile = async (file: File): Promise<void> => {
     try {
       const text = await file.text()
+      let blockedOnlineMatchIds: ReadonlySet<string>
 
-      if (!importLocalExport(text)) {
+      try {
+        blockedOnlineMatchIds = await loadBlockedOnlineMatchIds()
+      } catch {
+        setError('Could not check online matches before importing.')
+        return
+      }
+
+      if (!importLocalExport(text, undefined, { blockedOnlineMatchIds })) {
         setError('That file could not be imported.')
         return
       }
