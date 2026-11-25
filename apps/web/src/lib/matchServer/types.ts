@@ -200,10 +200,11 @@ export interface OnlineMatchSummary {
   legsToWin: number
   endingKind: MatchEndingKind
   winnerUserId: string | null
-  creatorUserId: string
+  winnerSlot: number | null
+  creatorUserId: string | null
   completedAt: string | null
   createdAt: string
-  playerUserIds: string[]
+  playerUserIds: (string | null)[]
   playerDisplayNames: string[]
   opponentUserId: string | null
   opponentDisplayName: string | null

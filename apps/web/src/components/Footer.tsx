@@ -22,6 +22,16 @@ export const Footer = () => (
           textUnderlineOffset="2px"
           _hover={{ color: 'white' }}
         >
+          <RouterLink to="/privacy-policy">Privacy</RouterLink>
+        </Link>
+        <Link
+          asChild
+          color="whiteAlpha.700"
+          fontSize="xs"
+          textDecoration="underline"
+          textUnderlineOffset="2px"
+          _hover={{ color: 'white' }}
+        >
           <RouterLink to="/impressum">Impressum</RouterLink>
         </Link>
         <Link

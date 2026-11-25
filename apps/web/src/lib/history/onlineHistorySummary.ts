@@ -86,6 +86,22 @@ export const getOnlineMatchEndingLabel = (endingKind: MatchEndingKind): string =
   }
 }
 
+const viewerWonOnlineMatch = (match: OnlineMatchSummary, viewerUserId: string): boolean => {
+  if (match.winnerUserId === viewerUserId) {
+    return true
+  }
+
+  if (match.winnerUserId !== null || match.winnerSlot === null) {
+    return false
+  }
+
+  const viewerSlot = match.playerUserIds.findIndex((id) => id === viewerUserId)
+  return viewerSlot === match.winnerSlot
+}
+
+const onlineMatchHasWinner = (match: OnlineMatchSummary): boolean =>
+  match.winnerUserId !== null || match.winnerSlot !== null
+
 export const getOnlineMatchSummaryTitle = (
   match: OnlineMatchSummary,
   viewerUserId: string,
@@ -93,12 +109,12 @@ export const getOnlineMatchSummaryTitle = (
   if (
     match.endingKind === MatchEndingKind.MutualCancel ||
     match.endingKind === MatchEndingKind.IdleTimeout ||
-    match.winnerUserId === null
+    !onlineMatchHasWinner(match)
   ) {
     return 'Draw'
   }
 
-  if (match.winnerUserId === viewerUserId) {
+  if (viewerWonOnlineMatch(match, viewerUserId)) {
     return 'Match won!'
   }
 
@@ -116,12 +132,12 @@ export const getOnlineMatchResultSummary = (
   if (
     match.endingKind === MatchEndingKind.MutualCancel ||
     match.endingKind === MatchEndingKind.IdleTimeout ||
-    match.winnerUserId === null
+    !onlineMatchHasWinner(match)
   ) {
     return `Draw vs ${opponentName} · ${endingLabel} · ${legsLabel}`
   }
 
-  if (match.winnerUserId === viewerUserId) {
+  if (viewerWonOnlineMatch(match, viewerUserId)) {
     return `Won vs ${opponentName} · ${endingLabel} · ${legsLabel}`
   }
 

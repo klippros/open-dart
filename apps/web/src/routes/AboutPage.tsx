@@ -1,4 +1,5 @@
-import { Box, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { Link as RouterLink } from 'react-router-dom'
 import { ContentContainer } from '../components/ContentContainer'
 
 export const AboutPage = () => (
@@ -27,7 +28,13 @@ export const AboutPage = () => (
           </Heading>
           <Text color="whiteAlpha.700" fontSize="sm" lineHeight="1.65">
             In-progress games stay on your device. Completed games are saved locally and sync to
-            your private account only when you sign in. No account is required to play.
+            your account when you sign in. Signed-in players can see your display name, online match
+            summaries, and a limited stats snapshot on your profile. No account is required to play.
+            Read the full{' '}
+            <Link asChild color="whiteAlpha.900" textDecoration="underline">
+              <RouterLink to="/privacy-policy">Privacy Policy</RouterLink>
+            </Link>
+            .
           </Text>
         </Stack>
       </Stack>

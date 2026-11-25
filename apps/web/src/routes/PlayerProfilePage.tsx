@@ -124,7 +124,7 @@ export const PlayerProfilePage = () => {
       id: match.id,
       sortAt: getOnlineMatchCompletedAt(match),
       match,
-      canOpenDetail: match.playerUserIds.includes(user.id),
+      canOpenDetail: match.playerUserIds.some((id) => id === user.id),
     }))
   }, [matches, user])
 
@@ -156,7 +156,7 @@ export const PlayerProfilePage = () => {
 
   const handleSelectOnlineMatch = useCallback(
     async (match: OnlineMatchSummary) => {
-      if (user === null || !match.playerUserIds.includes(user.id)) {
+      if (user === null || !match.playerUserIds.some((id) => id === user.id)) {
         return
       }
 

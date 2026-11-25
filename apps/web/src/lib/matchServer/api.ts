@@ -351,9 +351,12 @@ export const getMyInProgressOnlineMatch = async (): Promise<InProgressOnlineMatc
 const readStringArray = (value: unknown): string[] =>
   Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 
+const readNullableStringArray = (value: unknown): (string | null)[] =>
+  Array.isArray(value) ? value.map((item) => (typeof item === 'string' ? item : null)) : []
+
 const resolveOpponent = (
   viewerUserId: string,
-  playerUserIds: string[],
+  playerUserIds: (string | null)[],
   playerDisplayNames: string[],
 ): { opponentUserId: string | null; opponentDisplayName: string | null } => {
   const opponentIndex = playerUserIds.findIndex((id) => id !== viewerUserId)
@@ -362,8 +365,9 @@ const resolveOpponent = (
     return { opponentUserId: null, opponentDisplayName: null }
   }
 
+  const opponentUserId = playerUserIds[opponentIndex]
   return {
-    opponentUserId: playerUserIds[opponentIndex] ?? null,
+    opponentUserId: typeof opponentUserId === 'string' ? opponentUserId : null,
     opponentDisplayName: playerDisplayNames[opponentIndex] ?? null,
   }
 }
@@ -390,7 +394,7 @@ const mapSummaryRow = (
     return null
   }
 
-  const playerUserIds = readStringArray(row.player_user_ids)
+  const playerUserIds = readNullableStringArray(row.player_user_ids)
   const playerDisplayNames = readStringArray(row.player_display_names)
   const opponent = resolveOpponent(viewerUserId, playerUserIds, playerDisplayNames)
 
@@ -408,7 +412,11 @@ const mapSummaryRow = (
     legsToWin: readNumber(row.legs_to_win, 1),
     endingKind: endingKindRaw,
     winnerUserId: typeof row.winner_user_id === 'string' ? row.winner_user_id : null,
-    creatorUserId: readString(row.creator_user_id),
+    winnerSlot:
+      typeof row.winner_slot === 'number' && Number.isInteger(row.winner_slot)
+        ? row.winner_slot
+        : null,
+    creatorUserId: typeof row.creator_user_id === 'string' ? row.creator_user_id : null,
     completedAt: typeof row.completed_at === 'string' ? row.completed_at : null,
     createdAt: readString(row.created_at),
     playerUserIds,
@@ -570,6 +578,7 @@ export const listMyOnlineMatchHistory = async (
       legsToWin: summary.legsToWin,
       endingKind: summary.endingKind,
       winnerUserId: summary.winnerUserId,
+      winnerSlot: summary.winnerSlot,
       creatorUserId: summary.creatorUserId,
       completedAt: summary.completedAt,
       createdAt: summary.createdAt,
