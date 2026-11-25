@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(14);
+SELECT plan(15);
 
 SELECT ok(
   NOT has_function_privilege('anon', 'private.prepare_account_deletion(uuid)', 'EXECUTE'),
@@ -350,11 +350,28 @@ VALUES (
   0
 );
 
-SELECT throws_ok(
+SELECT lives_ok(
   $$ select private.prepare_account_deletion('00000000-0000-4000-8000-000000000023') $$,
-  'P0001',
-  'active_match',
-  'prepare_account_deletion rejects users in waiting matches'
+  'prepare_account_deletion closes waiting lobbies instead of rejecting'
+);
+
+SELECT results_eq(
+  $$
+    select status, ending_kind
+    from public.online_matches
+    where id = '10000000-0000-4000-8000-000000000023'
+  $$,
+  $$ values ('cancelled'::text, 'creator_cancel'::text) $$,
+  'waiting lobby owned by the deleted user is cancelled'
+);
+
+SELECT is_empty(
+  $$
+    select 1
+    from public.online_match_occupancy
+    where user_id = '00000000-0000-4000-8000-000000000023'
+  $$,
+  'occupancy for the deleted user is cleared'
 );
 
 SELECT * FROM finish();

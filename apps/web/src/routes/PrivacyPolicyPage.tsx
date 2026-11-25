@@ -233,13 +233,14 @@ export const PrivacyPolicyPage = () => (
           </Text>
           <Text color="whiteAlpha.800" fontSize="md" lineHeight="1.65">
             When we delete an account we remove the Auth user (email and Google identity), profile,
-            private synced sessions, follows, and invites. Online matches you played are kept for
-            the opponent with your name and account id removed from stored scorecards and replaced
-            by “Deleted player”. Someone who played that match may still know who you were. Retained
-            results are therefore treated as pseudonymous personal data kept for the legitimate
-            interest of preserving the opponent&apos;s history; you may object, and we assess each
-            request under applicable law. Finish or cancel any in-progress online match before
-            asking us to delete the account.
+            private synced sessions, follows, and invites. Waiting lobbies you created are closed;
+            lobbies you joined are left; in-progress matches are abandoned so the opponent wins.
+            Finished online matches you played are kept for the opponent with your name and account
+            id removed from stored scorecards and replaced by “Deleted player”. Someone who played
+            that match may still know who you were. Retained results are therefore treated as
+            pseudonymous personal data kept for the legitimate interest of preserving the
+            opponent&apos;s history; you may object, and we assess each request under applicable
+            law.
           </Text>
         </Stack>
 
