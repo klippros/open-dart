@@ -111,6 +111,38 @@ describe('synchronizeSessions', () => {
     expect(loadStoredSessions(storage)).toEqual([local])
     expect(JSON.parse(storage.getItem(StorageKey.SyncQueue) ?? '[]')).toEqual([local.id])
   })
+
+  it('keeps imported online-match copies locally but does not upload them', async () => {
+    const storage = createMemoryStorage()
+    const practice = session({ id: 'practice-1' })
+    const importedCopy = session({
+      id: 'copy-1',
+      sourceOnlineMatchId: 'match-1',
+      players: [
+        { id: 'user-a', name: 'You', kind: PlayerKind.Human },
+        { id: 'user-b', name: 'Opp', kind: PlayerKind.Remote },
+      ],
+    })
+    const upsertSessions = vi.fn(async () => undefined)
+    const gateway: SessionSyncGateway = {
+      loadSessions: async () => [],
+      upsertSessions,
+      deleteSessions: async () => undefined,
+      deleteSession: unusedDeleteSession,
+    }
+    saveStoredSession(practice, storage)
+    saveStoredSession(importedCopy, storage)
+
+    await synchronizeSessions(gateway, storage)
+
+    expect(
+      loadStoredSessions(storage)
+        .map((entry) => entry.id)
+        .sort(),
+    ).toEqual(['copy-1', 'practice-1'])
+    expect(upsertSessions).toHaveBeenCalledTimes(1)
+    expect(upsertSessions).toHaveBeenCalledWith([practice])
+  })
 })
 
 describe('completed-session queue', () => {

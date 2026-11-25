@@ -14,4 +14,9 @@ export interface GameSession {
   completedAt?: string
   finishedEarly?: boolean
   matchProgress?: MatchProgress
+  /**
+   * Set when this local session was imported from an online match export.
+   * The value is the original online match id; this session id is never that id.
+   */
+  sourceOnlineMatchId?: string
 }

@@ -1,7 +1,8 @@
-import { Button, Stack } from '@chakra-ui/react'
+import { Button, Stack, Text } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import type { GameSession } from '@open-dart/game/types/gameSession'
 import { useAuth } from '../../hooks/authContext'
+import { excludeMirroredOnlineMatchCopies } from '../../lib/analytics/excludeMirroredOnlineMatchCopies'
 import { getLocalHistorySessions } from '../../lib/history/localHistorySessions'
 import { isOnlineMatchesEnabled } from '../../lib/matchServer/config'
 import type { OnlineMatchHistoryRow } from '../../lib/matchServer/types'
@@ -10,6 +11,7 @@ import {
   loadStoredSessions,
   removeStoredSession,
 } from '../../lib/storage/gameStore'
+import { collectHistoryExport, downloadHistoryExport } from '../../lib/storage/historyExport'
 import { deleteSyncedSessionAndRefresh, isSessionSyncActive } from '../../lib/sync/sessionSync'
 import { AuthStatus } from '../../types/auth'
 import { DeleteSessionDialog } from '../DeleteSessionDialog/DeleteSessionDialog'
@@ -21,12 +23,15 @@ import { OnlineHistorySection } from './OnlineHistorySection'
 
 export interface OwnProfileHistoryProps {
   storedSessions: GameSession[]
+  /** Online match ids already loaded for stats; used to hide imported copies. */
+  onlineMatchIds?: ReadonlySet<string>
   /** Called after a delete or reset so profile stats reload from storage. */
   onStoredSessionsChange: () => void
 }
 
 export const OwnProfileHistory = ({
   storedSessions,
+  onlineMatchIds = new Set(),
   onStoredSessionsChange,
 }: OwnProfileHistoryProps) => {
   const { user, profile, authStatus, clearSyncedSessions } = useAuth()
@@ -36,13 +41,20 @@ export const OwnProfileHistory = ({
   const [isDeletingSession, setIsDeletingSession] = useState(false)
   const [deleteSessionError, setDeleteSessionError] = useState<string | null>(null)
   const [resetDialogOpen, setResetDialogOpen] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
 
   const isSignedIn = authStatus === AuthStatus.Authenticated && user !== null
   const showOnlineHistory = isSignedIn && isOnlineMatchesEnabled
   const localSessions = useMemo(
-    () => getLocalHistorySessions(storedSessions, showOnlineHistory),
-    [showOnlineHistory, storedSessions],
+    () =>
+      getLocalHistorySessions(
+        excludeMirroredOnlineMatchCopies(storedSessions, onlineMatchIds),
+        showOnlineHistory,
+      ),
+    [onlineMatchIds, showOnlineHistory, storedSessions],
   )
+  const showExportButton = isSignedIn || storedSessions.length > 0
 
   const openSession = useCallback((session: GameSession) => {
     setSelectedOnlineMatch(null)
@@ -109,6 +121,27 @@ export const OwnProfileHistory = ({
     setResetDialogOpen(false)
   }, [clearSyncedSessions, onStoredSessionsChange])
 
+  const handleExportHistory = useCallback(async () => {
+    if (isExporting) {
+      return
+    }
+
+    setIsExporting(true)
+    setExportError(null)
+
+    try {
+      const file = await collectHistoryExport({
+        ownerUserId: user?.id ?? null,
+        viewerDisplayName: profile?.displayName,
+      })
+      downloadHistoryExport(file)
+    } catch {
+      setExportError('Could not export history.')
+    } finally {
+      setIsExporting(false)
+    }
+  }, [isExporting, profile?.displayName, user?.id])
+
   return (
     <>
       <Stack gap={8}>
@@ -125,6 +158,25 @@ export const OwnProfileHistory = ({
           onSelectSession={openSession}
           onDeleteSession={handleRequestDeleteSession}
         />
+        {showExportButton ? (
+          <Stack gap={2}>
+            <Button
+              variant="cta"
+              w="full"
+              disabled={isExporting}
+              onClick={() => {
+                void handleExportHistory()
+              }}
+            >
+              {isExporting ? 'Exporting…' : 'Export history'}
+            </Button>
+            {exportError !== null ? (
+              <Text fontSize="sm" color="red.300">
+                {exportError}
+              </Text>
+            ) : null}
+          </Stack>
+        ) : null}
         {storedSessions.length > 0 ? (
           <Button
             variant="destructive"

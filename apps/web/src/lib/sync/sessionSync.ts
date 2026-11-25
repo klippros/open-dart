@@ -171,6 +171,9 @@ const isOnlineMatchIdUpsertRejection = (error: { message?: string; code?: string
   return message.includes('online_match_id_not_allowed') || error.code === '23514'
 }
 
+const isUploadableSession = (session: GameSession): boolean =>
+  session.sourceOnlineMatchId === undefined
+
 export const synchronizeSessions = async (
   gateway: SessionSyncGateway,
   storage: StorageAdapter = browserLocalStorage,
@@ -188,9 +191,10 @@ export const synchronizeSessions = async (
     const remoteSessions = (await gateway.loadSessions()).filter(
       (session) => !excludedIds.has(session.id),
     )
-    const { sessions, sessionsToUpload } = mergeCompletedSessions(localSessions, remoteSessions)
+    const merged = mergeCompletedSessions(localSessions, remoteSessions)
+    const sessionsToUpload = merged.sessionsToUpload.filter(isUploadableSession)
 
-    replaceStoredSessions(sessions, storage)
+    replaceStoredSessions(merged.sessions, storage)
     enqueueSessionIds(
       sessionsToUpload.map((session) => session.id),
       storage,
@@ -206,7 +210,9 @@ export const synchronizeSessions = async (
   } catch (error) {
     enqueueSessionIds(
       localSessions
-        .filter((session) => session.status === GameStatus.Completed)
+        .filter(
+          (session) => session.status === GameStatus.Completed && isUploadableSession(session),
+        )
         .map((session) => session.id),
       storage,
     )
@@ -218,21 +224,31 @@ const flushQueuedSessions = async (
   sync: ActiveSessionSync,
   storage: StorageAdapter = browserLocalStorage,
 ): Promise<void> => {
-  const queuedIds = new Set(loadQueuedIds(storage))
-  const sessions = loadStoredSessions(storage).filter(
-    (session) => queuedIds.has(session.id) && session.status === GameStatus.Completed,
-  )
+  const queuedIds = loadQueuedIds(storage)
+  const storedById = new Map(loadStoredSessions(storage).map((session) => [session.id, session]))
+  const sessions = queuedIds
+    .map((id) => storedById.get(id))
+    .filter(
+      (session): session is GameSession =>
+        session !== undefined &&
+        session.status === GameStatus.Completed &&
+        isUploadableSession(session),
+    )
+  const skippedImportedIds = queuedIds.filter((id) => {
+    const session = storedById.get(id)
+    return session !== undefined && !isUploadableSession(session)
+  })
 
   if (sessions.length === 0) {
-    saveQueuedIds([], storage)
+    removeQueuedIds(skippedImportedIds, storage)
+    if (loadQueuedIds(storage).length === 0) {
+      saveQueuedIds([], storage)
+    }
     return
   }
 
   await sync.gateway.upsertSessions(sessions)
-  removeQueuedIds(
-    sessions.map((session) => session.id),
-    storage,
-  )
+  removeQueuedIds([...sessions.map((session) => session.id), ...skippedImportedIds], storage)
   storage.setItem(StorageKey.LastSyncAt, new Date().toISOString())
 }
 
@@ -378,7 +394,11 @@ export const retrySessionSync = (): Promise<void> =>
   })
 
 export const queueCompletedSessionSync = (session: GameSession): void => {
-  if (activeSync === null || session.status !== GameStatus.Completed) {
+  if (
+    activeSync === null ||
+    session.status !== GameStatus.Completed ||
+    !isUploadableSession(session)
+  ) {
     return
   }
 

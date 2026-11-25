@@ -95,20 +95,23 @@ export const PrivacyPolicyPage = () => (
             profiles; the examples above are not a complete list. Extra detail on your own profile
             stays with your account and is not shown on other players&apos; views of you. Logged-out
             visitors are not given these profile views, and profile pages ask search engines not to
-            index them.
+            index them. Profile links can be shared; opening them still requires an Open Dart
+            account.
           </Text>
           <Text color="whiteAlpha.800" fontSize="md" lineHeight="1.65">
             Throw-by-throw online scorecards are available to the players in that match. There is no
-            chat. Live play runs on our Cloudflare match server; when a match ends, the result is
-            stored in Supabase.
+            chat. Live match state runs in a Cloudflare Durable Object for play; Supabase is the
+            long-term store of record after the result syncs.
           </Text>
           <Heading as="h3" size="md" color="white">
             Follows, invites, and moderation
           </Heading>
           <Text color="whiteAlpha.800" fontSize="md" lineHeight="1.65">
-            Follow lists are visible to the follower. Match invites are visible to the inviter and
-            invitee. Reports of offensive display names are kept for moderation and are not shown to
-            other players.
+            You can see who you follow and who follows you. Other players cannot browse your full
+            lists, but if you follow someone, your display name appears in their followers list.
+            Match invites are visible to the inviter and invitee. Your invite preference is stored
+            with your account and deleted when the account is deleted. Reports of offensive display
+            names are kept for moderation and are not shown to other players.
           </Text>
           <Heading as="h3" size="md" color="white">
             Voice scoring
@@ -184,11 +187,11 @@ export const PrivacyPolicyPage = () => (
             a minute) and are removed with the account.
           </Text>
           <Text color="whiteAlpha.800" fontSize="md" lineHeight="1.65">
-            Live match state on the Cloudflare Durable Object is held only while the match is in
-            progress and is not kept as a separate long-term store after the result is written to
-            Supabase. Operational logs at Cloudflare and Supabase are retained and rotated under
-            each provider&apos;s account settings. Database backups follow Supabase&apos;s backup
-            schedule for the project and are not restored for ordinary use after deletion.
+            Live match state in a Cloudflare Durable Object exists for play; Supabase remains the
+            long-term store of record after sync. Operational logs at Cloudflare and Supabase are
+            retained and rotated under each provider&apos;s account settings. Database backups
+            follow Supabase&apos;s backup schedule for the project and are not restored for ordinary
+            use after deletion.
           </Text>
         </Stack>
 
@@ -202,7 +205,9 @@ export const PrivacyPolicyPage = () => (
             include:
           </Text>
           <Text color="whiteAlpha.800" fontSize="md" lineHeight="1.65">
-            • Export local browser history with the in-app JSON export
+            • Download your history from your profile with Export history, including synced practice
+            games and online matches
+            <br />• Import a history or device-backup file from Settings
             <br />• Email {mailLink} to request a copy of the personal data we hold for
             you—including synced games and online match records—or to ask for correction or deletion
             <br />

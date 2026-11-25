@@ -6,6 +6,7 @@ import { PlayerKind } from '@open-dart/game/types/player'
 import { SingleDartScoringMode } from '../../types/settings'
 import type { AppSettings } from '../../types/settings'
 import { loadActiveSnapshot, loadStoredSessions } from './gameStore'
+import { HISTORY_EXPORT_VERSION } from './historyExport'
 import { LOCAL_EXPORT_VERSION, buildLocalExport, importLocalExport } from './localExport'
 import type { StorageAdapter } from './localStorageAdapter'
 import { loadSettings } from './settingsStore'
@@ -197,7 +198,17 @@ describe('localExport', () => {
     const before = new Map(storage.data)
 
     expect(importLocalExport('{not-json', storage)).toBe(false)
-    expect(importLocalExport(JSON.stringify({ ...emptyFile(), version: 2 }), storage)).toBe(false)
+    expect(
+      importLocalExport(
+        JSON.stringify({
+          version: HISTORY_EXPORT_VERSION,
+          ownerUserId: null,
+          sessions: [{ id: 'broken' }],
+          onlineMatches: [],
+        }),
+        storage,
+      ),
+    ).toBe(false)
     expect(
       importLocalExport(
         JSON.stringify({
@@ -210,5 +221,115 @@ describe('localExport', () => {
     expect(importLocalExport(JSON.stringify({ hello: 'world' }), storage)).toBe(false)
     expect(storage.data).toEqual(before)
     expect(loadStoredSessions(storage)).toEqual([existing])
+  })
+
+  it('imports version-2 online matches as local sessions with a new id', () => {
+    const storage = createMemoryStorage()
+    const practice = sampleSession({ id: 'practice-1' })
+    const onlineMatch = sampleSession({
+      id: 'match-1',
+      players: [
+        { id: 'user-a', name: 'You', kind: PlayerKind.Human },
+        { id: 'user-b', name: 'Opp', kind: PlayerKind.Remote },
+      ],
+    })
+    let nextId = 0
+
+    expect(
+      importLocalExport(
+        JSON.stringify({
+          version: HISTORY_EXPORT_VERSION,
+          ownerUserId: 'user-a',
+          sessions: [practice],
+          onlineMatches: [onlineMatch],
+        }),
+        storage,
+        {
+          createSessionId: () => {
+            nextId += 1
+            return `imported-${nextId}`
+          },
+        },
+      ),
+    ).toBe(true)
+
+    const stored = loadStoredSessions(storage)
+    expect(stored).toHaveLength(2)
+    expect(stored.find((session) => session.id === 'practice-1')).toEqual(practice)
+    expect(stored.find((session) => session.id === 'imported-1')).toEqual({
+      ...onlineMatch,
+      id: 'imported-1',
+      sourceOnlineMatchId: 'match-1',
+    })
+    expect(storage.getItem(StorageKey.Settings)).toBeNull()
+    expect(storage.getItem(StorageKey.SyncQueue)).toBeNull()
+  })
+
+  it('skips version-2 duplicates across local ids, source ids, and blocked online matches', () => {
+    const storage = createMemoryStorage()
+    const existingPractice = sampleSession({ id: 'practice-1' })
+    const existingCopy = sampleSession({
+      id: 'copy-1',
+      sourceOnlineMatchId: 'match-existing',
+    })
+    storage.setItem(StorageKey.Sessions, JSON.stringify([existingPractice, existingCopy]))
+
+    expect(
+      importLocalExport(
+        JSON.stringify({
+          version: HISTORY_EXPORT_VERSION,
+          ownerUserId: null,
+          sessions: [
+            sampleSession({ id: 'practice-1' }),
+            sampleSession({ id: 'copy-2', sourceOnlineMatchId: 'match-existing' }),
+            sampleSession({ id: 'fresh-practice' }),
+          ],
+          onlineMatches: [
+            sampleSession({ id: 'match-existing' }),
+            sampleSession({ id: 'match-blocked' }),
+            sampleSession({ id: 'match-new' }),
+            sampleSession({ id: 'match-new' }),
+          ],
+        }),
+        storage,
+        {
+          blockedOnlineMatchIds: ['match-blocked'],
+          createSessionId: () => 'imported-new',
+        },
+      ),
+    ).toBe(true)
+
+    const stored = loadStoredSessions(storage)
+    expect(stored.map((session) => session.id).sort()).toEqual([
+      'copy-1',
+      'fresh-practice',
+      'imported-new',
+      'practice-1',
+    ])
+    expect(stored.find((session) => session.id === 'imported-new')?.sourceOnlineMatchId).toBe(
+      'match-new',
+    )
+  })
+
+  it('importing the same version-2 file twice does not add games', () => {
+    const storage = createMemoryStorage()
+    const file = {
+      version: HISTORY_EXPORT_VERSION,
+      ownerUserId: null,
+      sessions: [sampleSession({ id: 'practice-1' })],
+      onlineMatches: [sampleSession({ id: 'match-1' })],
+    }
+    let nextId = 0
+    const options = {
+      createSessionId: () => {
+        nextId += 1
+        return `imported-${nextId}`
+      },
+    }
+
+    expect(importLocalExport(JSON.stringify(file), storage, options)).toBe(true)
+    const afterFirst = loadStoredSessions(storage)
+    expect(importLocalExport(JSON.stringify(file), storage, options)).toBe(true)
+    expect(loadStoredSessions(storage)).toEqual(afterFirst)
   })
 })

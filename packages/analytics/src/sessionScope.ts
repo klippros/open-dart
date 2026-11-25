@@ -42,8 +42,12 @@ export const filterFiveOhOneSessions = (sessions: GameSession[]): GameSession[] 
 export const filterOneSeventySessions = (sessions: GameSession[]): GameSession[] =>
   filterX01SessionsByStartScore(sessions, ONE_SEVENTY_START_SCORE)
 
-/** Online match sessions are the only ones with a remote opponent. */
+/**
+ * Live online match sessions have a remote opponent. Imported copies that keep
+ * a Remote player but set sourceOnlineMatchId stay local history/stats.
+ */
 export const isOnlineSession = (session: GameSession): boolean =>
+  session.sourceOnlineMatchId === undefined &&
   session.players.some((player) => player.kind === PlayerKind.Remote)
 
 export const filterOnlineFiveOhOneSessions = (sessions: GameSession[]): GameSession[] =>

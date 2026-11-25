@@ -23,14 +23,25 @@ export const isGameSession = (value: unknown): value is GameSession => {
 
   const session = value as Partial<GameSession>
 
-  return (
-    typeof session.id === 'string' &&
-    typeof session.mode === 'string' &&
-    typeof session.status === 'string' &&
-    typeof session.startedAt === 'string' &&
-    Array.isArray(session.players) &&
-    Array.isArray(session.visits)
-  )
+  if (
+    typeof session.id !== 'string' ||
+    typeof session.mode !== 'string' ||
+    typeof session.status !== 'string' ||
+    typeof session.startedAt !== 'string' ||
+    !Array.isArray(session.players) ||
+    !Array.isArray(session.visits)
+  ) {
+    return false
+  }
+
+  if (
+    session.sourceOnlineMatchId !== undefined &&
+    typeof session.sourceOnlineMatchId !== 'string'
+  ) {
+    return false
+  }
+
+  return true
 }
 
 export const isActiveGameSnapshot = (value: unknown): value is ActiveGameSnapshot => {

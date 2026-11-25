@@ -526,37 +526,113 @@ export const getMyOnlineMatchDetail = async (
   return { ...summary, scorecardVersion: 1, session }
 }
 
-export const listMyOnlineMatchSessions = async (
-  _viewerUserId: string,
-  completedAfter: string | null = null,
-): Promise<GameSession[]> => {
+export interface ListMyOnlineMatchSessionsOptions {
+  completedAfter?: string | null
+  beforeCompletedAt?: string | null
+  beforeId?: string | null
+  /** When set, SQL applies this page size (capped at 1000). Null means unlimited. */
+  limit?: number | null
+}
+
+export interface OnlineMatchSessionRow {
+  id: string
+  completedAt: string
+  session: GameSession
+}
+
+const EXPORT_SESSION_PAGE_SIZE = 1000
+
+const parseOnlineMatchSessionRow = (row: Record<string, unknown>): OnlineMatchSessionRow | null => {
+  if (typeof row.id !== 'string' || typeof row.completed_at !== 'string') {
+    return null
+  }
+
+  if (row.session === null || row.session === undefined) {
+    return null
+  }
+
+  try {
+    return {
+      id: row.id,
+      completedAt: row.completed_at,
+      session: parseGameSession(JSON.stringify(row.session)),
+    }
+  } catch {
+    return null
+  }
+}
+
+export const listMyOnlineMatchSessionPage = async (
+  options: ListMyOnlineMatchSessionsOptions = {},
+): Promise<OnlineMatchSessionRow[]> => {
   if (supabaseClient === null) {
     throw new MatchServerApiError('Supabase is not configured', 503, 'not_configured')
   }
 
   const result = await supabaseClient.rpc('list_my_online_match_sessions', {
-    p_completed_after: completedAfter,
+    p_completed_after: options.completedAfter ?? null,
+    p_before_completed_at: options.beforeCompletedAt ?? null,
+    p_before_id: options.beforeId ?? null,
+    p_limit: options.limit ?? null,
   })
 
   if (result.error !== null) {
     throw new MatchServerApiError(result.error.message, 500, result.error.code)
   }
 
-  const sessions: GameSession[] = []
+  return parseRpcRows(result.data)
+    .map(parseOnlineMatchSessionRow)
+    .filter((row): row is OnlineMatchSessionRow => row !== null)
+}
 
-  for (const row of parseRpcRows(result.data)) {
-    if (row.session === null || row.session === undefined) {
-      continue
+/** Loads every history match session for the caller, paging past the PostgREST row cap. */
+export const listAllMyOnlineMatchSessions = async (
+  completedAfter: string | null = null,
+): Promise<OnlineMatchSessionRow[]> => {
+  const rows: OnlineMatchSessionRow[] = []
+  let beforeCompletedAt: string | null = null
+  let beforeId: string | null = null
+
+  for (;;) {
+    const page = await listMyOnlineMatchSessionPage({
+      completedAfter,
+      beforeCompletedAt,
+      beforeId,
+      limit: EXPORT_SESSION_PAGE_SIZE,
+    })
+
+    if (page.length === 0) {
+      break
     }
 
-    try {
-      sessions.push(parseGameSession(JSON.stringify(row.session)))
-    } catch {
-      // Skip malformed stored sessions.
+    rows.push(...page)
+
+    if (page.length < EXPORT_SESSION_PAGE_SIZE) {
+      break
     }
+
+    const last = page[page.length - 1]
+    if (last === undefined) {
+      break
+    }
+
+    beforeCompletedAt = last.completedAt
+    beforeId = last.id
   }
 
-  return sessions
+  return rows
+}
+
+export const listMyOnlineMatchSessions = async (
+  _viewerUserId: string,
+  completedAfter: string | null = null,
+): Promise<GameSession[]> => {
+  const page = await listMyOnlineMatchSessionPage({
+    completedAfter,
+    limit: null,
+  })
+
+  return page.map((row) => row.session)
 }
 
 /** @deprecated Prefer listMyOnlineMatchSummaries / listMyOnlineMatchSessions. */
