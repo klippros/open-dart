@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(15);
+SELECT plan(19);
 
 SELECT ok(
   NOT has_function_privilege('anon', 'private.prepare_account_deletion(uuid)', 'EXECUTE'),
@@ -15,6 +15,42 @@ SELECT ok(
 SELECT ok(
   has_function_privilege('service_role', 'private.prepare_account_deletion(uuid)', 'EXECUTE'),
   'service_role can prepare account deletion'
+);
+
+SELECT ok(
+  NOT has_function_privilege(
+    'anon',
+    'private.release_open_matches_for_deletion(uuid)',
+    'EXECUTE'
+  ),
+  'anonymous users cannot release open matches for deletion'
+);
+
+SELECT ok(
+  NOT has_function_privilege(
+    'authenticated',
+    'private.release_open_matches_for_deletion(uuid)',
+    'EXECUTE'
+  ),
+  'authenticated users cannot release open matches for deletion'
+);
+
+SELECT ok(
+  has_function_privilege(
+    'service_role',
+    'private.release_open_matches_for_deletion(uuid)',
+    'EXECUTE'
+  ),
+  'service_role can release open matches for deletion'
+);
+
+SELECT ok(
+  has_function_privilege(
+    'service_role',
+    'private.assert_user_has_no_open_matches(uuid)',
+    'EXECUTE'
+  ),
+  'service_role can assert no open matches'
 );
 
 INSERT INTO auth.users (

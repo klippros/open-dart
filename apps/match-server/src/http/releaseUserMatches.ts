@@ -33,6 +33,10 @@ const isServiceRoleRequest = (request: Request, serviceRoleKey: string): boolean
   return bearer !== null && timingSafeEqualString(bearer, serviceRoleKey)
 }
 
+/** Non-empty failed releases must not look like success to the deletion runbook. */
+export const releaseMatchesHttpStatus = (failedCount: number): number =>
+  failedCount > 0 ? 409 : 200
+
 const listOpenMatchIds = async (env: Env, userId: string): Promise<string[]> => {
   if (env.SUPABASE_URL.length === 0 || env.SUPABASE_URL.includes('example.invalid')) {
     return []
@@ -110,9 +114,9 @@ export const releaseUserMatches = async (
     })
   }
 
-  return jsonResponse(request, {
-    userId,
-    released,
-    failed,
-  })
+  return jsonResponse(
+    request,
+    { userId, released, failed },
+    releaseMatchesHttpStatus(failed.length),
+  )
 }

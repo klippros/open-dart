@@ -1,5 +1,6 @@
 import { exports } from 'cloudflare:workers'
 import { describe, expect, it } from 'vitest'
+import { releaseMatchesHttpStatus } from '../src/http/releaseUserMatches'
 import type { MatchObject } from '../src/match/MatchObject'
 import { MatchCommandName, MatchEndingKind, MatchStatus } from '../src/match/types'
 import { createMatchId, creatorUserId, initWaitingMatch, otherUserId } from './helpers'
@@ -99,5 +100,10 @@ describe('releaseForAccountDeletion', () => {
       released: [],
       failed: [],
     })
+  })
+
+  it('maps partial Durable Object release failures to HTTP 409', () => {
+    expect(releaseMatchesHttpStatus(0)).toBe(200)
+    expect(releaseMatchesHttpStatus(1)).toBe(409)
   })
 })
