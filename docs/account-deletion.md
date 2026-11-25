@@ -10,9 +10,10 @@ Users email `opendart@klippros.com`. Aim to respond within 30 days.
 2. Verify identity in a proportionate way. Prefer a message from the email
    address on the account. Do **not** require the person to sign back into the
    app if that email evidence is enough.
-3. Apply migrations through
-   `20261125161702_harden_account_deletion_release` on the project before using
-   this procedure.
+3. Apply migrations
+   `20261125144251_account_deletion_anonymize_matches` and
+   `20261125154105_list_my_online_match_sessions_cursor` on the project before
+   using this procedure (and before relying on history export paging).
 
 ## Deletion steps
 

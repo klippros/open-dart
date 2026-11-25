@@ -1,6 +1,7 @@
--- Allow real Auth-user deletion while preserving anonymized online match history.
+-- Account deletion: anonymize match history, close open lobbies/matches, scrub.
 -- Terminal participant rows keep (match_id, slot); user_id may become null.
 -- winner_slot preserves the result after winner_user_id is cleared.
+-- Waiting lobbies cancel/leave; active matches abandon; Auth delete stays unblocked.
 
 -- ---------------------------------------------------------------------------
 -- Schema: winner_slot + nullable historical identity
@@ -246,8 +247,74 @@ $$;
 revoke all on function public.get_my_online_match_detail(uuid) from public, anon;
 grant execute on function public.get_my_online_match_detail(uuid) to authenticated;
 
+
 -- ---------------------------------------------------------------------------
--- Publish index: conflict on (match_id, slot), set winner_slot
+-- Scrub / publish / release / prepare (final forms)
+-- ---------------------------------------------------------------------------
+
+-- Scrub: replace UUID globally (unique); set player names by path only
+
+create or replace function private.scrub_deleted_user_from_jsonb(
+  p_payload jsonb,
+  p_user_id uuid,
+  p_slot smallint,
+  p_display_name text
+)
+returns jsonb
+language plpgsql
+immutable
+set search_path = ''
+as $$
+declare
+  replacement_id text := 'deleted-player-' || p_slot::text;
+  scrubbed jsonb;
+  player jsonb;
+  players jsonb := '[]'::jsonb;
+  player_id text;
+begin
+  if p_payload is null then
+    return null;
+  end if;
+
+  scrubbed := replace(p_payload::text, p_user_id::text, replacement_id)::jsonb;
+
+  if jsonb_typeof(scrubbed -> 'session' -> 'players') = 'array' then
+    for player in
+      select value
+      from jsonb_array_elements(scrubbed -> 'session' -> 'players')
+    loop
+      player_id := player ->> 'id';
+      if player_id = replacement_id then
+        player := player || jsonb_build_object('name', 'Deleted player');
+      elsif
+        p_display_name is not null
+        and length(trim(p_display_name)) > 0
+        and player ->> 'name' = p_display_name
+      then
+        -- Exact name match only (no substring replace across the payload).
+        player := player || jsonb_build_object('name', 'Deleted player');
+      end if;
+      players := players || jsonb_build_array(player);
+    end loop;
+
+    scrubbed := jsonb_set(scrubbed, '{session,players}', players, true);
+  end if;
+
+  if jsonb_typeof(scrubbed -> 'winnerUserId') = 'string'
+    and scrubbed ->> 'winnerUserId' = replacement_id
+  then
+    scrubbed := scrubbed - 'winnerUserId';
+  end if;
+
+  return scrubbed;
+end;
+$$;
+
+revoke all on function private.scrub_deleted_user_from_jsonb(jsonb, uuid, smallint, text)
+  from public, anon, authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Index publish: ignore players / creator / winner whose Auth user is gone
 -- ---------------------------------------------------------------------------
 
 create or replace function private.publish_online_match_index(
@@ -279,6 +346,9 @@ declare
   existing_version bigint;
   player public.online_match_player_input;
   resolved_winner_slot smallint;
+  resolved_creator uuid;
+  resolved_winner uuid;
+  filtered_players public.online_match_player_input[] := array[]::public.online_match_player_input[];
 begin
   perform private.require_service_role();
 
@@ -298,13 +368,49 @@ begin
     return;
   end if;
 
+  select coalesce(
+    array_agg(player_input order by player_input.slot),
+    array[]::public.online_match_player_input[]
+  )
+  into filtered_players
+  from unnest(p_players) as player_input
+  where exists (
+    select 1
+    from auth.users as users
+    where users.id = player_input.user_id
+  );
+
+  resolved_creator := p_creator_user_id;
+  if
+    resolved_creator is not null
+    and not exists (select 1 from auth.users as users where users.id = resolved_creator)
+  then
+    resolved_creator := null;
+  end if;
+
+  resolved_winner := p_winner_user_id;
+  if
+    resolved_winner is not null
+    and not exists (select 1 from auth.users as users where users.id = resolved_winner)
+  then
+    resolved_winner := null;
+  end if;
+
   resolved_winner_slot := null;
-  if p_winner_user_id is not null then
+  if resolved_winner is not null then
     select player_input.slot
     into resolved_winner_slot
-    from unnest(p_players) as player_input
-    where player_input.user_id = p_winner_user_id
+    from unnest(filtered_players) as player_input
+    where player_input.user_id = resolved_winner
     limit 1;
+  end if;
+
+  -- Prefer an existing winner_slot when the winner Auth row is already gone.
+  if resolved_winner_slot is null then
+    select match.winner_slot
+    into resolved_winner_slot
+    from public.online_matches as match
+    where match.id = p_match_id;
   end if;
 
   insert into public.online_matches (
@@ -330,7 +436,7 @@ begin
   values (
     p_match_id,
     p_invite_token,
-    p_creator_user_id,
+    resolved_creator,
     p_status,
     p_play_mode,
     p_mode,
@@ -342,7 +448,7 @@ begin
     p_completed_at,
     p_async_started_at,
     p_ending_kind,
-    p_winner_user_id,
+    resolved_winner,
     resolved_winner_slot,
     p_result_payload,
     p_index_version
@@ -363,45 +469,40 @@ begin
     async_started_at = excluded.async_started_at,
     ending_kind = excluded.ending_kind,
     winner_user_id = excluded.winner_user_id,
-    winner_slot = excluded.winner_slot,
+    winner_slot = coalesce(excluded.winner_slot, public.online_matches.winner_slot),
     result_payload = excluded.result_payload,
     index_version = excluded.index_version,
     updated_at = now();
 
   delete from public.online_match_players as membership
   where membership.match_id = p_match_id
-    and (
-      p_players is null
-      or membership.slot not in (
-        select player_input.slot
-        from unnest(coalesce(p_players, array[]::public.online_match_player_input[])) as player_input
-      )
+    and membership.slot not in (
+      select player_input.slot
+      from unnest(filtered_players) as player_input
     );
 
-  if p_players is not null then
-    foreach player in array p_players loop
-      insert into public.online_match_players (match_id, user_id, slot)
-      values (p_match_id, player.user_id, player.slot)
-      on conflict (match_id, slot) do update
-      set user_id = excluded.user_id;
-    end loop;
-  end if;
+  foreach player in array filtered_players loop
+    insert into public.online_match_players (match_id, user_id, slot)
+    values (p_match_id, player.user_id, player.slot)
+    on conflict (match_id, slot) do update
+    set user_id = excluded.user_id;
+  end loop;
 
   delete from public.online_match_occupancy as occupancy
   where occupancy.match_id = p_match_id;
 
-  if p_status in ('waiting', 'active') and p_players is not null and cardinality(p_players) > 0 then
+  if p_status in ('waiting', 'active') and cardinality(filtered_players) > 0 then
     begin
       insert into public.online_match_occupancy (user_id, match_id)
       select player_input.user_id, p_match_id
-      from unnest(p_players) as player_input;
+      from unnest(filtered_players) as player_input;
     exception
       when unique_violation then
         raise exception 'occupancy_conflict' using errcode = '23505';
     end;
   end if;
 
-  if p_status in ('waiting', 'active') and p_players is not null and cardinality(p_players) >= 2 then
+  if p_status in ('waiting', 'active') and cardinality(filtered_players) >= 2 then
     update public.online_match_invites as invite
     set
       status = 'accepted',
@@ -411,8 +512,8 @@ begin
       and invite.status = 'pending'
       and invite.invitee_id in (
         select player_input.user_id
-        from unnest(p_players) as player_input
-        where player_input.user_id <> p_creator_user_id
+        from unnest(filtered_players) as player_input
+        where player_input.user_id is distinct from resolved_creator
       );
 
     update public.online_match_invites as invite
@@ -454,62 +555,183 @@ revoke all on function private.publish_online_match_index(
 ) from public, anon, authenticated;
 
 -- ---------------------------------------------------------------------------
--- Account deletion helpers (service_role only)
+-- Release open matches + assert clean before scrub
 -- ---------------------------------------------------------------------------
 
-create or replace function private.scrub_deleted_user_from_jsonb(
-  p_payload jsonb,
-  p_user_id uuid,
-  p_slot smallint,
-  p_display_name text
-)
-returns jsonb
+create or replace function private.assert_user_has_no_open_matches(p_user_id uuid)
+returns void
 language plpgsql
-immutable
+security definer
 set search_path = ''
 as $$
-declare
-  replacement_id text := 'deleted-player-' || p_slot::text;
-  scrubbed jsonb;
-  player jsonb;
-  players jsonb := '[]'::jsonb;
 begin
-  if p_payload is null then
-    return null;
+  perform private.require_service_role();
+
+  if exists (
+    select 1
+    from public.online_match_players as player
+    join public.online_matches as match
+      on match.id = player.match_id
+    where player.user_id = p_user_id
+      and match.status in ('waiting', 'active')
+  ) or exists (
+    select 1
+    from public.online_match_occupancy as occupancy
+    where occupancy.user_id = p_user_id
+  ) then
+    raise exception 'active_match'
+      using errcode = 'P0001',
+            hint = 'Release open matches on the match Worker, then retry prepare_account_deletion';
   end if;
-
-  scrubbed := replace(p_payload::text, p_user_id::text, replacement_id)::jsonb;
-
-  if p_display_name is not null and length(trim(p_display_name)) > 0 then
-    scrubbed := replace(scrubbed::text, p_display_name, 'Deleted player')::jsonb;
-  end if;
-
-  if jsonb_typeof(scrubbed -> 'session' -> 'players') = 'array' then
-    for player in
-      select value
-      from jsonb_array_elements(scrubbed -> 'session' -> 'players')
-    loop
-      if (player ->> 'id') = replacement_id then
-        player := player || jsonb_build_object('name', 'Deleted player');
-      end if;
-      players := players || jsonb_build_array(player);
-    end loop;
-
-    scrubbed := jsonb_set(scrubbed, '{session,players}', players, true);
-  end if;
-
-  if jsonb_typeof(scrubbed -> 'winnerUserId') = 'string'
-    and scrubbed ->> 'winnerUserId' = replacement_id
-  then
-    scrubbed := scrubbed - 'winnerUserId';
-  end if;
-
-  return scrubbed;
 end;
 $$;
 
-revoke all on function private.scrub_deleted_user_from_jsonb(jsonb, uuid, smallint, text)
+revoke all on function private.assert_user_has_no_open_matches(uuid)
   from public, anon, authenticated;
+
+grant execute on function private.assert_user_has_no_open_matches(uuid) to service_role;
+
+create or replace function private.release_open_matches_for_deletion(p_user_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  open_match record;
+  opponent_user_id uuid;
+  opponent_slot smallint;
+  sealed_version bigint := 9223372036854775807;
+begin
+  perform private.require_service_role();
+
+  -- Creator waiting lobbies: cancel the room for everyone.
+  for open_match in
+    select match.id
+    from public.online_matches as match
+    where match.creator_user_id = p_user_id
+      and match.status = 'waiting'
+  loop
+    update public.online_matches as match
+    set
+      status = 'cancelled',
+      ending_kind = 'creator_cancel',
+      completed_at = coalesce(match.completed_at, now()),
+      index_version = sealed_version,
+      updated_at = now()
+    where match.id = open_match.id
+      and match.status = 'waiting';
+
+    delete from public.online_match_occupancy as occupancy
+    where occupancy.match_id = open_match.id;
+
+    update public.online_match_invites as invite
+    set
+      status = 'superseded',
+      resolved_at = coalesce(invite.resolved_at, now())
+    where invite.match_id = open_match.id
+      and invite.status = 'pending';
+  end loop;
+
+  -- Joiner waiting lobbies: leave without closing the room.
+  for open_match in
+    select player.match_id
+    from public.online_match_players as player
+    join public.online_matches as match
+      on match.id = player.match_id
+    where player.user_id = p_user_id
+      and match.status = 'waiting'
+      and match.creator_user_id is distinct from p_user_id
+  loop
+    delete from public.online_match_players as player
+    where player.match_id = open_match.match_id
+      and player.user_id = p_user_id;
+
+    delete from public.online_match_occupancy as occupancy
+    where occupancy.user_id = p_user_id
+      and occupancy.match_id = open_match.match_id;
+
+    update public.online_matches as match
+    set
+      index_version = least(match.index_version + 1, sealed_version - 1),
+      updated_at = now()
+    where match.id = open_match.match_id
+      and match.status = 'waiting';
+  end loop;
+
+  -- Active matches: abandon so the opponent wins.
+  for open_match in
+    select player.match_id, player.slot
+    from public.online_match_players as player
+    join public.online_matches as match
+      on match.id = player.match_id
+    where player.user_id = p_user_id
+      and match.status = 'active'
+  loop
+    select membership.user_id, membership.slot
+    into opponent_user_id, opponent_slot
+    from public.online_match_players as membership
+    where membership.match_id = open_match.match_id
+      and membership.user_id is distinct from p_user_id
+    limit 1;
+
+    update public.online_match_players as player
+    set abandoned_at = coalesce(player.abandoned_at, now())
+    where player.match_id = open_match.match_id
+      and player.user_id = p_user_id;
+
+    if opponent_user_id is not null then
+      update public.online_matches as match
+      set
+        status = 'completed',
+        ending_kind = 'abandon',
+        winner_user_id = opponent_user_id,
+        winner_slot = opponent_slot,
+        completed_at = coalesce(match.completed_at, now()),
+        started_at = coalesce(match.started_at, match.created_at),
+        result_payload = coalesce(
+          match.result_payload,
+          jsonb_build_object('winnerUserId', opponent_user_id)
+        ),
+        index_version = sealed_version,
+        updated_at = now()
+      where match.id = open_match.match_id
+        and match.status = 'active';
+    else
+      update public.online_matches as match
+      set
+        status = 'cancelled',
+        ending_kind = 'creator_cancel',
+        completed_at = coalesce(match.completed_at, now()),
+        started_at = coalesce(match.started_at, match.created_at),
+        index_version = sealed_version,
+        updated_at = now()
+      where match.id = open_match.match_id
+        and match.status = 'active';
+    end if;
+
+    delete from public.online_match_occupancy as occupancy
+    where occupancy.match_id = open_match.match_id;
+
+    update public.online_match_invites as invite
+    set
+      status = 'superseded',
+      resolved_at = coalesce(invite.resolved_at, now())
+    where invite.match_id = open_match.match_id
+      and invite.status = 'pending';
+  end loop;
+
+  delete from public.online_match_occupancy as occupancy
+  where occupancy.user_id = p_user_id;
+
+  perform private.assert_user_has_no_open_matches(p_user_id);
+end;
+$$;
+
+revoke all on function private.release_open_matches_for_deletion(uuid)
+  from public, anon, authenticated;
+
+grant execute on function private.release_open_matches_for_deletion(uuid) to service_role;
 
 create or replace function private.prepare_account_deletion(p_user_id uuid)
 returns void
@@ -531,22 +753,7 @@ begin
     raise exception 'user not found' using errcode = 'P0002';
   end if;
 
-  if exists (
-    select 1
-    from public.online_match_players as player
-    join public.online_matches as match
-      on match.id = player.match_id
-    where player.user_id = p_user_id
-      and match.status in ('waiting', 'active')
-  ) or exists (
-    select 1
-    from public.online_match_occupancy as occupancy
-    where occupancy.user_id = p_user_id
-  ) then
-    raise exception 'active_match'
-      using errcode = 'P0001',
-            hint = 'Finish or cancel in-progress online matches before deleting the account';
-  end if;
+  perform private.release_open_matches_for_deletion(p_user_id);
 
   select profile.display_name
   into display_name
@@ -582,6 +789,9 @@ begin
     where player.match_id = membership.match_id
       and player.slot = membership.slot;
   end loop;
+
+  -- Catch a Durable Object republish that re-added the user during scrub.
+  perform private.assert_user_has_no_open_matches(p_user_id);
 
   delete from public.game_sessions where user_id = p_user_id;
   delete from public.user_follows
