@@ -1,15 +1,9 @@
 /**
- * Inset from the vertical center line to the near edge of the dart board.
- * Tight corridor by ~640px (edges already clip); opens to the desk flank by ~900px.
+ * Shared inset from the vertical center to each flank's near edge (symmetric).
+ * Tight corridor by ~640px; opens to the desk flank by ~900px.
  */
 export const MARKETING_GRAPHIC_CENTER_INSET =
-  'clamp(0.55rem, calc(48.9vw - 19.02rem), 8.5rem)' as const
-
-/**
- * 99 Darts near-edge inset — same fluid window as the board, slightly tighter.
- */
-export const MARKETING_NINETY_NINE_CENTER_INSET =
-  'clamp(0.45rem, calc(29.5vw - 11.37rem), 5.25rem)' as const
+  'clamp(2.25rem, calc(38.5vw - 13.13rem), 8.5rem)' as const
 
 /** On-page width for the dart board graphic — fixed; spills off-screen if needed. */
 export const MARKETING_GRAPHIC_WIDTH = '19.8rem' as const

@@ -13,8 +13,8 @@ import type { DartThrow } from '@open-dart/game/types/dart'
 import { NinetyNineDartsDartPicker } from '../DartPicker/NinetyNineDartsDartPicker/NinetyNineDartsDartPicker'
 import { SwipeTrailGraphic } from '../DartPicker/SwipeTrailGraphic'
 import {
+  MARKETING_GRAPHIC_CENTER_INSET,
   MARKETING_GRAPHIC_OPACITY,
-  MARKETING_NINETY_NINE_CENTER_INSET,
   MARKETING_NINETY_NINE_LAYOUT_HEIGHT,
   MARKETING_NINETY_NINE_SCALE,
   MARKETING_NINETY_NINE_SHADOW,
@@ -156,9 +156,9 @@ export const MarketingNinetyNineGraphic = () => {
     <Box
       position="absolute"
       top={{ base: '58%', md: '72%' }}
-      left="50%"
-      ml={`calc(-1 * ${MARKETING_NINETY_NINE_CENTER_INSET})`}
-      transform="translate(-100%, -50%)"
+      right="50%"
+      mr={MARKETING_GRAPHIC_CENTER_INSET}
+      transform="translateY(-50%)"
       w={MARKETING_NINETY_NINE_WIDTH}
       h={MARKETING_NINETY_NINE_LAYOUT_HEIGHT}
       pointerEvents="none"
@@ -181,7 +181,7 @@ export const MarketingNinetyNineGraphic = () => {
         <Box
           opacity={MARKETING_GRAPHIC_OPACITY}
           transform={MARKETING_NINETY_NINE_TRANSFORM}
-          transformOrigin="center center"
+          transformOrigin="right center"
           transformStyle="preserve-3d"
           boxShadow={MARKETING_NINETY_NINE_SHADOW}
           borderRadius="14px"
