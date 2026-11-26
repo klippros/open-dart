@@ -67,7 +67,7 @@ export const BigNumbersSetupPage = () => {
       <Stack gap={8}>
         <SetupPageHeader
           title="Big Numbers"
-          description="Climb from 1 to 20. Hit enough darts into the number to advance, or go back one."
+          description="Climb from 1 to 20. Only the large single field of each number counts — not the double, treble, or small single."
         />
 
         <SetupSection title="Hits to advance">
@@ -84,7 +84,8 @@ export const BigNumbersSetupPage = () => {
             ))}
           </SimpleGrid>
           <Text fontSize="sm" color="whiteAlpha.700" mt={2}>
-            {getBigNumbersRequiredHitsDescription(requiredHits)}. Any segment of the number counts.
+            {getBigNumbersRequiredHitsDescription(requiredHits)}. Doubles, trebles, and the small
+            single do not count.
           </Text>
         </SetupSection>
 

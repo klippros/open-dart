@@ -16,15 +16,15 @@ describe('bigNumbersRules', () => {
     expect(getBigNumbersTargetLabel(20)).toBe('Done')
   })
 
-  it('counts any segment of the current number as a hit', () => {
+  it('counts only singles on the current number as a hit', () => {
     expect(isBigNumbersTargetHit(numberDart(5, DartMultiplier.Single), 4)).toBe(true)
-    expect(isBigNumbersTargetHit(numberDart(5, DartMultiplier.Double), 4)).toBe(true)
-    expect(isBigNumbersTargetHit(numberDart(5, DartMultiplier.Triple), 4)).toBe(true)
+    expect(isBigNumbersTargetHit(numberDart(5, DartMultiplier.Double), 4)).toBe(false)
+    expect(isBigNumbersTargetHit(numberDart(5, DartMultiplier.Triple), 4)).toBe(false)
     expect(isBigNumbersTargetHit(numberDart(6, DartMultiplier.Single), 4)).toBe(false)
     expect(isBigNumbersTargetHit(bullDart(), 4)).toBe(false)
   })
 
-  it('advances when hits meet the requirement and does not skip', () => {
+  it('advances when singles meet the requirement and ignores doubles and trebles', () => {
     const outcome = resolveBigNumbersVisit(
       0,
       [
@@ -36,8 +36,25 @@ describe('bigNumbersRules', () => {
     )
 
     expect(outcome).toMatchObject({
+      targetIndexAfter: 0,
+      hitCount: 1,
+      advanced: false,
+      checkout: false,
+    })
+
+    const withSingles = resolveBigNumbersVisit(
+      0,
+      [
+        numberDart(1, DartMultiplier.Single),
+        numberDart(1, DartMultiplier.Single),
+        numberDart(20, DartMultiplier.Miss),
+      ],
+      BigNumbersRequiredHits.Two,
+    )
+
+    expect(withSingles).toMatchObject({
       targetIndexAfter: 1,
-      hitCount: 3,
+      hitCount: 2,
       advanced: true,
       checkout: false,
     })
@@ -124,7 +141,7 @@ describe('bigNumbersRules', () => {
     })
   })
 
-  it('counts hits for the visit', () => {
+  it('counts single hits for the visit', () => {
     expect(
       countBigNumbersTargetHits(
         [
@@ -134,6 +151,6 @@ describe('bigNumbersRules', () => {
         ],
         2,
       ),
-    ).toBe(2)
+    ).toBe(1)
   })
 })

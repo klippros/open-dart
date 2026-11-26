@@ -73,5 +73,5 @@ export const getBigNumbersRequiredHitsDescription = (
 
   const count = requiredHitsToNumber(requiredHits)
 
-  return `Hit ${count} dart${count === 1 ? '' : 's'} into the number to advance; miss and go back`
+  return `Hit ${count} large single${count === 1 ? '' : 's'} on the number to advance; miss and go back`
 }

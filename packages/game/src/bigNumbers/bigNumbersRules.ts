@@ -1,6 +1,6 @@
 import type { DartThrow } from '../types/dart.ts'
 import { BigNumbersRequiredHits } from '../types/bigNumbers.ts'
-import { hitsNumberSegment } from '../segmentMatching.ts'
+import { hitsSingleOnNumber } from '../segmentMatching.ts'
 
 export const BIG_NUMBERS_TARGET_COUNT = 20
 export const BIG_NUMBERS_MAX_DARTS_PER_VISIT = 3
@@ -37,7 +37,7 @@ export const isBigNumbersTargetHit = (dart: DartThrow, targetIndex: number): boo
     return false
   }
 
-  return hitsNumberSegment(dart, getBigNumbersTargetNumber(targetIndex))
+  return hitsSingleOnNumber(dart, getBigNumbersTargetNumber(targetIndex))
 }
 
 export const countBigNumbersTargetHits = (darts: DartThrow[], targetIndex: number): number =>

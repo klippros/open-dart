@@ -88,7 +88,7 @@ export const PRACTICE_MODES: readonly PlayPageModeLink[] = [
   {
     id: 'big-numbers',
     label: 'Big Numbers',
-    description: 'Hit 1–20; advance with enough hits or go back',
+    description: 'Hit large singles 1–20; advance or go back',
     to: '/game/big-numbers/setup',
   },
   {
