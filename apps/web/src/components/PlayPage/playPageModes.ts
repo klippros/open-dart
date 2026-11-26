@@ -2,7 +2,7 @@ import { GameModeId } from '@open-dart/game/types/gameMode'
 import { buildX01PresetPath, X01PresetId } from '@open-dart/game/x01/x01Presets'
 import { buildPracticeGamePath } from '../../lib/game/gameRoute'
 
-export interface HomePageModeLink {
+export interface PlayPageModeLink {
   id: string
   label: string
   description: string
@@ -10,7 +10,7 @@ export interface HomePageModeLink {
   onlineCapable?: boolean
 }
 
-export const MATCH_MODES: readonly HomePageModeLink[] = [
+export const MATCH_MODES: readonly PlayPageModeLink[] = [
   {
     id: X01PresetId.FiveOhOne,
     label: '501',
@@ -54,7 +54,7 @@ export const MATCH_MODES: readonly HomePageModeLink[] = [
   },
 ]
 
-export const PRACTICE_MODES: readonly HomePageModeLink[] = [
+export const PRACTICE_MODES: readonly PlayPageModeLink[] = [
   {
     id: 'bob',
     label: "Bob's 27",

@@ -76,3 +76,72 @@ body,
 .input-flash {
   animation: input-flash 0.9s ease-out forwards;
 }
+
+@keyframes marketing-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.marketing-fade-in {
+  animation: marketing-fade-in 0.55s ease-out both;
+}
+
+@keyframes marketing-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marketing-marquee-mask {
+  overflow: hidden;
+  width: 100%;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 22%,
+    #000 78%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to right, transparent 0%, #000 22%, #000 78%, transparent 100%);
+}
+
+.marketing-marquee-track {
+  --marquee-duration: 42s;
+  --marquee-phase: 0;
+  display: flex;
+  width: max-content;
+  gap: 0;
+  /* Negative delay = start partway through 0→-50%, i.e. offset by phase × content width */
+  animation: marketing-marquee var(--marquee-duration) linear infinite;
+  animation-delay: calc(var(--marquee-duration) * var(--marquee-phase) * -1);
+  will-change: transform;
+}
+
+.marketing-marquee-track[data-phase='0'] {
+  --marquee-phase: 0;
+}
+
+.marketing-marquee-track[data-phase='1'] {
+  --marquee-phase: 0.333333;
+}
+
+.marketing-marquee-track[data-phase='2'] {
+  --marquee-phase: 0.666667;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-marquee-track {
+    animation: none;
+    /* Keep spatial offset: phase × one content width (= 50% of doubled track) */
+    transform: translateX(calc(var(--marquee-phase) * -50%));
+  }
+}

@@ -1,5 +1,6 @@
 import { HStack, Link, Text } from '@chakra-ui/react'
 import { NavLink } from 'react-router-dom'
+import { markAllowHome } from '../../lib/navigation/homeEntry'
 import { BetaBadge } from '../BetaBadge/BetaBadge'
 import type { NavItemConfig } from './navItems'
 
@@ -22,6 +23,9 @@ export const NavItem = ({ to, label, beta = false, onNavigate }: NavItemProps) =
       end={to === '/'}
       style={navLinkStyle}
       onClick={() => {
+        if (to === '/') {
+          markAllowHome()
+        }
         onNavigate?.()
       }}
     >

@@ -1,31 +1,43 @@
-import { Box, Stack } from '@chakra-ui/react'
+import { Box, Spinner, Stack } from '@chakra-ui/react'
+import { Navigate } from 'react-router-dom'
+import { useRef } from 'react'
 import { ContentContainer } from '../components/ContentContainer'
-import { HomePageMatchSection } from '../components/HomePage/HomePageMatchSection'
-import { HomePagePracticeSection } from '../components/HomePage/HomePagePracticeSection'
-import { ResumeGameBanner } from '../components/ResumeGameBanner/ResumeGameBanner'
-import { ResumeOnlineMatchBanner } from '../components/ResumeOnlineMatchBanner/ResumeOnlineMatchBanner'
-import { useInProgressOnlineMatch } from '../hooks/useInProgressOnlineMatch'
+import { MarketingAnalysisSection } from '../components/MarketingHome/MarketingAnalysisSection'
+import { MarketingHero } from '../components/MarketingHome/MarketingHero'
+import { MarketingModesSection } from '../components/MarketingHome/MarketingModesSection'
+import { MARKETING_SECTION_GAP } from '../components/MarketingHome/marketingGraphicChrome'
+import { useAuth } from '../hooks/authContext'
+import { hasAllowHome } from '../lib/navigation/homeEntry'
+import { AuthStatus } from '../types/auth'
 
 export const HomePage = () => {
-  const inProgress = useInProgressOnlineMatch()
-  const resumeMatch =
-    inProgress.status === 'ready' || inProgress.status === 'loading' ? inProgress.match : null
+  const { authStatus, user } = useAuth()
+  const allowHomeRef = useRef(hasAllowHome())
+  const signedIn = authStatus === AuthStatus.Authenticated && user !== null
+
+  if (authStatus === AuthStatus.Loading) {
+    return (
+      <ContentContainer>
+        <Box py={{ base: 16, md: 24 }} display="flex" justifyContent="center">
+          <Spinner color="white" />
+        </Box>
+      </ContentContainer>
+    )
+  }
+
+  if (signedIn && !allowHomeRef.current) {
+    return <Navigate to="/play" replace />
+  }
 
   return (
     <ContentContainer>
-      <Box py={{ base: 6, md: 10 }} pb={10}>
-        <Stack gap={8}>
-          <ResumeGameBanner />
-          {resumeMatch !== null ? (
-            <ResumeOnlineMatchBanner
-              match={resumeMatch}
-              onCancelled={() => {
-                inProgress.dismissCancelledMatch(resumeMatch.id)
-              }}
-            />
-          ) : null}
-          <HomePageMatchSection />
-          <HomePagePracticeSection />
+      <Box py={{ base: 8, md: 10 }} pb={{ base: 12, md: 16 }} overflowX="hidden">
+        <Stack gap={MARKETING_SECTION_GAP} align="center" w="full">
+          <Stack gap={0} align="center" w="full">
+            <MarketingHero />
+            <MarketingModesSection />
+          </Stack>
+          <MarketingAnalysisSection />
         </Stack>
       </Box>
     </ContentContainer>

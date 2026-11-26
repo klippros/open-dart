@@ -7,7 +7,7 @@ export interface NavItemConfig {
 }
 
 export const NAV_ITEMS: readonly NavItemConfig[] = [
-  { to: '/', label: 'Play' },
+  { to: '/', label: 'Home' },
+  { to: '/play', label: 'Play' },
   { to: OWN_PROFILE_PATH, label: 'Profile' },
-  { to: '/about', label: 'About' },
 ]

@@ -13,7 +13,7 @@ export const AuthCallbackPage = () => {
   const returnToRef = useRef<string | null>(null)
 
   returnToRef.current ??=
-    consumeAuthReturnPath() ?? resolveAuthReturnPath(searchParams.get('next')) ?? '/'
+    consumeAuthReturnPath() ?? resolveAuthReturnPath(searchParams.get('next')) ?? '/play'
 
   const returnTo = returnToRef.current
 

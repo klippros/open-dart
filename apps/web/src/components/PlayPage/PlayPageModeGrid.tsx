@@ -3,14 +3,14 @@ import { Link as RouterLink } from 'react-router-dom'
 import { isOnlineMatchesEnabled } from '../../lib/matchServer/config'
 import { explicitGameLaunchState } from '../../lib/routing/gameNavigation'
 import { LiveIndicator } from '../LiveIndicator/LiveIndicator'
-import type { HomePageModeLink } from './homePageModes'
+import type { PlayPageModeLink } from './playPageModes'
 
-export interface HomePageModeGridProps {
-  modes: readonly HomePageModeLink[]
+export interface PlayPageModeGridProps {
+  modes: readonly PlayPageModeLink[]
   explicitLaunch?: boolean
 }
 
-export const HomePageModeGrid = ({ modes, explicitLaunch = false }: HomePageModeGridProps) => (
+export const PlayPageModeGrid = ({ modes, explicitLaunch = false }: PlayPageModeGridProps) => (
   <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} gap={4}>
     {modes.map((mode) => {
       const link = (

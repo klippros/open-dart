@@ -31,8 +31,8 @@ export const SignInDialog = ({
 
   const resolvedReturnTo =
     returnTo ??
-    (location.pathname === '/auth/callback'
-      ? '/'
+    (location.pathname === '/auth/callback' || location.pathname === '/'
+      ? '/play'
       : `${location.pathname}${location.search}${location.hash}`)
 
   const handleGoogleSignIn = async () => {
