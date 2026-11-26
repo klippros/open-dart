@@ -13,7 +13,6 @@ import type { DartThrow } from '@open-dart/game/types/dart'
 import { NinetyNineDartsDartPicker } from '../DartPicker/NinetyNineDartsDartPicker/NinetyNineDartsDartPicker'
 import { SwipeTrailGraphic } from '../DartPicker/SwipeTrailGraphic'
 import {
-  formatMarketingGraphicTransform,
   MARKETING_GRAPHIC_MAX_WIDTH,
   MARKETING_GRAPHIC_OPACITY,
   MARKETING_NINETY_NINE_CENTER_INSET,
@@ -23,7 +22,6 @@ import {
   MARKETING_NINETY_NINE_TRANSFORM_RESPONSIVE,
   MARKETING_NINETY_NINE_WIDTH,
 } from './marketingGraphicChrome'
-import { useMarketingGraphicTransformOptional } from './marketingGraphicTransformContext'
 
 const noopDartBatch = (_darts: DartThrow[]) => undefined
 const noopUndo = () => undefined
@@ -88,10 +86,6 @@ const SEGMENT_COUNT = NINETY_NINE_DARTS_MAX_DARTS_PER_VISIT - 1
  */
 export const MarketingNinetyNineGraphic = () => {
   const [progress, setProgress] = useState(0)
-  const live = useMarketingGraphicTransformOptional()
-  const transform = live
-    ? formatMarketingGraphicTransform(live.ninetyNine)
-    : MARKETING_NINETY_NINE_TRANSFORM_RESPONSIVE
 
   useEffect(() => {
     let frame = 0
@@ -192,7 +186,7 @@ export const MarketingNinetyNineGraphic = () => {
       >
         <Box
           opacity={MARKETING_GRAPHIC_OPACITY}
-          transform={transform}
+          transform={MARKETING_NINETY_NINE_TRANSFORM_RESPONSIVE}
           transformOrigin="center center"
           transformStyle="preserve-3d"
           boxShadow={MARKETING_NINETY_NINE_SHADOW}

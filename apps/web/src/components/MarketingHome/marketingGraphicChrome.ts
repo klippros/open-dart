@@ -63,44 +63,14 @@ export const MARKETING_BOARD_SHADOW = '-29px 21px 42px 10px rgba(0, 0, 0, 0.25)'
 /** 99 Darts (left): mirrored X so the shadow still pulls toward center-bottom. */
 export const MARKETING_NINETY_NINE_SHADOW = '29px 21px 42px 10px rgba(0, 0, 0, 0.25)'
 
-export interface MarketingGraphicTransform {
+interface MarketingGraphicTransform {
   rotateX: number
   rotateY: number
   rotateZ: number
   depth: number
 }
 
-/** Board (right): opens toward center. Soften Y tilt on phones so the far edge stays readable. */
-export const MARKETING_BOARD_TRANSFORM_VALUES: MarketingGraphicTransform = {
-  rotateX: 6.4,
-  rotateY: 42.2,
-  rotateZ: -2.15,
-  depth: 0,
-}
-
-const MARKETING_BOARD_TRANSFORM_VALUES_MOBILE: MarketingGraphicTransform = {
-  rotateX: 4.2,
-  rotateY: 26,
-  rotateZ: -1.4,
-  depth: 0,
-}
-
-/** 99 Darts (left): opens toward center. */
-export const MARKETING_NINETY_NINE_TRANSFORM_VALUES: MarketingGraphicTransform = {
-  rotateX: 8.9,
-  rotateY: -59.7,
-  rotateZ: 2.15,
-  depth: 0,
-}
-
-const MARKETING_NINETY_NINE_TRANSFORM_VALUES_MOBILE: MarketingGraphicTransform = {
-  rotateX: 5.5,
-  rotateY: -34,
-  rotateZ: 1.4,
-  depth: 0,
-}
-
-export const formatMarketingGraphicTransform = ({
+const formatMarketingGraphicTransform = ({
   rotateX,
   rotateY,
   rotateZ,
@@ -108,22 +78,36 @@ export const formatMarketingGraphicTransform = ({
 }: MarketingGraphicTransform): string =>
   `rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) translateZ(${depth}px)`
 
-export const MARKETING_BOARD_TRANSFORM = formatMarketingGraphicTransform(
-  MARKETING_BOARD_TRANSFORM_VALUES,
-)
-
+/** Board (right): opens toward center. Soften Y tilt on phones so the far edge stays readable. */
 export const MARKETING_BOARD_TRANSFORM_RESPONSIVE = {
-  base: formatMarketingGraphicTransform(MARKETING_BOARD_TRANSFORM_VALUES_MOBILE),
-  md: MARKETING_BOARD_TRANSFORM,
+  base: formatMarketingGraphicTransform({
+    rotateX: 4.2,
+    rotateY: 26,
+    rotateZ: -1.4,
+    depth: 0,
+  }),
+  md: formatMarketingGraphicTransform({
+    rotateX: 6.4,
+    rotateY: 42.2,
+    rotateZ: -2.15,
+    depth: 0,
+  }),
 } as const
 
-export const MARKETING_NINETY_NINE_TRANSFORM = formatMarketingGraphicTransform(
-  MARKETING_NINETY_NINE_TRANSFORM_VALUES,
-)
-
+/** 99 Darts (left): opens toward center. Soften Y tilt on phones. */
 export const MARKETING_NINETY_NINE_TRANSFORM_RESPONSIVE = {
-  base: formatMarketingGraphicTransform(MARKETING_NINETY_NINE_TRANSFORM_VALUES_MOBILE),
-  md: MARKETING_NINETY_NINE_TRANSFORM,
+  base: formatMarketingGraphicTransform({
+    rotateX: 5.5,
+    rotateY: -34,
+    rotateZ: 1.4,
+    depth: 0,
+  }),
+  md: formatMarketingGraphicTransform({
+    rotateX: 8.9,
+    rotateY: -59.7,
+    rotateZ: 2.15,
+    depth: 0,
+  }),
 } as const
 
 /** Shared width for analysis/chart column. */

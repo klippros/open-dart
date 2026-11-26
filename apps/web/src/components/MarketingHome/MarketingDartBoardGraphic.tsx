@@ -16,7 +16,6 @@ import type { CenterZone } from '../DartPicker/dartboardLayout'
 import { SwipeTrailGraphic } from '../DartPicker/SwipeTrailGraphic'
 import type { SwipeTrailPoint } from '../DartPicker/visitOutcomeSwipe/buildVisitOutcomeSwipeTrail'
 import {
-  formatMarketingGraphicTransform,
   MARKETING_BOARD_SHADOW,
   MARKETING_BOARD_TRANSFORM_RESPONSIVE,
   MARKETING_GRAPHIC_CENTER_INSET,
@@ -24,7 +23,6 @@ import {
   MARKETING_GRAPHIC_OPACITY,
   MARKETING_GRAPHIC_WIDTH,
 } from './marketingGraphicChrome'
-import { useMarketingGraphicTransformOptional } from './marketingGraphicTransformContext'
 
 const noop = () => undefined
 
@@ -89,10 +87,6 @@ const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 
  */
 export const MarketingDartBoardGraphic = () => {
   const [demo, setDemo] = useState<BoardDemoState>(IDLE_DEMO)
-  const live = useMarketingGraphicTransformOptional()
-  const transform = live
-    ? formatMarketingGraphicTransform(live.board)
-    : MARKETING_BOARD_TRANSFORM_RESPONSIVE
 
   useEffect(() => {
     let frame = 0
@@ -154,7 +148,7 @@ export const MarketingDartBoardGraphic = () => {
       <Box transformOrigin="center center" transform="scale(1.012)">
         <Box
           opacity={MARKETING_GRAPHIC_OPACITY}
-          transform={transform}
+          transform={MARKETING_BOARD_TRANSFORM_RESPONSIVE}
           transformOrigin="center center"
           transformStyle="preserve-3d"
           boxShadow={MARKETING_BOARD_SHADOW}
