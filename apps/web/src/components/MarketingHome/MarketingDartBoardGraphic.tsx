@@ -147,7 +147,7 @@ export const MarketingDartBoardGraphic = () => {
         <Box
           opacity={MARKETING_GRAPHIC_OPACITY}
           transform={MARKETING_BOARD_TRANSFORM}
-          transformOrigin="center center"
+          transformOrigin="left center"
           transformStyle="preserve-3d"
           boxShadow={MARKETING_BOARD_SHADOW}
           borderRadius="8px"
