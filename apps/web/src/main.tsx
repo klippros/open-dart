@@ -7,6 +7,7 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import '@fontsource/archivo-black/400.css'
 import './index.css'
+import './components/MarketingHome/marketingTransformDebug'
 import { router } from './router.tsx'
 
 config.autoAddCss = false

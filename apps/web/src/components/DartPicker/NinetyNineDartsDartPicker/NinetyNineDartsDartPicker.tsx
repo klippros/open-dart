@@ -24,6 +24,8 @@ export interface NinetyNineDartsDartPickerProps {
   onUndo: () => void
   inputDisabled?: boolean
   undoDisabled?: boolean
+  /** Hide the undo control (e.g. decorative marketing preview). */
+  hideUndo?: boolean
 }
 
 const OUTCOME_LABELS: Record<NinetyNineDartsOutcome, string> = {
@@ -59,6 +61,7 @@ export const NinetyNineDartsDartPicker = ({
   onUndo,
   inputDisabled = false,
   undoDisabled = inputDisabled,
+  hideUndo = false,
 }: NinetyNineDartsDartPickerProps) => {
   const { playHit, playMiss } = useUiSounds()
   const outcomes = getNinetyNineDartsPickerOutcomes(target)
@@ -108,11 +111,12 @@ export const NinetyNineDartsDartPicker = ({
   })
 
   return (
-    <Stack gap={3}>
-      <Box position="relative">
+    <Stack gap={3} w="full">
+      <Box position="relative" w="full">
         <Grid
           ref={gridRef}
-          templateColumns={`repeat(${NINETY_NINE_DARTS_MAX_DARTS_PER_VISIT}, 1fr)`}
+          w="full"
+          templateColumns={`repeat(${NINETY_NINE_DARTS_MAX_DARTS_PER_VISIT}, minmax(0, 1fr))`}
           gap={3}
           touchAction={gridTouchAction}
           {...gridPointerProps}
@@ -192,14 +196,16 @@ export const NinetyNineDartsDartPicker = ({
         <VisitOutcomeSwipeTrailOverlay trail={swipeTrail} />
       </Box>
 
-      <PressScaleButton
-        variant="cta"
-        {...scoringActionTypeProps}
-        disabled={undoDisabled}
-        onClick={onUndo}
-      >
-        Undo last dart
-      </PressScaleButton>
+      {hideUndo ? null : (
+        <PressScaleButton
+          variant="cta"
+          {...scoringActionTypeProps}
+          disabled={undoDisabled}
+          onClick={onUndo}
+        >
+          Undo last dart
+        </PressScaleButton>
+      )}
     </Stack>
   )
 }

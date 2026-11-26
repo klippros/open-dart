@@ -1,6 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { App } from './App'
-import { AboutPage } from './routes/AboutPage'
 import { AroundTheClockSetupPage } from './routes/AroundTheClockSetupPage'
 import { BigNumbersSetupPage } from './routes/BigNumbersSetupPage'
 import { ClaimTheBoardSetupPage } from './routes/ClaimTheBoardSetupPage'
@@ -17,6 +16,7 @@ import { OnlineMatchJoinPage } from './routes/OnlineMatchJoinPage'
 import { OnlineMatchNewPage } from './routes/OnlineMatchNewPage'
 import { OnlineMatchPage } from './routes/OnlineMatchPage'
 import { OwnProfileRoute } from './routes/OwnProfileRoute'
+import { PlayPage } from './routes/PlayPage'
 import { PlayerProfilePage } from './routes/PlayerProfilePage'
 import { X01SetupPage } from './routes/X01SetupPage'
 import { LEGACY_PROFILE_PATHS, OWN_PROFILE_PATH } from './lib/profile/profileRoutes'
@@ -27,6 +27,7 @@ export const router = createBrowserRouter(
       element: <App />,
       children: [
         { index: true, element: <HomePage /> },
+        { path: 'play', element: <PlayPage /> },
         { path: 'game', element: <GamePage /> },
         { path: 'game/match-setup', element: <MatchSetupPage /> },
         { path: 'game/setup', element: <X01SetupPage /> },
@@ -46,7 +47,7 @@ export const router = createBrowserRouter(
           element: <Navigate to={OWN_PROFILE_PATH} replace />,
         })),
         { path: 'players/:userId', element: <PlayerProfilePage /> },
-        { path: 'about', element: <AboutPage /> },
+        { path: 'about', element: <Navigate to="/" replace /> },
         { path: 'impressum', element: <ImpressumPage /> },
         { path: 'privacy-policy', element: <PrivacyPolicyPage /> },
       ],

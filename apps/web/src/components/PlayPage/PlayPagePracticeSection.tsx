@@ -1,17 +1,17 @@
 import { Heading, Stack, Text } from '@chakra-ui/react'
-import { HomePageModeGrid } from './HomePageModeGrid'
-import { MATCH_MODES } from './homePageModes'
+import { PlayPageModeGrid } from './PlayPageModeGrid'
+import { PRACTICE_MODES } from './playPageModes'
 
-export const HomePageMatchSection = () => (
+export const PlayPagePracticeSection = () => (
   <Stack gap={4}>
     <Stack gap={1}>
       <Heading as="h2" size="lg" color="white" fontFamily="Archivo Black, sans-serif">
-        Match
+        Practice
       </Heading>
       <Text color="whiteAlpha.700" fontSize="sm" lineHeight="1.55">
-        x01 legs with solo, guest, challenge, or online play where available.
+        Solo training modes to sharpen specific parts of your game.
       </Text>
     </Stack>
-    <HomePageModeGrid modes={MATCH_MODES} />
+    <PlayPageModeGrid modes={PRACTICE_MODES} explicitLaunch />
   </Stack>
 )
