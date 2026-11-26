@@ -136,8 +136,8 @@ export const buildPublicProfileStatsModel = (
     }),
     bigNumbers: {
       sessionCount: bigNumbers?.sessionsPlayed ?? 0,
-      hitRate: bigNumbers?.hitRate ?? null,
-      bestHitRate: bigNumbers?.bestHitRate ?? null,
+      avgHitsPerVisit: bigNumbers?.avgHitsPerVisit ?? null,
+      bestAvgHitsPerVisit: bigNumbers?.bestAvgHitsPerVisit ?? null,
     },
     bob27: {
       sessionCount: bob27?.sessionsPlayed ?? 0,

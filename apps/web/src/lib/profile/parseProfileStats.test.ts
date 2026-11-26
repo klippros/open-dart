@@ -54,8 +54,8 @@ describe('parsePlayerProfileStats', () => {
       },
       bigNumbers: {
         sessionsPlayed: 3,
-        hitRate: 40,
-        bestHitRate: 70,
+        avgHitsPerVisit: 1.2,
+        bestAvgHitsPerVisit: 2.1,
       },
       jdcChallenge: {
         sessionsPlayed: 1,
@@ -87,6 +87,9 @@ describe('parsePlayerProfileStats', () => {
     })
     expect(parsed).not.toHaveProperty('aroundTheClock')
 
+    expect(parsed?.bigNumbers?.avgHitsPerVisit).toBe(1.2)
+    expect(parsed?.bigNumbers?.bestAvgHitsPerVisit).toBe(2.1)
+    expect(parsePlayerProfileStats({ ...payload, version: 3 })).toBeNull()
     expect(parsePlayerProfileStats({ ...payload, version: 2 })).toBeNull()
     expect(parsePlayerProfileStats({ ...payload, version: 1 })).toBeNull()
     expect(

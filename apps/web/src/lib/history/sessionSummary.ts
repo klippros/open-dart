@@ -1,5 +1,6 @@
 import { getVisitAverages, getPrimaryPlayerVisits } from '@open-dart/analytics/visitStats'
 import { computeAroundTheClockSingleSessionStats } from '@open-dart/analytics/aroundTheClockStats'
+import { computeBigNumbersSingleSessionStats } from '@open-dart/analytics/bigNumbersVisitStats'
 import { computeBullRunSingleSessionStats } from '@open-dart/analytics/bullRunVisitStats'
 import { computeJdcChallengeSingleSessionStats } from '@open-dart/analytics/jdcChallengeVisitStats'
 import { computeNinetyNineDartsSingleSessionStats } from '@open-dart/analytics/ninetyNineVisitStats'
@@ -437,15 +438,22 @@ export const getMatchSummary = (session: GameSession): MatchSummary => {
 
   if (session.mode === GameModeId.BigNumbers) {
     const modeLabel = getSessionModeLabel(session)
-    const details = [`${visitCount} visit${visitCount === 1 ? '' : 's'}`]
-    const totalHits = playerVisits.reduce((sum, visit) => {
-      const hitCount = visit.metadata?.hitCount
+    const stats = computeBigNumbersSingleSessionStats(session)
+    const details: string[] = []
 
-      return sum + (typeof hitCount === 'number' ? hitCount : 0)
-    }, 0)
+    if (stats !== null) {
+      if (stats.requiredHits !== null) {
+        details.push(`${stats.requiredHits} required`)
+      }
 
-    if (visitCount > 0) {
-      details.push(`${(totalHits / visitCount).toFixed(1)} hits / visit`)
+      if (stats.avgHitsPerVisit !== null) {
+        details.push(`${stats.avgHitsPerVisit.toFixed(1)} hits / visit`)
+      }
+
+      details.push(`${stats.visitCount} visit${stats.visitCount === 1 ? '' : 's'}`)
+      details.push(`${stats.stepBackCount} failed`)
+    } else {
+      details.push(`${visitCount} visit${visitCount === 1 ? '' : 's'}`)
     }
 
     if (finishedEarly && lastVisit !== undefined) {

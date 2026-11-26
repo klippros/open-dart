@@ -3,6 +3,7 @@ import { GameModeId } from '@open-dart/game/types/gameMode'
 import type { GameSession } from '@open-dart/game/types/gameSession'
 import { getMatchSummary, getSessionModeLabel } from '../../lib/history/sessionSummary'
 import { AroundTheClockSummaryPanel } from './AroundTheClockSummaryPanel'
+import { BigNumbersSummaryPanel } from './BigNumbersSummaryPanel'
 import { Bob27SummaryPanel } from './Bob27SummaryPanel'
 import { BullRunSummaryPanel } from './BullRunSummaryPanel'
 import { ClaimTheBoardSummaryPanel } from './ClaimTheBoardSummaryPanel'
@@ -24,6 +25,7 @@ export const MatchSummaryBody = ({ session, initialLegNumber }: MatchSummaryBody
   const showTextDetails =
     session.mode !== GameModeId.X01 &&
     session.mode !== GameModeId.AroundTheClock &&
+    session.mode !== GameModeId.BigNumbers &&
     session.mode !== GameModeId.Bob27 &&
     session.mode !== GameModeId.ClaimTheBoard &&
     session.mode !== GameModeId.OneTwentyOne &&
@@ -38,6 +40,8 @@ export const MatchSummaryBody = ({ session, initialLegNumber }: MatchSummaryBody
       {session.mode === GameModeId.AroundTheClock && (
         <AroundTheClockSummaryPanel session={session} />
       )}
+
+      {session.mode === GameModeId.BigNumbers && <BigNumbersSummaryPanel session={session} />}
 
       {session.mode === GameModeId.Bob27 && <Bob27SummaryPanel session={session} />}
 

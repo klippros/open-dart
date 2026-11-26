@@ -22,7 +22,7 @@ import type { X01LegStats } from './x01Stats.ts'
 import { NinetyNineDartsStatGroup } from './ninetyNineVisitStats.ts'
 import { getDateRangeCutoff } from './sessionFilters.ts'
 
-export const PROFILE_STATS_VERSION = 3
+export const PROFILE_STATS_VERSION = 4
 export const PROFILE_ACTIVE_DAYS = 30
 
 export interface ProfileStatWindow {
@@ -100,8 +100,8 @@ export interface ProfileJdcChallengeStats {
 
 export interface ProfileBigNumbersStats {
   sessionsPlayed: number
-  hitRate: number | null
-  bestHitRate: number | null
+  avgHitsPerVisit: number | null
+  bestAvgHitsPerVisit: number | null
 }
 
 export interface PlayerProfileStats {
@@ -383,8 +383,8 @@ const buildBigNumbersStats = (
 
   return {
     sessionsPlayed: summary.gameCount,
-    hitRate: summary.hitRate,
-    bestHitRate: summary.bestHitRate,
+    avgHitsPerVisit: summary.avgHitsPerVisit,
+    bestAvgHitsPerVisit: summary.bestAvgHitsPerVisit,
   }
 }
 
