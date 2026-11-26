@@ -1,59 +1,36 @@
-/** Inset from the vertical center line to the near edge of the dart board. */
-export const MARKETING_GRAPHIC_CENTER_INSET = {
-  base: '1.5rem',
-  sm: '4.5rem',
-  md: '8.5rem',
-} as const
+/**
+ * Inset from the vertical center line to the near edge of the dart board.
+ * Tight corridor by ~640px (edges already clip); opens to the desk flank by ~900px.
+ */
+export const MARKETING_GRAPHIC_CENTER_INSET =
+  'clamp(0.55rem, calc(48.9vw - 19.02rem), 8.5rem)' as const
 
-/** 99 Darts sits closer to the center than the board. */
-export const MARKETING_NINETY_NINE_CENTER_INSET = {
-  base: '0.85rem',
-  sm: '3rem',
-  md: '5.25rem',
-} as const
+/**
+ * 99 Darts near-edge inset — same fluid window as the board, slightly tighter.
+ */
+export const MARKETING_NINETY_NINE_CENTER_INSET =
+  'clamp(0.45rem, calc(29.5vw - 11.37rem), 5.25rem)' as const
 
-/** On-page width for the dart board graphic. */
-export const MARKETING_GRAPHIC_WIDTH = {
-  base: '6rem',
-  sm: '12rem',
-  md: '19.8rem',
-} as const
+/** On-page width for the dart board graphic — fixed; spills off-screen if needed. */
+export const MARKETING_GRAPHIC_WIDTH = '19.8rem' as const
 
 /**
  * 99 Darts shell width (matches scaleX × 320px @ 16px rem).
- * Keep under half the viewport on small screens so it does not spill off-edge.
+ * Fixed size — spills off-screen on narrow viewports instead of shrinking.
  */
-export const MARKETING_NINETY_NINE_WIDTH = {
-  base: '7rem',
-  sm: '14rem',
-  md: '26rem',
-} as const
+export const MARKETING_NINETY_NINE_WIDTH = '26rem' as const
 
 /**
  * Absolute picker transform: center vertically in the shell, then scale.
  * Wider than tall so the column stack does not dominate the hero.
  */
-export const MARKETING_NINETY_NINE_SCALE = {
-  base: 'translateY(-50%) scaleX(0.35) scaleY(0.22)',
-  sm: 'translateY(-50%) scaleX(0.7) scaleY(0.36)',
-  md: 'translateY(-50%) scaleX(1.3) scaleY(0.52)',
-} as const
+export const MARKETING_NINETY_NINE_SCALE = 'translateY(-50%) scaleX(1.3) scaleY(0.52)' as const
 
 /**
  * Layout height of the 99 shell after scaleY (picker natural height × scaleY).
  * Transform scale does not affect layout, so the shell must reserve this space.
  */
-export const MARKETING_NINETY_NINE_LAYOUT_HEIGHT = {
-  base: '10.3rem',
-  sm: '17.1rem',
-  md: '24.7rem',
-} as const
-
-/** Cap so flanks never claim more than ~36% of the viewport on phones. */
-export const MARKETING_GRAPHIC_MAX_WIDTH = {
-  base: 'calc(36% - 0.35rem)',
-  md: 'calc(50% - 1.25rem)',
-} as const
+export const MARKETING_NINETY_NINE_LAYOUT_HEIGHT = '24.7rem' as const
 
 export const MARKETING_GRAPHIC_OPACITY = 0.6
 
@@ -78,37 +55,21 @@ const formatMarketingGraphicTransform = ({
 }: MarketingGraphicTransform): string =>
   `rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) translateZ(${depth}px)`
 
-/** Board (right): opens toward center. Soften Y tilt on phones so the far edge stays readable. */
-export const MARKETING_BOARD_TRANSFORM_RESPONSIVE = {
-  base: formatMarketingGraphicTransform({
-    rotateX: 4.2,
-    rotateY: 26,
-    rotateZ: -1.4,
-    depth: 0,
-  }),
-  md: formatMarketingGraphicTransform({
-    rotateX: 6.4,
-    rotateY: 42.2,
-    rotateZ: -2.15,
-    depth: 0,
-  }),
-} as const
+/** Board (right): opens toward center. */
+export const MARKETING_BOARD_TRANSFORM = formatMarketingGraphicTransform({
+  rotateX: 6.4,
+  rotateY: 42.2,
+  rotateZ: -2.15,
+  depth: 0,
+})
 
-/** 99 Darts (left): opens toward center. Soften Y tilt on phones. */
-export const MARKETING_NINETY_NINE_TRANSFORM_RESPONSIVE = {
-  base: formatMarketingGraphicTransform({
-    rotateX: 5.5,
-    rotateY: -34,
-    rotateZ: 1.4,
-    depth: 0,
-  }),
-  md: formatMarketingGraphicTransform({
-    rotateX: 8.9,
-    rotateY: -59.7,
-    rotateZ: 2.15,
-    depth: 0,
-  }),
-} as const
+/** 99 Darts (left): opens toward center. */
+export const MARKETING_NINETY_NINE_TRANSFORM = formatMarketingGraphicTransform({
+  rotateX: 8.9,
+  rotateY: -59.7,
+  rotateZ: 2.15,
+  depth: 0,
+})
 
 /** Shared width for analysis/chart column. */
 export const MARKETING_CONTENT_MAX_WIDTH = '900px'

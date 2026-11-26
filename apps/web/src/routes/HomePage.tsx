@@ -31,7 +31,7 @@ export const HomePage = () => {
 
   return (
     <ContentContainer>
-      <Box py={{ base: 8, md: 10 }} pb={{ base: 12, md: 16 }} overflowX="hidden">
+      <Box py={{ base: 8, md: 10 }} pb={{ base: 12, md: 16 }}>
         <Stack gap={MARKETING_SECTION_GAP} align="center" w="full">
           <Stack gap={0} align="center" w="full">
             <MarketingHero />

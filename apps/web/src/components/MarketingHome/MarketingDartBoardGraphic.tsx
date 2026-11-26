@@ -17,9 +17,8 @@ import { SwipeTrailGraphic } from '../DartPicker/SwipeTrailGraphic'
 import type { SwipeTrailPoint } from '../DartPicker/visitOutcomeSwipe/buildVisitOutcomeSwipeTrail'
 import {
   MARKETING_BOARD_SHADOW,
-  MARKETING_BOARD_TRANSFORM_RESPONSIVE,
+  MARKETING_BOARD_TRANSFORM,
   MARKETING_GRAPHIC_CENTER_INSET,
-  MARKETING_GRAPHIC_MAX_WIDTH,
   MARKETING_GRAPHIC_OPACITY,
   MARKETING_GRAPHIC_WIDTH,
 } from './marketingGraphicChrome'
@@ -139,7 +138,6 @@ export const MarketingDartBoardGraphic = () => {
       ml={MARKETING_GRAPHIC_CENTER_INSET}
       transform="translateY(-50%)"
       w={MARKETING_GRAPHIC_WIDTH}
-      maxW={MARKETING_GRAPHIC_MAX_WIDTH}
       pointerEvents="none"
       aria-hidden="true"
       zIndex={0}
@@ -148,7 +146,7 @@ export const MarketingDartBoardGraphic = () => {
       <Box transformOrigin="center center" transform="scale(1.012)">
         <Box
           opacity={MARKETING_GRAPHIC_OPACITY}
-          transform={MARKETING_BOARD_TRANSFORM_RESPONSIVE}
+          transform={MARKETING_BOARD_TRANSFORM}
           transformOrigin="center center"
           transformStyle="preserve-3d"
           boxShadow={MARKETING_BOARD_SHADOW}

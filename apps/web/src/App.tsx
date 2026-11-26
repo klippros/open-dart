@@ -36,6 +36,7 @@ export const App = () => {
                 minH={0}
                 position="relative"
                 zIndex={1}
+                overflowX="clip"
                 overflowY={isGameRoute ? 'hidden' : 'auto'}
                 className="hide-scrollbar"
               >

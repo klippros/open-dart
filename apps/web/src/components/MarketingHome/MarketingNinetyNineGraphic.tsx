@@ -13,13 +13,12 @@ import type { DartThrow } from '@open-dart/game/types/dart'
 import { NinetyNineDartsDartPicker } from '../DartPicker/NinetyNineDartsDartPicker/NinetyNineDartsDartPicker'
 import { SwipeTrailGraphic } from '../DartPicker/SwipeTrailGraphic'
 import {
-  MARKETING_GRAPHIC_MAX_WIDTH,
   MARKETING_GRAPHIC_OPACITY,
   MARKETING_NINETY_NINE_CENTER_INSET,
   MARKETING_NINETY_NINE_LAYOUT_HEIGHT,
   MARKETING_NINETY_NINE_SCALE,
   MARKETING_NINETY_NINE_SHADOW,
-  MARKETING_NINETY_NINE_TRANSFORM_RESPONSIVE,
+  MARKETING_NINETY_NINE_TRANSFORM,
   MARKETING_NINETY_NINE_WIDTH,
 } from './marketingGraphicChrome'
 
@@ -158,15 +157,10 @@ export const MarketingNinetyNineGraphic = () => {
       position="absolute"
       top={{ base: '58%', md: '72%' }}
       left="50%"
-      ml={{
-        base: `calc(-1 * ${MARKETING_NINETY_NINE_CENTER_INSET.base})`,
-        sm: `calc(-1 * ${MARKETING_NINETY_NINE_CENTER_INSET.sm})`,
-        md: `calc(-1 * ${MARKETING_NINETY_NINE_CENTER_INSET.md})`,
-      }}
+      ml={`calc(-1 * ${MARKETING_NINETY_NINE_CENTER_INSET})`}
       transform="translate(-100%, -50%)"
       w={MARKETING_NINETY_NINE_WIDTH}
       h={MARKETING_NINETY_NINE_LAYOUT_HEIGHT}
-      maxW={MARKETING_GRAPHIC_MAX_WIDTH}
       pointerEvents="none"
       aria-hidden="true"
       zIndex={0}
@@ -186,7 +180,7 @@ export const MarketingNinetyNineGraphic = () => {
       >
         <Box
           opacity={MARKETING_GRAPHIC_OPACITY}
-          transform={MARKETING_NINETY_NINE_TRANSFORM_RESPONSIVE}
+          transform={MARKETING_NINETY_NINE_TRANSFORM}
           transformOrigin="center center"
           transformStyle="preserve-3d"
           boxShadow={MARKETING_NINETY_NINE_SHADOW}
