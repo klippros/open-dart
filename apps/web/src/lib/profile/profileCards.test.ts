@@ -122,12 +122,13 @@ describe('profileCards', () => {
   it('pools Big Numbers and keeps Hunter labels', () => {
     const bigNumbers = buildBigNumbersSummaryCards({
       sessionCount: 1,
-      hitRate: 50,
-      bestHitRate: 75,
+      avgHitsPerVisit: 1.5,
+      bestAvgHitsPerVisit: 2.25,
     })
-    expect(labels(bigNumbers)).toEqual(['Hit Rate'])
-    expect(bigNumbers[0]?.details[0]?.text).toBe('Best 75.0%')
+    expect(labels(bigNumbers)).toEqual(['Hits / Visit'])
+    expect(bigNumbers[0]?.details[0]?.text).toBe('Best 2.25')
     expect(bigNumbers[0]?.timeline?.scope).toEqual({ type: 'practice-big-numbers' })
+    expect(bigNumbers[0]?.timeline?.metric).toBe('avgHitsPerVisit')
     expect(
       labels(
         buildHunterSummaryCards({ sessionCount: 0, avgAdvancesPerVisit: null, hitRate: null }),

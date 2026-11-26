@@ -93,7 +93,7 @@ export const gameModeDefinitions: Record<GameModeId, GameModeDefinition> = {
     mode: GameModeId.BigNumbers,
     defaultConfig: DEFAULT_BIG_NUMBERS_CONFIG satisfies BigNumbersConfig,
     label: 'Big Numbers',
-    description: 'Hit 1–20; advance with enough hits or go back',
+    description: 'Hit large singles 1–20; advance or go back',
   },
   [GameModeId.JdcChallenge]: {
     mode: GameModeId.JdcChallenge,

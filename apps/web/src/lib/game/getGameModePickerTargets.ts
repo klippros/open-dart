@@ -168,7 +168,7 @@ export const getDartPickerHelpContent = (
     return {
       title: 'How to score',
       paragraphs: [
-        'Record how many times you hit the current number. Enough hits advances one; fewer hits send you back one (or keep you on 1).',
+        'Record how many times you hit the large single of the current number — doubles, trebles, and the small single do not count. Enough hits advances one; fewer hits send you back one (or keep you on 1).',
       ],
       voice,
     }

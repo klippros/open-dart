@@ -63,7 +63,7 @@ describe('orientSessionForProfileUser', () => {
 })
 
 describe('buildProfileStats', () => {
-  it('returns version 3 x01 groups with an absolute 30-day window', () => {
+  it('returns version 4 x01 groups with an absolute 30-day window', () => {
     const online = sampleSession({
       id: 'online-1',
       players: [
@@ -135,7 +135,7 @@ describe('buildProfileStats', () => {
     })
 
     expect(stats.version).toBe(PROFILE_STATS_VERSION)
-    expect(stats.version).toBe(3)
+    expect(stats.version).toBe(4)
     expect(stats.displayName).toBe('Alex')
     expect(stats.window.endAt).toBe(NOW.toISOString())
     expect(stats.x01.fiveOhOneOnline.legsPlayed).toBe(1)
@@ -211,7 +211,7 @@ describe('buildProfileStats', () => {
     expect(stats.jdcChallenge).toBeNull()
   })
 
-  it('pools Big Numbers hit rates across required-hit settings', () => {
+  it('pools Big Numbers hits per visit across required-hit settings', () => {
     const oneHit = sampleSession({
       id: 'bn-1',
       mode: GameModeId.BigNumbers,
@@ -270,9 +270,9 @@ describe('buildProfileStats', () => {
     })
 
     expect(stats.bigNumbers?.sessionsPlayed).toBe(2)
-    expect(stats.bigNumbers?.hitRate).toBe((4 / 4) * 100)
-    expect(stats.bigNumbers?.bestHitRate).toBe(100)
-    expect(stats.bigNumbers).not.toHaveProperty('avgHitsPerVisit')
+    expect(stats.bigNumbers?.avgHitsPerVisit).toBe(2)
+    expect(stats.bigNumbers?.bestAvgHitsPerVisit).toBe(3)
+    expect(stats.bigNumbers).not.toHaveProperty('hitRate')
   })
 
   it('uses absolute windows and group-scoped 99 Darts sessions', () => {

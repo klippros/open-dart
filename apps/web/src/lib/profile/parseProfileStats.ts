@@ -213,8 +213,8 @@ const readBigNumbers = (value: unknown): ProfileBigNumbersStats | null => {
 
   return {
     sessionsPlayed: value.sessionsPlayed,
-    hitRate: readNumber(value.hitRate),
-    bestHitRate: readNumber(value.bestHitRate),
+    avgHitsPerVisit: readNumber(value.avgHitsPerVisit),
+    bestAvgHitsPerVisit: readNumber(value.bestAvgHitsPerVisit),
   }
 }
 

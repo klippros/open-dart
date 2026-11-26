@@ -286,7 +286,7 @@ describe('statTimelines', () => {
     ])
   })
 
-  it('builds big numbers hit-rate timeline points for pooled sessions', () => {
+  it('builds big numbers hits-per-visit timeline points for pooled sessions', () => {
     const timeline = buildStatTimeline(
       [
         sampleSession({
@@ -326,15 +326,15 @@ describe('statTimelines', () => {
       ],
       {
         scope: { type: 'practice-big-numbers' },
-        metric: 'bestHitRate',
-        metricLabel: 'Best hit rate',
+        metric: 'avgHitsPerVisit',
+        metricLabel: 'Hits / visit',
         scopeLabel: 'Big Numbers',
       },
     )
 
-    expect(timeline.format).toBe('percent')
+    expect(timeline.format).toBe('average')
     expect(timeline.points.map((point) => point.sessionId)).toEqual(['bn-low', 'bn-high'])
-    expect(timeline.points.map((point) => point.value)).toEqual([(1 / 3) * 100, 100])
+    expect(timeline.points.map((point) => point.value)).toEqual([1, 2])
   })
 
   it('builds hunter advances-per-visit timeline points', () => {

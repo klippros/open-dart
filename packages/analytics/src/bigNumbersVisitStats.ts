@@ -5,6 +5,7 @@ import { GameModeId } from '@open-dart/game/types/gameMode.ts'
 import type { BigNumbersRequiredHits } from '@open-dart/game/types/bigNumbers.ts'
 import { isBigNumbersConfig } from '@open-dart/game/game/gameConfigGuards.ts'
 import { getBigNumbersConfig } from '@open-dart/game/bigNumbers/bigNumbersConfig.ts'
+import { requiredHitsToNumber } from '@open-dart/game/bigNumbers/bigNumbersRules.ts'
 import { getPrimaryPlayerVisits } from './visitStats.ts'
 
 const readMetadataHitCount = (metadata: Visit['metadata']): number | null => {
@@ -92,6 +93,21 @@ export const getBigNumbersBestSessionHitRate = (sessions: GameSession[]): number
   return Math.max(...rates)
 }
 
+export const getBigNumbersSessionAvgHitsPerVisit = (session: GameSession): number | null =>
+  getBigNumbersAvgHitsPerVisit(getPrimaryPlayerVisits(session))
+
+export const getBigNumbersBestSessionAvgHitsPerVisit = (sessions: GameSession[]): number | null => {
+  const averages = sessions
+    .map((session) => getBigNumbersSessionAvgHitsPerVisit(session))
+    .filter((average): average is number => average !== null)
+
+  if (averages.length === 0) {
+    return null
+  }
+
+  return Math.max(...averages)
+}
+
 export const getBigNumbersStepBackCount = (visits: Visit[]): number =>
   visits.reduce((sum, visit) => sum + (isBigNumbersStepBackVisit(visit) ? 1 : 0), 0)
 
@@ -120,9 +136,10 @@ export const getBigNumbersRequiredHits = (session: GameSession): BigNumbersRequi
 }
 
 export interface BigNumbersSingleSessionStats {
+  requiredHits: number | null
   visitCount: number
+  stepBackCount: number
   avgHitsPerVisit: number | null
-  hitRate: number | null
   completed: boolean
 }
 
@@ -134,11 +151,13 @@ export const computeBigNumbersSingleSessionStats = (
   }
 
   const visits = getPrimaryPlayerVisits(session)
+  const requiredHits = getBigNumbersRequiredHits(session)
 
   return {
+    requiredHits: requiredHits === null ? null : requiredHitsToNumber(requiredHits),
     visitCount: visits.length,
+    stepBackCount: getBigNumbersStepBackCount(visits),
     avgHitsPerVisit: getBigNumbersAvgHitsPerVisit(visits),
-    hitRate: getBigNumbersHitRate(visits),
     completed: isCompletedBigNumbersSession(session),
   }
 }

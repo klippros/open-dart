@@ -109,9 +109,9 @@ export const buildOwnProfileStatsModel = (
     }),
     bigNumbers: {
       sessionCount: bigNumbers.gameCount,
-      hitRate: bigNumbers.hitRate,
-      bestHitRate: bigNumbers.bestHitRate,
-      bestHitRateSource: sessionBestSource(bigNumbers.bestHitRateSessionId),
+      avgHitsPerVisit: bigNumbers.avgHitsPerVisit,
+      bestAvgHitsPerVisit: bigNumbers.bestAvgHitsPerVisit,
+      bestAvgHitsPerVisitSource: sessionBestSource(bigNumbers.bestAvgHitsPerVisitSessionId),
     },
     bob27: {
       sessionCount: bob27?.gameCount ?? 0,

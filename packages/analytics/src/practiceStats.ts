@@ -12,9 +12,10 @@ import {
 } from './bob27VisitStats.ts'
 import {
   getBigNumbersAvgHitsPerVisit,
+  getBigNumbersBestSessionAvgHitsPerVisit,
   getBigNumbersBestSessionHitRate,
   getBigNumbersHitRate,
-  getBigNumbersSessionHitRate,
+  getBigNumbersSessionAvgHitsPerVisit,
   getBigNumbersSessionVisitCount,
 } from './bigNumbersVisitStats.ts'
 import { computeHunterPracticeRollup } from './hunterVisitStats.ts'
@@ -104,10 +105,10 @@ export interface Bob27PracticeStats {
 /** Big Numbers pooled across every required-hits variant. */
 export interface BigNumbersSummaryStats {
   gameCount: number
-  hitRate: number | null
-  bestHitRate: number | null
-  /** Session that produced `bestHitRate`. */
-  bestHitRateSessionId?: string | null
+  avgHitsPerVisit: number | null
+  bestAvgHitsPerVisit: number | null
+  /** Session that produced `bestAvgHitsPerVisit`. */
+  bestAvgHitsPerVisitSessionId?: string | null
 }
 
 export interface ClaimTheBoardPracticeStats {
@@ -613,13 +614,16 @@ export const computeBigNumbersSummary = (sessions: GameSession[]): BigNumbersSum
 
   return {
     gameCount: modeSessions.length,
-    hitRate: getBigNumbersHitRate(
+    avgHitsPerVisit: getBigNumbersAvgHitsPerVisit(
       modeSessions.flatMap((session) => getPrimaryPlayerVisits(session)),
     ),
-    bestHitRate: getBigNumbersBestSessionHitRate(modeSessions),
-    bestHitRateSessionId:
-      pickBestSession(modeSessions, (session) => getBigNumbersSessionHitRate(session), 'max')?.id ??
-      null,
+    bestAvgHitsPerVisit: getBigNumbersBestSessionAvgHitsPerVisit(modeSessions),
+    bestAvgHitsPerVisitSessionId:
+      pickBestSession(
+        modeSessions,
+        (session) => getBigNumbersSessionAvgHitsPerVisit(session),
+        'max',
+      )?.id ?? null,
   }
 }
 

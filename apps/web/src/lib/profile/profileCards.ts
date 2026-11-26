@@ -358,9 +358,9 @@ export const buildNinetyNineDartsHitCards = (
 
 export interface BigNumbersSummaryInput {
   sessionCount: number
-  hitRate: number | null
-  bestHitRate: number | null
-  bestHitRateSource?: ProfileBestSource | null
+  avgHitsPerVisit: number | null
+  bestAvgHitsPerVisit: number | null
+  bestAvgHitsPerVisitSource?: ProfileBestSource | null
 }
 
 const BIG_NUMBERS_CONTEXT: ProfileTimelineContext = {
@@ -371,11 +371,11 @@ const BIG_NUMBERS_CONTEXT: ProfileTimelineContext = {
 export const buildBigNumbersSummaryCards = (
   input: BigNumbersSummaryInput,
 ): ProfileStatCardModel[] => [
-  card('hit-rate', 'Hit Rate', formatRate(input.hitRate), {
-    timeline: selection(BIG_NUMBERS_CONTEXT, 'hitRate', 'Hit rate'),
+  card('hits-per-visit', 'Hits / Visit', formatAverage(input.avgHitsPerVisit), {
+    timeline: selection(BIG_NUMBERS_CONTEXT, 'avgHitsPerVisit', 'Hits / visit'),
     details: bestDetail(
-      input.bestHitRate === null ? null : formatRate(input.bestHitRate),
-      input.bestHitRateSource ?? null,
+      input.bestAvgHitsPerVisit === null ? null : formatAverage(input.bestAvgHitsPerVisit),
+      input.bestAvgHitsPerVisitSource ?? null,
     ),
   }),
 ]

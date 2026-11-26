@@ -121,20 +121,28 @@ describe('bigNumbersVisitStats', () => {
     )
 
     expect(completed).toEqual({
+      requiredHits: 2,
       visitCount: 2,
+      stepBackCount: 0,
       avgHitsPerVisit: 2,
-      hitRate: (4 / 6) * 100,
       completed: true,
     })
 
     const early = computeBigNumbersSingleSessionStats(
-      session([visit({ hitCount: 1, scoreBefore: 1, scoreAfter: 1, advanced: false })], true),
+      session(
+        [
+          visit({ hitCount: 1, scoreBefore: 1, scoreAfter: 1, advanced: false }),
+          visit({ hitCount: 0, scoreBefore: 3, scoreAfter: 2, advanced: false }),
+        ],
+        true,
+      ),
     )
 
     expect(early).toMatchObject({
-      visitCount: 1,
-      avgHitsPerVisit: 1,
-      hitRate: (1 / 3) * 100,
+      requiredHits: 2,
+      visitCount: 2,
+      stepBackCount: 1,
+      avgHitsPerVisit: 0.5,
       completed: false,
     })
   })
@@ -163,7 +171,7 @@ describe('bigNumbersVisitStats', () => {
 })
 
 describe('computeBigNumbersSummary', () => {
-  it('pools every required-hits variant into one hit rate', () => {
+  it('pools every required-hits variant into one hits-per-visit average', () => {
     const twoHits = {
       ...session([visit({ hitCount: 3, scoreBefore: 1, scoreAfter: 2, advanced: true })]),
       id: 'two',
@@ -177,16 +185,17 @@ describe('computeBigNumbersSummary', () => {
     const summary = computeBigNumbersSummary([twoHits, oneHit])
 
     expect(summary.gameCount).toBe(2)
-    expect(summary.hitRate).toBe(50)
-    expect(summary.bestHitRate).toBe(100)
+    expect(summary.avgHitsPerVisit).toBe(1.5)
+    expect(summary.bestAvgHitsPerVisit).toBe(3)
+    expect(summary.bestAvgHitsPerVisitSessionId).toBe('two')
   })
 
   it('returns empty values without games', () => {
     expect(computeBigNumbersSummary([])).toEqual({
       gameCount: 0,
-      hitRate: null,
-      bestHitRate: null,
-      bestHitRateSessionId: null,
+      avgHitsPerVisit: null,
+      bestAvgHitsPerVisit: null,
+      bestAvgHitsPerVisitSessionId: null,
     })
   })
 })

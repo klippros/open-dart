@@ -36,8 +36,11 @@ export type {
   HunterSingleSessionStats,
 } from './hunterVisitStats.ts'
 export {
-  getBigNumbersHitRate,
+  getBigNumbersAvgHitsPerVisit,
+  getBigNumbersBestSessionAvgHitsPerVisit,
   getBigNumbersBestSessionHitRate,
+  getBigNumbersHitRate,
+  getBigNumbersSessionAvgHitsPerVisit,
   getBigNumbersSessionHitRate,
 } from './bigNumbersVisitStats.ts'
 export { getBestThreeDartAverageLeg } from './visitStats.ts'
