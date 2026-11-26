@@ -31,7 +31,7 @@ export const MarketingHero = () => (
     <Box h={MARKETING_SECTION_GAP} flexShrink={0} aria-hidden="true" />
 
     {/* Board vertical center aligns with the CTA */}
-    <Box position="relative" w="full" display="flex" justifyContent="center" overflow="visible">
+    <Box position="relative" w="full" display="flex" justifyContent="center">
       <MarketingDartBoardGraphic />
       <Button
         asChild
@@ -52,7 +52,7 @@ export const MarketingHero = () => (
     </Box>
 
     {/* Gap between CTA and modes — 99 Darts vertical center */}
-    <Box position="relative" w="full" h={MARKETING_SECTION_GAP} flexShrink={0} overflow="visible">
+    <Box position="relative" w="full" h={MARKETING_SECTION_GAP} flexShrink={0}>
       <MarketingNinetyNineGraphic />
     </Box>
   </Stack>

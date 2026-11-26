@@ -14,11 +14,13 @@ import { NinetyNineDartsDartPicker } from '../DartPicker/NinetyNineDartsDartPick
 import { SwipeTrailGraphic } from '../DartPicker/SwipeTrailGraphic'
 import {
   formatMarketingGraphicTransform,
+  MARKETING_GRAPHIC_MAX_WIDTH,
   MARKETING_GRAPHIC_OPACITY,
   MARKETING_NINETY_NINE_CENTER_INSET,
+  MARKETING_NINETY_NINE_LAYOUT_HEIGHT,
   MARKETING_NINETY_NINE_SCALE,
   MARKETING_NINETY_NINE_SHADOW,
-  MARKETING_NINETY_NINE_TRANSFORM,
+  MARKETING_NINETY_NINE_TRANSFORM_RESPONSIVE,
   MARKETING_NINETY_NINE_WIDTH,
 } from './marketingGraphicChrome'
 import { useMarketingGraphicTransformOptional } from './marketingGraphicTransformContext'
@@ -89,7 +91,7 @@ export const MarketingNinetyNineGraphic = () => {
   const live = useMarketingGraphicTransformOptional()
   const transform = live
     ? formatMarketingGraphicTransform(live.ninetyNine)
-    : MARKETING_NINETY_NINE_TRANSFORM
+    : MARKETING_NINETY_NINE_TRANSFORM_RESPONSIVE
 
   useEffect(() => {
     let frame = 0
@@ -160,20 +162,31 @@ export const MarketingNinetyNineGraphic = () => {
   return (
     <Box
       position="absolute"
-      top="72%"
+      top={{ base: '58%', md: '72%' }}
       left="50%"
-      marginLeft={`calc(-1 * ${MARKETING_NINETY_NINE_CENTER_INSET})`}
+      ml={{
+        base: `calc(-1 * ${MARKETING_NINETY_NINE_CENTER_INSET.base})`,
+        sm: `calc(-1 * ${MARKETING_NINETY_NINE_CENTER_INSET.sm})`,
+        md: `calc(-1 * ${MARKETING_NINETY_NINE_CENTER_INSET.md})`,
+      }}
       transform="translate(-100%, -50%)"
       w={MARKETING_NINETY_NINE_WIDTH}
-      maxW="calc(50% - 1.25rem)"
+      h={MARKETING_NINETY_NINE_LAYOUT_HEIGHT}
+      maxW={MARKETING_GRAPHIC_MAX_WIDTH}
       pointerEvents="none"
       aria-hidden="true"
       zIndex={0}
       style={{ perspective: '1200px' }}
     >
+      {/*
+        Scale does not affect layout. Absolute-position the full-size picker so the
+        shell only reserves the visual footprint after scaleY.
+      */}
       <Box
+        position="absolute"
+        top="50%"
+        right={0}
         w={`${PICKER_WIDTH}px`}
-        ml="auto"
         transform={MARKETING_NINETY_NINE_SCALE}
         transformOrigin="right center"
       >

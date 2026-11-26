@@ -18,8 +18,9 @@ import type { SwipeTrailPoint } from '../DartPicker/visitOutcomeSwipe/buildVisit
 import {
   formatMarketingGraphicTransform,
   MARKETING_BOARD_SHADOW,
-  MARKETING_BOARD_TRANSFORM,
+  MARKETING_BOARD_TRANSFORM_RESPONSIVE,
   MARKETING_GRAPHIC_CENTER_INSET,
+  MARKETING_GRAPHIC_MAX_WIDTH,
   MARKETING_GRAPHIC_OPACITY,
   MARKETING_GRAPHIC_WIDTH,
 } from './marketingGraphicChrome'
@@ -89,7 +90,9 @@ const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 
 export const MarketingDartBoardGraphic = () => {
   const [demo, setDemo] = useState<BoardDemoState>(IDLE_DEMO)
   const live = useMarketingGraphicTransformOptional()
-  const transform = live ? formatMarketingGraphicTransform(live.board) : MARKETING_BOARD_TRANSFORM
+  const transform = live
+    ? formatMarketingGraphicTransform(live.board)
+    : MARKETING_BOARD_TRANSFORM_RESPONSIVE
 
   useEffect(() => {
     let frame = 0
@@ -142,7 +145,7 @@ export const MarketingDartBoardGraphic = () => {
       ml={MARKETING_GRAPHIC_CENTER_INSET}
       transform="translateY(-50%)"
       w={MARKETING_GRAPHIC_WIDTH}
-      maxW="calc(50% - 1.25rem)"
+      maxW={MARKETING_GRAPHIC_MAX_WIDTH}
       pointerEvents="none"
       aria-hidden="true"
       zIndex={0}

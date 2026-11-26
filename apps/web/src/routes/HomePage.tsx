@@ -35,9 +35,9 @@ export const HomePage = () => {
 
   const content = (
     <ContentContainer>
-      <Box py={{ base: 8, md: 10 }} pb={{ base: 12, md: 16 }} overflow="visible">
-        <Stack gap={MARKETING_SECTION_GAP} align="center" w="full" overflow="visible">
-          <Stack gap={0} align="center" w="full" overflow="visible">
+      <Box py={{ base: 8, md: 10 }} pb={{ base: 12, md: 16 }} overflowX="hidden">
+        <Stack gap={MARKETING_SECTION_GAP} align="center" w="full">
+          <Stack gap={0} align="center" w="full">
             <MarketingHero />
             <MarketingModesSection />
           </Stack>
