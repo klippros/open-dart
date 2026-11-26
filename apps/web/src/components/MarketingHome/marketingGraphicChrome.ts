@@ -1,9 +1,9 @@
 /**
  * Shared inset from the vertical center to each flank's near edge (symmetric).
- * Tight corridor by ~640px; opens to the desk flank by ~900px.
+ * Tight corridor by ~640px; keeps opening through wide containers up to ~1000px.
  */
 export const MARKETING_GRAPHIC_CENTER_INSET =
-  'clamp(2.25rem, calc(38.5vw - 13.13rem), 8.5rem)' as const
+  'clamp(2.25rem, calc(43.3vw - 15.08rem), 12rem)' as const
 
 /** On-page width for the dart board graphic — fixed; spills off-screen if needed. */
 export const MARKETING_GRAPHIC_WIDTH = '19.8rem' as const
